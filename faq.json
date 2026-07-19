@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "preguntas": [
+    {
+      "pregunta": "¿Cuánto tiempo tarda una invitación digital?",
+      "respuesta": "El tiempo habitual es de 3 a 7 días hábiles después de recibir toda la información y confirmar el diseño seleccionado."
+    },
+    {
+      "pregunta": "¿Puedo personalizar colores, textos y fotografías?",
+      "respuesta": "Sí. Adaptamos colores, tipografías, contenido, fotografías y secciones para que la invitación represente correctamente tu evento."
+    },
+    {
+      "pregunta": "¿La invitación funciona en cualquier celular?",
+      "respuesta": "Sí. Cada invitación se desarrolla con diseño responsive para funcionar correctamente en celulares, tabletas y computadoras modernas."
+    },
+    {
+      "pregunta": "¿Cómo reciben mis invitados la invitación?",
+      "respuesta": "Recibes un enlace privado y un código QR que puedes compartir por WhatsApp, correo electrónico, redes sociales o impresión."
+    },
+    {
+      "pregunta": "¿Puedo recibir confirmaciones de asistencia?",
+      "respuesta": "Sí. El sistema RSVP permite registrar respuestas y centralizar la información de asistencia de tus invitados."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "testimonios": [
+    {
+      "nombre": "Mariana & Diego",
+      "evento": "Boda",
+      "comentario": "La invitación se sintió totalmente nuestra. Fue elegante, fácil de compartir y todos nuestros invitados quedaron sorprendidos."
+    },
+    {
+      "nombre": "Familia Ramírez",
+      "evento": "XV años",
+      "comentario": "El diseño superó lo que imaginábamos. La cuenta regresiva y la galería hicieron que todo se sintiera mucho más especial."
+    },
+    {
+      "nombre": "Atelier Norte",
+      "evento": "Evento corporativo",
+      "comentario": "Necesitábamos una experiencia sobria y profesional. LN Studio entregó una solución impecable y muy clara para nuestros asistentes."
+    }
+  ]
+}

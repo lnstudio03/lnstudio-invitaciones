@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "plantillas": [
+    {
+      "id": "tpl-eterna-01",
+      "nombre": "Eterna Classic",
+      "categoria": "boda",
+      "estado": "activa",
+      "caracteristicas": ["cuenta_regresiva", "rsvp", "mapa", "galeria", "musica"]
+    },
+    {
+      "id": "tpl-aurora-01",
+      "nombre": "Aurora Rose",
+      "categoria": "xv",
+      "estado": "activa",
+      "caracteristicas": ["cuenta_regresiva", "rsvp", "mapa", "galeria", "video"]
+    },
+    {
+      "id": "tpl-signature-01",
+      "nombre": "Signature Black",
+      "categoria": "corporativo",
+      "estado": "activa",
+      "caracteristicas": ["agenda", "registro", "mapa", "qr"]
+    }
+  ]
+}

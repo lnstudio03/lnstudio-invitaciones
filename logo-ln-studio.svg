@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="112" viewBox="0 0 420 112" role="img" aria-labelledby="title desc">
+  <title id="title">LN Studio</title>
+  <desc id="desc">Logotipo dorado minimalista de LN Studio</desc>
+  <rect width="420" height="112" fill="none"/>
+  <g fill="none" stroke="#D8BB78" stroke-width="2.2">
+    <rect x="4" y="4" width="92" height="92" rx="46"/>
+    <path d="M28 72V28h8v36h20v8H28Z" fill="#D8BB78" stroke="none"/>
+    <path d="M58 72V28h7l18 28V28h8v44h-7L66 44v28h-8Z" fill="#D8BB78" stroke="none"/>
+  </g>
+  <text x="118" y="58" fill="#F7F3EA" font-family="Georgia, serif" font-size="39" letter-spacing="2">LN STUDIO</text>
+  <text x="120" y="82" fill="#C9A55C" font-family="Arial, sans-serif" font-size="10" letter-spacing="5">INVITACIONES DIGITALES</text>
+</svg>

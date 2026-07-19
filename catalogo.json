@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "colecciones": [
+    {
+      "id": "eterna",
+      "nombre": "Eterna",
+      "categoria": "Boda",
+      "descripcion": "Negro profundo, dorado cálido y una composición editorial sofisticada.",
+      "fondo": "radial-gradient(circle at 70% 18%, rgba(231,207,150,.35), transparent 20%), linear-gradient(145deg, #57472e, #100d08 62%, #050505)"
+    },
+    {
+      "id": "aurora",
+      "nombre": "Aurora",
+      "categoria": "XV años",
+      "descripcion": "Una propuesta luminosa con acentos delicados y movimiento elegante.",
+      "fondo": "radial-gradient(circle at 30% 20%, rgba(255,255,255,.38), transparent 20%), linear-gradient(145deg, #9c7d74, #3b2830 60%, #0a0809)"
+    },
+    {
+      "id": "monograma",
+      "nombre": "Monograma",
+      "categoria": "Evento especial",
+      "descripcion": "Minimalismo arquitectónico, tipografía protagonista y detalles atemporales.",
+      "fondo": "linear-gradient(135deg, rgba(201,165,92,.22) 1px, transparent 1px), linear-gradient(45deg, #181818, #050505); background-size: 32px 32px, auto"
+    },
+    {
+      "id": "jardin",
+      "nombre": "Jardín",
+      "categoria": "Bautizo",
+      "descripcion": "Tonos naturales y una estética serena inspirada en celebraciones al aire libre.",
+      "fondo": "radial-gradient(circle at 50% 30%, rgba(242,235,211,.3), transparent 22%), linear-gradient(145deg, #5d6551, #1b211a 60%, #080a08)"
+    },
+    {
+      "id": "nocturna",
+      "nombre": "Nocturna",
+      "categoria": "Cumpleaños",
+      "descripcion": "Contrastes intensos y destellos metálicos para una celebración contemporánea.",
+      "fondo": "radial-gradient(circle at 75% 20%, rgba(201,165,92,.3), transparent 22%), linear-gradient(145deg, #25202e, #0b0910 60%, #050505)"
+    },
+    {
+      "id": "signature",
+      "nombre": "Signature",
+      "categoria": "Corporativo",
+      "descripcion": "Precisión visual y una presencia impecable para eventos de marca.",
+      "fondo": "linear-gradient(120deg, rgba(255,255,255,.08), transparent 38%), linear-gradient(145deg, #1d2930, #0b1114 58%, #050505)"
+    }
+  ]
+}
