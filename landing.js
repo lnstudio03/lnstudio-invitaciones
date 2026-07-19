@@ -33,7 +33,7 @@ export async function renderCollections() {
   if (!grid) return;
 
   try {
-    const data = await fetchJson("data/catalogo.json");
+    const data = await fetchJson("catalogo.json");
     const collections = Array.isArray(data.colecciones) ? data.colecciones.slice(0, 6) : [];
 
     grid.innerHTML = collections
@@ -59,7 +59,7 @@ export async function renderTestimonials() {
   if (!grid) return;
 
   try {
-    const data = await fetchJson("data/testimonials.json");
+    const data = await fetchJson("testimonials.json");
     const testimonials = Array.isArray(data.testimonios) ? data.testimonios : [];
 
     grid.innerHTML = testimonials
@@ -86,7 +86,7 @@ export async function renderFaq() {
   if (!list) return;
 
   try {
-    const data = await fetchJson("data/faq.json");
+    const data = await fetchJson("faq.json");
     const questions = Array.isArray(data.preguntas) ? data.preguntas : [];
 
     list.innerHTML = questions
