@@ -1,18 +1,87 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex">
-  <title>Módulo en preparación | LN Studio</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Contacto | LN Studio</title>
+  <meta name="description" content="Contacta a LN Studio para diseñar tu invitación digital o experiencia para eventos.">
+  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0b0b">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+
 </head>
-<body style="display:grid;min-height:100svh;place-items:center;background:#080808;color:#fff;text-align:center">
-  <main class="container">
-    <p class="eyebrow">LN Studio</p>
-    <h1 style="font-size:clamp(2.5rem,7vw,5rem)">Módulo en preparación</h1>
-    <p style="color:rgba(255,255,255,.65)">Esta sección se habilitará en la entrega correspondiente.</p>
-    <a class="button" href="index.html">Volver al inicio</a>
+<body>
+  
+<header class="site-header" id="top">
+  <a class="brand" href="index.html" aria-label="Ir al inicio de LN Studio">
+    <img src="logo.png" alt="Escudo oficial de LN Studio" width="52" height="70">
+    <span><strong>LN</strong><small>Studio</small></span>
+  </a>
+  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">
+    <span></span><span></span><span></span><span class="sr-only">Abrir menú</span>
+  </button>
+  <nav id="main-navigation" class="main-navigation" aria-label="Navegación principal">
+    <a href="index.html">Inicio</a>
+    <a href="catalogo.html">Colecciones</a>
+    <a href="index.html#servicios">Servicios</a>
+    <a href="contacto.html">Contacto</a>
+    <a class="button button-small button-outline" href="cotizar.html">Cotizar</a>
+  </nav>
+</header>
+
+  <main>
+    <section class="page-hero contact-hero">
+      <p class="eyebrow">Contacto</p>
+      <h1>Conversemos sobre<br><em>tu próxima historia.</em></h1>
+      <p>Cuéntanos qué estás planeando. Te responderemos por correo para conocer los detalles.</p>
+    </section>
+    <section class="contact-layout section">
+      <div class="contact-details reveal">
+        <p class="eyebrow">LN Studio</p>
+        <h2>Estamos listos para escucharte.</h2>
+        <a href="mailto:lnstudio.eventos@gmail.com">lnstudio.eventos@gmail.com</a>
+        <a href="https://www.instagram.com/lnstudio.invitaciones/" target="_blank" rel="noopener noreferrer">@lnstudio.invitaciones</a>
+        <p class="muted">La atención y los tiempos de respuesta se acuerdan directamente por correo o Instagram.</p>
+      </div>
+      <form id="contact-form" class="premium-form reveal">
+        <label>Nombre completo<input name="nombre" type="text" autocomplete="name" required></label>
+        <label>Correo electrónico<input name="correo" type="email" autocomplete="email" required></label>
+        <label>Tipo de evento<select name="evento" required><option value="">Selecciona una opción</option><option>Boda</option><option>XV años</option><option>Cumpleaños</option><option>Bautizo</option><option>Baby Shower</option><option>Gender Reveal</option><option>Graduación</option><option>Aniversario</option><option>Evento empresarial</option><option>Otro</option></select></label>
+        <label>Mensaje<textarea name="mensaje" rows="6" required placeholder="Cuéntanos sobre tu fecha, estilo y lo que tienes en mente."></textarea></label>
+        <button class="button" type="submit">Preparar correo</button>
+        <p class="form-note">Al continuar se abrirá tu aplicación de correo con el mensaje preparado para LN Studio.</p>
+      </form>
+    </section>
   </main>
+  
+<footer class="site-footer">
+  <div>
+    <a class="footer-brand" href="index.html">
+      <img src="logo.png" alt="" width="50" height="68">
+      <span>LN Studio</span>
+    </a>
+    <p>Creamos experiencias que cuentan historias.</p>
+  </div>
+  <div>
+    <strong>Contacto</strong>
+    <a href="mailto:lnstudio.eventos@gmail.com">lnstudio.eventos@gmail.com</a>
+    <a href="https://www.instagram.com/lnstudio.invitaciones/" target="_blank" rel="noopener noreferrer">@lnstudio.invitaciones</a>
+  </div>
+  <div>
+    <strong>Explorar</strong>
+    <a href="catalogo.html">Colecciones</a>
+    <a href="cotizar.html">Solicitar cotización</a>
+    <a href="contacto.html">Contacto</a>
+  </div>
+  <p class="footer-bottom">© <span data-current-year></span> LN Studio. Todos los derechos reservados.</p>
+</footer>
+
 </body>
 </html>

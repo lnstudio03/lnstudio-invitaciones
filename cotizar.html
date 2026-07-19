@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <title>Solicitar cotización | LN Studio</title>
+  <meta name="description" content="Solicita una cotización personalizada para tu invitación digital con LN Studio.">
+  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0b0b">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+
+</head>
+<body class="quote-page">
+  
+<header class="site-header" id="top">
+  <a class="brand" href="index.html" aria-label="Ir al inicio de LN Studio">
+    <img src="logo.png" alt="Escudo oficial de LN Studio" width="52" height="70">
+    <span><strong>LN</strong><small>Studio</small></span>
+  </a>
+  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">
+    <span></span><span></span><span></span><span class="sr-only">Abrir menú</span>
+  </button>
+  <nav id="main-navigation" class="main-navigation" aria-label="Navegación principal">
+    <a href="index.html">Inicio</a>
+    <a href="catalogo.html">Colecciones</a>
+    <a href="index.html#servicios">Servicios</a>
+    <a href="contacto.html">Contacto</a>
+    <a class="button button-small button-outline" href="cotizar.html">Cotizar</a>
+  </nav>
+</header>
+
+  <main>
+    <section class="quote-shell">
+      <div class="quote-intro">
+        <p class="eyebrow">Cotización personalizada</p>
+        <h1>Cuéntanos la historia que estás por celebrar.</h1>
+        <p>Completa este breve recorrido. Al finalizar, prepararemos un correo con toda tu información dirigido a LN Studio.</p>
+        <div class="progress-track"><span id="quote-progress"></span></div>
+        <small id="quote-step-label">Paso 1 de 5</small>
+      </div>
+      <form id="quote-form" class="quote-form">
+        <fieldset class="quote-step active" data-step="1">
+          <legend>¿Qué vas a celebrar?</legend>
+          <div class="choice-grid">
+            <label><input type="radio" name="evento" value="Boda" required><span>Boda</span></label>
+            <label><input type="radio" name="evento" value="XV años"><span>XV años</span></label>
+            <label><input type="radio" name="evento" value="Cumpleaños"><span>Cumpleaños</span></label>
+            <label><input type="radio" name="evento" value="Bautizo"><span>Bautizo</span></label>
+            <label><input type="radio" name="evento" value="Baby Shower"><span>Baby Shower</span></label>
+            <label><input type="radio" name="evento" value="Gender Reveal"><span>Gender Reveal</span></label>
+            <label><input type="radio" name="evento" value="Graduación"><span>Graduación</span></label>
+            <label><input type="radio" name="evento" value="Evento empresarial"><span>Empresarial</span></label>
+            <label><input type="radio" name="evento" value="Otro"><span>Otro</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="quote-step" data-step="2">
+          <legend>¿Cuándo será y cuántos invitados esperas?</legend>
+          <div class="form-two-columns">
+            <label>Fecha del evento<input type="date" name="fecha" required></label>
+            <label>Número aproximado de invitados<input type="number" name="invitados" min="1" max="10000" required placeholder="Ej. 150"></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="quote-step" data-step="3">
+          <legend>¿Qué estilo imaginas?</legend>
+          <div class="choice-grid">
+            <label><input type="radio" name="estilo" value="Minimalista" required><span>Minimalista</span></label>
+            <label><input type="radio" name="estilo" value="Elegante"><span>Elegante</span></label>
+            <label><input type="radio" name="estilo" value="Floral"><span>Floral</span></label>
+            <label><input type="radio" name="estilo" value="Luxury"><span>Luxury</span></label>
+            <label><input type="radio" name="estilo" value="Moderno"><span>Moderno</span></label>
+            <label><input type="radio" name="estilo" value="Oscuro"><span>Oscuro</span></label>
+            <label><input type="radio" name="estilo" value="Personalizado"><span>Personalizado</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="quote-step" data-step="4">
+          <legend>¿Qué funciones te interesan?</legend>
+          <div class="choice-grid choice-grid-checkbox">
+            <label><input type="checkbox" name="funciones" value="Cuenta regresiva"><span>Cuenta regresiva</span></label>
+            <label><input type="checkbox" name="funciones" value="Música"><span>Música</span></label>
+            <label><input type="checkbox" name="funciones" value="Google Maps"><span>Google Maps</span></label>
+            <label><input type="checkbox" name="funciones" value="RSVP"><span>Confirmación RSVP</span></label>
+            <label><input type="checkbox" name="funciones" value="Galería"><span>Galería</span></label>
+            <label><input type="checkbox" name="funciones" value="Código QR"><span>Código QR</span></label>
+            <label><input type="checkbox" name="funciones" value="Pases digitales"><span>Pases digitales</span></label>
+            <label><input type="checkbox" name="funciones" value="Mesa de regalos"><span>Mesa de regalos</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="quote-step" data-step="5">
+          <legend>¿Cómo podemos contactarte?</legend>
+          <div class="form-two-columns">
+            <label>Nombre completo<input type="text" name="nombre" autocomplete="name" required></label>
+            <label>Correo electrónico<input type="email" name="correo" autocomplete="email" required></label>
+            <label>WhatsApp<input type="tel" name="whatsapp" autocomplete="tel" required placeholder="Incluye lada"></label>
+            <label>Ciudad<input type="text" name="ciudad" autocomplete="address-level2" required></label>
+          </div>
+          <label>Detalles adicionales<textarea name="detalles" rows="5" placeholder="Colores, temática, referencias o cualquier detalle importante."></textarea></label>
+        </fieldset>
+
+        <div class="quote-actions">
+          <button type="button" id="quote-back" class="button button-ghost" hidden>Anterior</button>
+          <button type="button" id="quote-next" class="button">Continuar</button>
+          <button type="submit" id="quote-submit" class="button" hidden>Preparar solicitud</button>
+        </div>
+        <p id="quote-status" class="form-note" role="status"></p>
+      </form>
+    </section>
+  </main>
+  
+<footer class="site-footer">
+  <div>
+    <a class="footer-brand" href="index.html">
+      <img src="logo.png" alt="" width="50" height="68">
+      <span>LN Studio</span>
+    </a>
+    <p>Creamos experiencias que cuentan historias.</p>
+  </div>
+  <div>
+    <strong>Contacto</strong>
+    <a href="mailto:lnstudio.eventos@gmail.com">lnstudio.eventos@gmail.com</a>
+    <a href="https://www.instagram.com/lnstudio.invitaciones/" target="_blank" rel="noopener noreferrer">@lnstudio.invitaciones</a>
+  </div>
+  <div>
+    <strong>Explorar</strong>
+    <a href="catalogo.html">Colecciones</a>
+    <a href="cotizar.html">Solicitar cotización</a>
+    <a href="contacto.html">Contacto</a>
+  </div>
+  <p class="footer-bottom">© <span data-current-year></span> LN Studio. Todos los derechos reservados.</p>
+</footer>
+
+</body>
+</html>

@@ -1,47 +1,58 @@
-{
-  "version": 1,
-  "colecciones": [
-    {
-      "id": "eterna",
-      "nombre": "Eterna",
-      "categoria": "Boda",
-      "descripcion": "Negro profundo, dorado cálido y una composición editorial sofisticada.",
-      "fondo": "radial-gradient(circle at 70% 18%, rgba(231,207,150,.35), transparent 20%), linear-gradient(145deg, #57472e, #100d08 62%, #050505)"
-    },
-    {
-      "id": "aurora",
-      "nombre": "Aurora",
-      "categoria": "XV años",
-      "descripcion": "Una propuesta luminosa con acentos delicados y movimiento elegante.",
-      "fondo": "radial-gradient(circle at 30% 20%, rgba(255,255,255,.38), transparent 20%), linear-gradient(145deg, #9c7d74, #3b2830 60%, #0a0809)"
-    },
-    {
-      "id": "monograma",
-      "nombre": "Monograma",
-      "categoria": "Evento especial",
-      "descripcion": "Minimalismo arquitectónico, tipografía protagonista y detalles atemporales.",
-      "fondo": "linear-gradient(135deg, rgba(201,165,92,.22) 1px, transparent 1px), linear-gradient(45deg, #181818, #050505); background-size: 32px 32px, auto"
-    },
-    {
-      "id": "jardin",
-      "nombre": "Jardín",
-      "categoria": "Bautizo",
-      "descripcion": "Tonos naturales y una estética serena inspirada en celebraciones al aire libre.",
-      "fondo": "radial-gradient(circle at 50% 30%, rgba(242,235,211,.3), transparent 22%), linear-gradient(145deg, #5d6551, #1b211a 60%, #080a08)"
-    },
-    {
-      "id": "nocturna",
-      "nombre": "Nocturna",
-      "categoria": "Cumpleaños",
-      "descripcion": "Contrastes intensos y destellos metálicos para una celebración contemporánea.",
-      "fondo": "radial-gradient(circle at 75% 20%, rgba(201,165,92,.3), transparent 22%), linear-gradient(145deg, #25202e, #0b0910 60%, #050505)"
-    },
-    {
-      "id": "signature",
-      "nombre": "Signature",
-      "categoria": "Corporativo",
-      "descripcion": "Precisión visual y una presencia impecable para eventos de marca.",
-      "fondo": "linear-gradient(120deg, rgba(255,255,255,.08), transparent 38%), linear-gradient(145deg, #1d2930, #0b1114 58%, #050505)"
-    }
-  ]
-}
+[
+  {
+    "nombre": "Éternité",
+    "categoria": "boda",
+    "etiqueta": "Boda · Editorial",
+    "descripcion": "Negro, marfil y dorado para una celebración de elegancia atemporal.",
+    "fondo": "radial-gradient(circle at 75% 20%, rgba(209,166,78,.7), transparent 28%), linear-gradient(135deg,#070707,#302313)"
+  },
+  {
+    "nombre": "Jardín de Luz",
+    "categoria": "boda",
+    "etiqueta": "Boda · Floral",
+    "descripcion": "Composición luminosa, delicada y orgánica para ceremonias románticas.",
+    "fondo": "radial-gradient(circle at 25% 25%, #f5dac7, transparent 38%), linear-gradient(135deg,#8c6c5b,#e8d9cb)"
+  },
+  {
+    "nombre": "Éclat",
+    "categoria": "xv",
+    "etiqueta": "XV años · Luxury",
+    "descripcion": "Una experiencia brillante, moderna y sofisticada para una noche inolvidable.",
+    "fondo": "radial-gradient(circle at 70% 20%, #d6ad61, transparent 25%), linear-gradient(140deg,#291c35,#08070b)"
+  },
+  {
+    "nombre": "Celestial",
+    "categoria": "xv",
+    "etiqueta": "XV años · Nocturna",
+    "descripcion": "Azules profundos y destellos sutiles inspirados en el cielo de medianoche.",
+    "fondo": "radial-gradient(circle at 70% 30%, #5478a6, transparent 23%), linear-gradient(145deg,#080d18,#111e33)"
+  },
+  {
+    "nombre": "Alba",
+    "categoria": "social",
+    "etiqueta": "Social · Minimalista",
+    "descripcion": "Claridad, tipografía editorial y una paleta serena para celebrar con sutileza.",
+    "fondo": "linear-gradient(135deg,#ddd1bf,#f9f6ef 55%,#bb9660)"
+  },
+  {
+    "nombre": "Bloom",
+    "categoria": "social",
+    "etiqueta": "Social · Contemporánea",
+    "descripcion": "Color, movimiento y una narrativa fresca para momentos llenos de vida.",
+    "fondo": "radial-gradient(circle at 20% 20%, #efb7bd, transparent 35%), linear-gradient(135deg,#87515b,#271820)"
+  },
+  {
+    "nombre": "Signature",
+    "categoria": "corporativo",
+    "etiqueta": "Empresarial · Premium",
+    "descripcion": "Presencia ejecutiva y estructura clara para lanzamientos, cenas y presentaciones.",
+    "fondo": "linear-gradient(135deg,#111,#3b3b3b 55%,#9b772f)"
+  },
+  {
+    "nombre": "Maison",
+    "categoria": "corporativo",
+    "etiqueta": "Empresarial · Editorial",
+    "descripcion": "Minimalismo arquitectónico para marcas que cuidan cada punto de contacto.",
+    "fondo": "linear-gradient(145deg,#e4dfd4,#8b7b63 60%,#171717)"
+  }
+]

@@ -1,1 +1,4 @@
-/* /404.html 404
+/inicio /index.html 301
+/colecciones /catalogo.html 301
+/cotizar /cotizar.html 301
+/contacto /contacto.html 301

@@ -1,18 +1,87 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex">
-  <title>Módulo en preparación | LN Studio</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Colecciones | LN Studio</title>
+  <meta name="description" content="Explora las colecciones editoriales de invitaciones digitales de LN Studio.">
+  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0b0b">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+
 </head>
-<body style="display:grid;min-height:100svh;place-items:center;background:#080808;color:#fff;text-align:center">
-  <main class="container">
-    <p class="eyebrow">LN Studio</p>
-    <h1 style="font-size:clamp(2.5rem,7vw,5rem)">Módulo en preparación</h1>
-    <p style="color:rgba(255,255,255,.65)">Esta sección se habilitará en la entrega correspondiente.</p>
-    <a class="button" href="index.html">Volver al inicio</a>
+<body>
+  
+<header class="site-header" id="top">
+  <a class="brand" href="index.html" aria-label="Ir al inicio de LN Studio">
+    <img src="logo.png" alt="Escudo oficial de LN Studio" width="52" height="70">
+    <span><strong>LN</strong><small>Studio</small></span>
+  </a>
+  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">
+    <span></span><span></span><span></span><span class="sr-only">Abrir menú</span>
+  </button>
+  <nav id="main-navigation" class="main-navigation" aria-label="Navegación principal">
+    <a href="index.html">Inicio</a>
+    <a href="catalogo.html">Colecciones</a>
+    <a href="index.html#servicios">Servicios</a>
+    <a href="contacto.html">Contacto</a>
+    <a class="button button-small button-outline" href="cotizar.html">Cotizar</a>
+  </nav>
+</header>
+
+  <main>
+    <section class="page-hero">
+      <p class="eyebrow">Colecciones</p>
+      <h1>Ideas que inspiran.<br><em>Historias que se transforman.</em></h1>
+      <p>Cada colección funciona como punto de partida. Colores, textos y detalles se adaptan a tu celebración.</p>
+    </section>
+    <section class="catalog-section section">
+      <div class="filter-bar" role="group" aria-label="Filtrar colecciones">
+        <button class="filter-button active" data-filter="todos">Todas</button>
+        <button class="filter-button" data-filter="boda">Bodas</button>
+        <button class="filter-button" data-filter="xv">XV años</button>
+        <button class="filter-button" data-filter="social">Sociales</button>
+        <button class="filter-button" data-filter="corporativo">Empresariales</button>
+      </div>
+      <div id="catalog-grid" class="catalog-grid" aria-live="polite"></div>
+      <noscript><p>Activa JavaScript para explorar las colecciones.</p></noscript>
+    </section>
+    <section class="catalog-note section section-dark">
+      <p class="eyebrow">Diseño a medida</p>
+      <h2>¿No encontraste exactamente lo que imaginabas?</h2>
+      <p>Podemos construir una dirección visual completamente personalizada.</p>
+      <a class="button" href="cotizar.html">Contarnos tu idea</a>
+    </section>
   </main>
+  
+<footer class="site-footer">
+  <div>
+    <a class="footer-brand" href="index.html">
+      <img src="logo.png" alt="" width="50" height="68">
+      <span>LN Studio</span>
+    </a>
+    <p>Creamos experiencias que cuentan historias.</p>
+  </div>
+  <div>
+    <strong>Contacto</strong>
+    <a href="mailto:lnstudio.eventos@gmail.com">lnstudio.eventos@gmail.com</a>
+    <a href="https://www.instagram.com/lnstudio.invitaciones/" target="_blank" rel="noopener noreferrer">@lnstudio.invitaciones</a>
+  </div>
+  <div>
+    <strong>Explorar</strong>
+    <a href="catalogo.html">Colecciones</a>
+    <a href="cotizar.html">Solicitar cotización</a>
+    <a href="contacto.html">Contacto</a>
+  </div>
+  <p class="footer-bottom">© <span data-current-year></span> LN Studio. Todos los derechos reservados.</p>
+</footer>
+
 </body>
 </html>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lnstudio-invitaciones.pages.dev/sitemap.xml

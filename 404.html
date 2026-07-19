@@ -1,25 +1,70 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex">
   <title>Página no encontrada | LN Studio</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body { display:grid; min-height:100svh; place-items:center; color:#fff; background:#080808; text-align:center; }
-    main { width:min(680px, calc(100% - 32px)); }
-    strong { display:block; color:#c9a55c; font:500 clamp(5rem,18vw,11rem)/1 Georgia,serif; }
-    p { color:rgba(255,255,255,.65); }
-  </style>
+  <meta name="robots" content="noindex">
+  
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0b0b">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+
 </head>
 <body>
-  <main>
-    <strong>404</strong>
-    <h1>Esta página no existe.</h1>
-    <p>El enlace puede haber cambiado o la dirección fue escrita incorrectamente.</p>
+  
+<header class="site-header" id="top">
+  <a class="brand" href="index.html" aria-label="Ir al inicio de LN Studio">
+    <img src="logo.png" alt="Escudo oficial de LN Studio" width="52" height="70">
+    <span><strong>LN</strong><small>Studio</small></span>
+  </a>
+  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">
+    <span></span><span></span><span></span><span class="sr-only">Abrir menú</span>
+  </button>
+  <nav id="main-navigation" class="main-navigation" aria-label="Navegación principal">
+    <a href="index.html">Inicio</a>
+    <a href="catalogo.html">Colecciones</a>
+    <a href="index.html#servicios">Servicios</a>
+    <a href="contacto.html">Contacto</a>
+    <a class="button button-small button-outline" href="cotizar.html">Cotizar</a>
+  </nav>
+</header>
+
+  <main class="error-page">
+    <img src="logo.png" alt="" width="150" height="202">
+    <p class="eyebrow">Error 404</p>
+    <h1>Esta historia aún no existe.</h1>
+    <p>La página que buscas cambió de dirección o todavía no ha sido publicada.</p>
     <a class="button" href="index.html">Volver al inicio</a>
   </main>
+  
+<footer class="site-footer">
+  <div>
+    <a class="footer-brand" href="index.html">
+      <img src="logo.png" alt="" width="50" height="68">
+      <span>LN Studio</span>
+    </a>
+    <p>Creamos experiencias que cuentan historias.</p>
+  </div>
+  <div>
+    <strong>Contacto</strong>
+    <a href="mailto:lnstudio.eventos@gmail.com">lnstudio.eventos@gmail.com</a>
+    <a href="https://www.instagram.com/lnstudio.invitaciones/" target="_blank" rel="noopener noreferrer">@lnstudio.invitaciones</a>
+  </div>
+  <div>
+    <strong>Explorar</strong>
+    <a href="catalogo.html">Colecciones</a>
+    <a href="cotizar.html">Solicitar cotización</a>
+    <a href="contacto.html">Contacto</a>
+  </div>
+  <p class="footer-bottom">© <span data-current-year></span> LN Studio. Todos los derechos reservados.</p>
+</footer>
+
 </body>
 </html>
