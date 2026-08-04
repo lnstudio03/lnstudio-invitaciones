@@ -1,31 +1,23 @@
-LN STUDIO · VERSIÓN CONECTADA A SUPABASE
+LN STUDIO v2.3 — CLOUDFLARE PAGES + SUPABASE
 
-Project URL configurada:
-https://kdaxxmszehjwcqpuzkki.supabase.co
+CORRECCIÓN PRINCIPAL
+- Se eliminaron _redirects y wrangler.jsonc porque juntos generaban ERR_TOO_MANY_REDIRECTS en catalogo.html.
+- El proyecto funciona como sitio estático directo desde la raíz de Cloudflare Pages.
 
-Publishable key configurada:
-sb_publishable_UpGMapFj20qOKGOCxg1GsQ_PqPrXZXr
+CONFIGURACIÓN DE CLOUDFLARE PAGES
+- Build command: vacío
+- Build output directory: .
+- Root directory: /
 
-IMPORTANTE:
-1. Sube todos los archivos del ZIP a la raíz del repositorio.
-2. En Supabase, ejecuta supabase.sql una sola vez si todavía no lo hiciste.
-3. Crea el usuario administrador en Authentication > Users.
-4. Ejecuta supabase-admin.sql después de crear ese usuario.
-5. Abre invitacion.html?modelo=aniversario-fantasmas para probar el RSVP.
-6. Abre admin.html para iniciar sesión y revisar respuestas.
+PRUEBAS
+1. Abrir index.html o el dominio principal.
+2. Abrir catalogo.html.
+3. Abrir invitacion.html?modelo=aniversario-fantasmas.
+4. Abrir admin.html.
 
-RUTAS REVISADAS:
-- index.html
-- catalogo.html
-- invitacion.html?modelo=aniversario-fantasmas
-- admin.html
-- contacto.html
-- cotizar.html
-- clientes.html
-- configuracion.html
-- login.html
-- pedidos.html
-- plantillas.html
-- 404.html
+SUPABASE YA CONFIGURADO
+Project URL: https://kdaxxmszehjwcqpuzkki.supabase.co
+La publishable key ya está guardada en supabase.js.
 
-No se detectaron referencias locales faltantes en HTML, CSS, JavaScript, imágenes o JSON.
+IMPORTANTE
+Ejecutar supabase.sql y después supabase-admin.sql en el SQL Editor de Supabase.
