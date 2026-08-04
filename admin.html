@@ -1,72 +1,11 @@
-<!DOCTYPE html>
-<html lang="es-MX">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#080808">
-  <title>Control de asistencia | LN Studio</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="dashboard.css">
-  <script type="module" src="dashboard.js"></script>
-</head>
-<body>
-  <main class="admin-shell">
-    <div class="admin-login" data-login-view>
-      <div class="login-brand"><img src="logo.png" alt="LN Studio"><span>LN Studio</span></div>
-      <p class="admin-eyebrow">Acceso administrativo</p>
-      <h1>Control de asistencia</h1>
-      <p data-login-copy>Ingresa el PIN local para consultar las respuestas registradas en este navegador.</p>
-      <form id="admin-login-form" class="login-form">
-        <label data-email-field hidden>Correo administrativo<input type="email" name="email" autocomplete="username" placeholder="correo@dominio.com"></label>
-        <label data-password-label>PIN de acceso<input type="password" name="password" autocomplete="current-password" required placeholder="••••••"></label>
-        <button type="submit">Entrar al panel</button>
-        <p id="login-status" role="status" aria-live="polite"></p>
-      </form>
-      <a href="invitacion.html?modelo=aniversario-fantasmas">← Volver a la invitación</a>
-    </div>
-
-    <div class="admin-app" data-admin-view hidden>
-      <header class="admin-header">
-        <div class="admin-brand"><img src="logo.png" alt=""><div><span>LN Studio</span><small>Control de asistencia</small></div></div>
-        <div class="admin-header-actions"><span class="mode-badge" data-mode>Modo local</span><button type="button" class="ghost-button" data-refresh>Actualizar</button><button type="button" class="ghost-button" data-logout>Salir</button></div>
-      </header>
-
-      <div class="admin-intro">
-        <div><p class="admin-eyebrow">Evento activo</p><h1>Primer aniversario Fantasmas</h1><p>Respuestas, acompañantes y registro de llegada en un solo lugar.</p></div>
-        <div class="intro-actions"><a href="invitacion.html?modelo=aniversario-fantasmas" target="_blank">Abrir invitación</a><button type="button" data-export>Exportar CSV</button></div>
-      </div>
-
-      <div class="metrics-grid">
-        <article><span>Respuestas</span><strong data-metric-total>0</strong><small>Registros recibidos</small></article>
-        <article><span>Asistentes</span><strong data-metric-guests>0</strong><small>Confirmados + acompañantes</small></article>
-        <article><span>No asistirán</span><strong data-metric-declined>0</strong><small>Respuestas negativas</small></article>
-        <article><span>Check-in</span><strong data-metric-checkin>0</strong><small>Personas que ya llegaron</small></article>
-      </div>
-
-      <div class="admin-controls">
-        <label>Buscar<input type="search" data-search placeholder="Nombre, teléfono o folio"></label>
-        <label>Evento<select data-event-filter><option value="todos">Todos los eventos</option><option value="aniversario-fantasmas">Aniversario Fantasmas</option></select></label>
-        <label>Respuesta<select data-status-filter><option value="todos">Todas</option><option value="confirmado">Confirmados</option><option value="no_asiste">No asistirán</option></select></label>
-        <label>Registro<select data-checkin-filter><option value="todos">Todos</option><option value="pendiente">Sin check-in</option><option value="registrado">Con check-in</option></select></label>
-      </div>
-
-      <div class="guest-table-wrap">
-        <table class="guest-table">
-          <thead><tr><th>Invitado</th><th>Respuesta</th><th>Acompañantes</th><th>Contacto</th><th>Registro</th><th></th></tr></thead>
-          <tbody data-table-body></tbody>
-        </table>
-        <div class="empty-state" data-empty hidden><strong>No hay respuestas para mostrar.</strong><p>Las confirmaciones aparecerán aquí.</p></div>
-      </div>
-
-      <footer class="admin-footer">
-        <p data-storage-note>Los datos están guardados únicamente en este navegador.</p>
-        <button type="button" class="danger-link" data-clear-local>Vaciar datos locales</button>
-      </footer>
-    </div>
-  </main>
-</body>
-</html>
+<!doctype html><html lang="es-MX"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Dashboard | LN Studio</title><link rel="icon" href="favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="dashboard.css"><script type="module" src="portal.js"></script></head><body>
+<main class="admin-shell"><section class="admin-login" data-login><div class="login-brand"><img src="logo.png"><span>LN Studio</span></div><p class="admin-eyebrow">Plataforma privada</p><h1>Administración de invitaciones</h1><p>Accede con tu cuenta. Los clientes y colaboradores solo verán los eventos que tengan asignados.</p><form id="login-form" class="login-form"><label>Correo<input name="email" type="email" required autocomplete="username"></label><label>Contraseña<input name="password" type="password" required autocomplete="current-password"></label><button>Entrar</button><button type="button" class="ghost-button" data-magic>Enviar acceso por correo</button><p id="login-status"></p></form></section>
+<section class="admin-app" data-app hidden><header class="admin-header"><div class="admin-brand"><img src="logo.png"><div><span>LN Studio</span><small>Plataforma de eventos</small></div></div><div class="admin-header-actions"><span class="mode-badge" data-role></span><button class="ghost-button" data-refresh>Actualizar</button><button class="ghost-button" data-logout>Salir</button></div></header>
+<div class="admin-intro"><div><p class="admin-eyebrow">Panel general</p><h1>Eventos y clientes</h1><p>Administra invitaciones reales, accesos, usuarios y respuestas desde un solo lugar.</p></div><div class="intro-actions owner-only"><button data-new-client>Nuevo cliente</button><button data-new-event>Nuevo evento</button></div></div>
+<div class="metrics-grid"><article><span>Eventos activos</span><strong data-metric-events>0</strong><small>Publicados o en preparación</small></article><article><span>Clientes</span><strong data-metric-clients>0</strong><small>Cuentas registradas</small></article><article><span>Confirmados</span><strong data-metric-confirmed>0</strong><small>Personas previstas</small></article><article><span>Check-in</span><strong data-metric-checkins>0</strong><small>Entradas aprobadas</small></article></div>
+<div class="admin-controls"><label>Buscar<input data-search placeholder="Evento o cliente"></label><label>Estado<select data-status><option value="all">Todos</option><option value="draft">Borrador</option><option value="published">Publicado</option><option value="paused">Pausado</option><option value="finished">Finalizado</option></select></label></div>
+<div class="event-grid" data-events></div><div class="empty-state" data-empty hidden><strong>No hay eventos visibles.</strong></div>
+</section></main>
+<dialog id="client-dialog"><form method="dialog" class="dialog-card" id="client-form"><h2>Nuevo cliente</h2><label>Negocio o familia<input name="business_name" required></label><label>Contacto<input name="contact_name"></label><label>Correo<input name="email" type="email"></label><label>WhatsApp<input name="phone"></label><label>Notas<textarea name="notes"></textarea></label><div class="dialog-actions"><button value="cancel" class="ghost-button">Cancelar</button><button value="default">Guardar</button></div></form></dialog>
+<dialog id="event-dialog"><form method="dialog" class="dialog-card" id="event-form"><h2>Nuevo evento</h2><label>Cliente<select name="client_id" required></select></label><label>Nombre del evento<input name="name" required></label><label>Tipo<input name="event_type" value="social"></label><label>Slug privado<input name="slug" required placeholder="boda-valeria-santiago"></label><label>Fecha y hora<input name="event_date" type="datetime-local"></label><label>Lugar<input name="venue_name"></label><label>Dirección<input name="venue_address"></label><label>URL de Maps<input name="maps_url" type="url"></label><label>Plantilla<select name="template_key"><option value="aniversario-fantasmas">Aniversario Fantasmas</option><option value="boda-eternite">Boda Éternité</option><option value="xv-eclat">XV Éclat</option><option value="cumple-neon">Cumple Neon</option></select></label><div class="dialog-actions"><button value="cancel" class="ghost-button">Cancelar</button><button value="default">Crear evento</button></div></form></dialog>
+</body></html>
