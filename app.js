@@ -117,8 +117,8 @@ const LNStudio = {
       return true;
     };
 
-    next.addEventListener("click", () => { if (validateCurrent()) show(++current); });
-    back.addEventListener("click", () => show(--current));
+    next.addEventListener("click", () => { if (validateCurrent()) { current = Math.min(current + 1, steps.length - 1); show(current); } });
+    back.addEventListener("click", () => { current = Math.max(current - 1, 0); show(current); });
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -131,18 +131,8 @@ const LNStudio = {
         detalles: data.get("detalles"), creado: new Date().toISOString()
       };
       localStorage.setItem("lnstudio-ultima-cotizacion", JSON.stringify(record));
-      const body = [
-        "Hola LN Studio,", "", "Deseo solicitar una cotización:", "",
-        `Nombre: ${record.nombre}`, `Correo: ${record.correo}`, `WhatsApp: ${record.whatsapp}`,
-        `Ciudad: ${record.ciudad}`, `Evento: ${record.evento}`, `Fecha: ${record.fecha}`,
-        `Invitados aproximados: ${record.invitados}`, `Estilo: ${record.estilo}`,
-        `Funciones: ${record.funciones.length ? record.funciones.join(", ") : "Por definir"}`,
-        "", `Detalles: ${record.detalles || "Sin detalles adicionales"}`
-      ].join("\n");
-      status.textContent = "Solicitud preparada. Se abrirá tu aplicación de correo.";
-      setTimeout(() => {
-        location.href = `mailto:${this.email}?subject=${encodeURIComponent(`Solicitud de cotización · ${record.evento} · ${record.nombre}`)}&body=${encodeURIComponent(body)}`;
-      }, 300);
+      status.textContent = "Registrando tu solicitud…";
+      (async()=>{ try { const {getSupabaseClient}=await import("./supabase.js"); const client=await getSupabaseClient(); const {data,error}=await client.rpc("submit_quote_request",{p_name:record.nombre,p_email:record.correo,p_phone:record.whatsapp,p_city:record.ciudad,p_event_type:record.evento,p_event_date:record.fecha||null,p_guest_count:Number(record.invitados||0),p_style:record.estilo,p_features:record.funciones,p_details:record.detalles||""}); if(error)throw error; status.innerHTML=`Solicitud registrada correctamente. Tu folio es <strong>${data.folio}</strong>.`; form.reset(); current=0; show(0); } catch(error){ console.error(error); status.textContent="No pudimos guardar la solicitud. Escríbenos a lnstudio.eventos@gmail.com."; } })();
     });
 
     show(0);
