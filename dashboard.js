@@ -70,6 +70,15 @@ async function handleLogin(event) {
 }
 
 async function openDashboard() {
+  if (state.mode === "supabase") {
+    const { data: isAdmin, error } = await state.client.rpc("is_ln_admin");
+    if (error || !isAdmin) {
+      await state.client.auth.signOut();
+      document.querySelector("#login-status").textContent = "Esta cuenta no está autorizada para administrar LN Studio.";
+      return;
+    }
+  }
+
   document.querySelector("[data-login-view]").hidden = true;
   document.querySelector("[data-admin-view]").hidden = false;
   document.querySelector("[data-mode]").textContent = state.mode === "supabase" ? "Supabase conectado" : "Modo local";

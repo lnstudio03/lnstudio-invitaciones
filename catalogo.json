@@ -1,58 +1,123 @@
 [
   {
+    "id": "aniversario-fantasmas",
+    "nombre": "Aniversario Fantasma",
+    "categoria": "social",
+    "categoriaTexto": "Aniversario · Experiencia oficial",
+    "etiqueta": "Proyecto destacado",
+    "descripcion": "Una invitación oscura, eléctrica y dinámica para el primer aniversario de Fantasmas Biker's Shop y el lanzamiento de Aliados Fantasma.",
+    "fondo": "radial-gradient(circle at 18% 18%, rgba(0,214,255,.72), transparent 28%), radial-gradient(circle at 82% 72%, rgba(255,40,137,.58), transparent 32%), linear-gradient(145deg,#03050a,#111526 55%,#050507)",
+    "acento": "#67e8f9",
+    "texto": "#ffffff",
+    "fecha": "29 AGO 2026",
+    "destacado": true
+  },
+  {
+    "id": "boda-eternite",
     "nombre": "Éternité",
     "categoria": "boda",
-    "etiqueta": "Boda · Editorial",
+    "categoriaTexto": "Boda · Editorial",
+    "etiqueta": "Colección premium",
     "descripcion": "Negro, marfil y dorado para una celebración de elegancia atemporal.",
-    "fondo": "radial-gradient(circle at 75% 20%, rgba(209,166,78,.7), transparent 28%), linear-gradient(135deg,#070707,#302313)"
+    "fondo": "radial-gradient(circle at 75% 20%, rgba(209,166,78,.7), transparent 28%), linear-gradient(135deg,#070707,#302313)",
+    "acento": "#d6ad61",
+    "texto": "#ffffff",
+    "fecha": "24 OCT 2026"
   },
   {
+    "id": "boda-jardin-luz",
     "nombre": "Jardín de Luz",
     "categoria": "boda",
-    "etiqueta": "Boda · Floral",
+    "categoriaTexto": "Boda · Floral",
+    "etiqueta": "Colección romántica",
     "descripcion": "Composición luminosa, delicada y orgánica para ceremonias románticas.",
-    "fondo": "radial-gradient(circle at 25% 25%, #f5dac7, transparent 38%), linear-gradient(135deg,#8c6c5b,#e8d9cb)"
+    "fondo": "radial-gradient(circle at 25% 25%, #f5dac7, transparent 38%), linear-gradient(135deg,#8c6c5b,#e8d9cb)",
+    "acento": "#fff5e9",
+    "texto": "#ffffff",
+    "fecha": "12 DIC 2026"
   },
   {
+    "id": "xv-eclat",
     "nombre": "Éclat",
     "categoria": "xv",
-    "etiqueta": "XV años · Luxury",
-    "descripcion": "Una experiencia brillante, moderna y sofisticada para una noche inolvidable.",
-    "fondo": "radial-gradient(circle at 70% 20%, #d6ad61, transparent 25%), linear-gradient(140deg,#291c35,#08070b)"
+    "categoriaTexto": "XV años · Luxury",
+    "etiqueta": "Colección brillante",
+    "descripcion": "Una experiencia moderna y sofisticada para una noche inolvidable.",
+    "fondo": "radial-gradient(circle at 70% 20%, #d6ad61, transparent 25%), linear-gradient(140deg,#291c35,#08070b)",
+    "acento": "#f4d58d",
+    "texto": "#ffffff",
+    "fecha": "07 NOV 2026"
   },
   {
+    "id": "xv-celestial",
     "nombre": "Celestial",
     "categoria": "xv",
-    "etiqueta": "XV años · Nocturna",
+    "categoriaTexto": "XV años · Nocturna",
+    "etiqueta": "Colección inmersiva",
     "descripcion": "Azules profundos y destellos sutiles inspirados en el cielo de medianoche.",
-    "fondo": "radial-gradient(circle at 70% 30%, #5478a6, transparent 23%), linear-gradient(145deg,#080d18,#111e33)"
+    "fondo": "radial-gradient(circle at 70% 30%, #5478a6, transparent 23%), linear-gradient(145deg,#080d18,#111e33)",
+    "acento": "#b8ddff",
+    "texto": "#ffffff",
+    "fecha": "21 NOV 2026"
   },
   {
+    "id": "cumple-neon",
+    "nombre": "Neon Night",
+    "categoria": "social",
+    "categoriaTexto": "Cumpleaños · Urbano",
+    "etiqueta": "Colección dinámica",
+    "descripcion": "Tipografía contundente, luces neón y ritmo visual para una celebración con actitud.",
+    "fondo": "radial-gradient(circle at 15% 75%, rgba(0,255,209,.8), transparent 28%), radial-gradient(circle at 80% 15%, rgba(255,0,124,.75), transparent 30%), linear-gradient(145deg,#090211,#101018)",
+    "acento": "#5fffe5",
+    "texto": "#ffffff",
+    "fecha": "05 SEP 2026"
+  },
+  {
+    "id": "bautizo-alba",
     "nombre": "Alba",
     "categoria": "social",
-    "etiqueta": "Social · Minimalista",
-    "descripcion": "Claridad, tipografía editorial y una paleta serena para celebrar con sutileza.",
-    "fondo": "linear-gradient(135deg,#ddd1bf,#f9f6ef 55%,#bb9660)"
+    "categoriaTexto": "Bautizo · Minimalista",
+    "etiqueta": "Colección serena",
+    "descripcion": "Claridad, tipografía editorial y una paleta suave para celebrar con sutileza.",
+    "fondo": "linear-gradient(135deg,#ddd1bf,#f9f6ef 55%,#bb9660)",
+    "acento": "#6d5032",
+    "texto": "#2d241b",
+    "fecha": "18 OCT 2026"
   },
   {
+    "id": "baby-bloom",
     "nombre": "Bloom",
     "categoria": "social",
-    "etiqueta": "Social · Contemporánea",
+    "categoriaTexto": "Baby Shower · Contemporánea",
+    "etiqueta": "Colección cálida",
     "descripcion": "Color, movimiento y una narrativa fresca para momentos llenos de vida.",
-    "fondo": "radial-gradient(circle at 20% 20%, #efb7bd, transparent 35%), linear-gradient(135deg,#87515b,#271820)"
+    "fondo": "radial-gradient(circle at 20% 20%, #efb7bd, transparent 35%), linear-gradient(135deg,#87515b,#271820)",
+    "acento": "#ffd9de",
+    "texto": "#ffffff",
+    "fecha": "13 SEP 2026"
   },
   {
+    "id": "corporativo-signature",
     "nombre": "Signature",
     "categoria": "corporativo",
-    "etiqueta": "Empresarial · Premium",
-    "descripcion": "Presencia ejecutiva y estructura clara para lanzamientos, cenas y presentaciones.",
-    "fondo": "linear-gradient(135deg,#111,#3b3b3b 55%,#9b772f)"
+    "categoriaTexto": "Empresarial · Premium",
+    "etiqueta": "Colección ejecutiva",
+    "descripcion": "Presencia profesional y estructura clara para lanzamientos, cenas y presentaciones.",
+    "fondo": "linear-gradient(135deg,#111,#3b3b3b 55%,#9b772f)",
+    "acento": "#e8c270",
+    "texto": "#ffffff",
+    "fecha": "30 SEP 2026"
   },
   {
+    "id": "corporativo-maison",
     "nombre": "Maison",
     "categoria": "corporativo",
-    "etiqueta": "Empresarial · Editorial",
+    "categoriaTexto": "Empresarial · Editorial",
+    "etiqueta": "Colección minimal",
     "descripcion": "Minimalismo arquitectónico para marcas que cuidan cada punto de contacto.",
-    "fondo": "linear-gradient(145deg,#e4dfd4,#8b7b63 60%,#171717)"
+    "fondo": "linear-gradient(145deg,#e4dfd4,#8b7b63 60%,#171717)",
+    "acento": "#f6f0e6",
+    "texto": "#ffffff",
+    "fecha": "15 OCT 2026"
   }
 ]

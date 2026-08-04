@@ -1,3 +1,5 @@
+import { initializeCatalog } from "./catalogo.js";
+
 const LNStudio = {
   email: "lnstudio.eventos@gmail.com",
 
@@ -6,7 +8,7 @@ const LNStudio = {
     this.setupMenu();
     this.setupReveal();
     this.setupYear();
-    this.setupCatalog();
+    initializeCatalog();
     this.setupContactForm();
     this.setupQuoteForm();
   },
@@ -33,83 +35,44 @@ const LNStudio = {
       button.setAttribute("aria-expanded", String(open));
       document.body.classList.toggle("menu-open", open);
     });
-    nav.querySelectorAll("a").forEach(link => link.addEventListener("click", close));
+    nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", close));
   },
 
   setupReveal() {
     const items = document.querySelectorAll(".reveal");
     if (!items.length) return;
     if (!("IntersectionObserver" in window)) {
-      items.forEach(item => item.classList.add("visible"));
+      items.forEach((item) => item.classList.add("visible"));
       return;
     }
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-          observer.unobserve(entry.target);
-        }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("visible");
+        observer.unobserve(entry.target);
       });
     }, { threshold: 0.12 });
-    items.forEach(item => observer.observe(item));
+    items.forEach((item) => observer.observe(item));
   },
 
   setupYear() {
-    document.querySelectorAll("[data-current-year]").forEach(node => {
+    document.querySelectorAll("[data-current-year]").forEach((node) => {
       node.textContent = new Date().getFullYear();
     });
-  },
-
-  async setupCatalog() {
-    const grid = document.querySelector("#catalog-grid");
-    if (!grid) return;
-    try {
-      const response = await fetch("catalogo.json", { cache: "no-store" });
-      if (!response.ok) throw new Error("No fue posible cargar el catálogo.");
-      const items = await response.json();
-      const render = filter => {
-        const filtered = filter === "todos" ? items : items.filter(item => item.categoria === filter);
-        grid.innerHTML = filtered.map(item => `
-          <article class="catalog-card reveal visible" style="--card-background:${item.fondo}">
-            <div>
-              <small>${item.etiqueta}</small>
-              <h3>${item.nombre}</h3>
-              <p>${item.descripcion}</p>
-              <a href="cotizar.html?coleccion=${encodeURIComponent(item.nombre)}">Personalizar esta colección →</a>
-            </div>
-          </article>
-        `).join("");
-      };
-      render("todos");
-      document.querySelectorAll(".filter-button").forEach(button => {
-        button.addEventListener("click", () => {
-          document.querySelectorAll(".filter-button").forEach(item => item.classList.remove("active"));
-          button.classList.add("active");
-          render(button.dataset.filter);
-        });
-      });
-    } catch (error) {
-      grid.innerHTML = `<p>${error.message}</p>`;
-    }
   },
 
   setupContactForm() {
     const form = document.querySelector("#contact-form");
     if (!form) return;
-    form.addEventListener("submit", event => {
+    form.addEventListener("submit", (event) => {
       event.preventDefault();
       if (!form.reportValidity()) return;
       const data = new FormData(form);
       const subject = `Contacto LN Studio · ${data.get("evento")}`;
       const body = [
-        "Hola LN Studio,",
-        "",
-        `Mi nombre es: ${data.get("nombre")}`,
-        `Mi correo es: ${data.get("correo")}`,
-        `Tipo de evento: ${data.get("evento")}`,
-        "",
-        "Mensaje:",
-        data.get("mensaje")
+        "Hola LN Studio,", "", `Mi nombre es: ${data.get("nombre")}`,
+        `Mi correo es: ${data.get("correo")}`, `Tipo de evento: ${data.get("evento")}`,
+        "", "Mensaje:", data.get("mensaje")
       ].join("\n");
       window.location.href = `mailto:${this.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     });
@@ -130,10 +93,10 @@ const LNStudio = {
     const collection = new URLSearchParams(location.search).get("coleccion");
     if (collection) {
       const details = form.querySelector("[name='detalles']");
-      details.value = `Me interesa personalizar la colección: ${collection}.`;
+      if (details) details.value = `Me interesa personalizar la colección: ${collection}.`;
     }
 
-    const show = index => {
+    const show = (index) => {
       steps.forEach((step, stepIndex) => step.classList.toggle("active", stepIndex === index));
       back.hidden = index === 0;
       next.hidden = index === steps.length - 1;
@@ -147,69 +110,39 @@ const LNStudio = {
     const validateCurrent = () => {
       const controls = [...steps[current].querySelectorAll("input, select, textarea")];
       for (const control of controls) {
-        if (!control.checkValidity()) {
-          control.reportValidity();
-          return false;
-        }
+        if (control.checkValidity()) continue;
+        control.reportValidity();
+        return false;
       }
       return true;
     };
 
-    next.addEventListener("click", () => {
-      if (!validateCurrent()) return;
-      current += 1;
-      show(current);
-    });
-    back.addEventListener("click", () => {
-      current -= 1;
-      show(current);
-    });
+    next.addEventListener("click", () => { if (validateCurrent()) show(++current); });
+    back.addEventListener("click", () => show(--current));
 
-    form.addEventListener("submit", event => {
+    form.addEventListener("submit", (event) => {
       event.preventDefault();
       if (!form.reportValidity()) return;
       const data = new FormData(form);
-      const functions = data.getAll("funciones");
       const record = {
-        evento: data.get("evento"),
-        fecha: data.get("fecha"),
-        invitados: data.get("invitados"),
-        estilo: data.get("estilo"),
-        funciones: functions,
-        nombre: data.get("nombre"),
-        correo: data.get("correo"),
-        whatsapp: data.get("whatsapp"),
-        ciudad: data.get("ciudad"),
-        detalles: data.get("detalles"),
-        creado: new Date().toISOString()
+        evento: data.get("evento"), fecha: data.get("fecha"), invitados: data.get("invitados"),
+        estilo: data.get("estilo"), funciones: data.getAll("funciones"), nombre: data.get("nombre"),
+        correo: data.get("correo"), whatsapp: data.get("whatsapp"), ciudad: data.get("ciudad"),
+        detalles: data.get("detalles"), creado: new Date().toISOString()
       };
       localStorage.setItem("lnstudio-ultima-cotizacion", JSON.stringify(record));
-
-      const subject = `Solicitud de cotización · ${record.evento} · ${record.nombre}`;
       const body = [
-        "Hola LN Studio,",
-        "",
-        "Deseo solicitar una cotización con los siguientes datos:",
-        "",
-        `Nombre: ${record.nombre}`,
-        `Correo: ${record.correo}`,
-        `WhatsApp: ${record.whatsapp}`,
-        `Ciudad: ${record.ciudad}`,
-        `Evento: ${record.evento}`,
-        `Fecha: ${record.fecha}`,
-        `Invitados aproximados: ${record.invitados}`,
-        `Estilo: ${record.estilo}`,
+        "Hola LN Studio,", "", "Deseo solicitar una cotización:", "",
+        `Nombre: ${record.nombre}`, `Correo: ${record.correo}`, `WhatsApp: ${record.whatsapp}`,
+        `Ciudad: ${record.ciudad}`, `Evento: ${record.evento}`, `Fecha: ${record.fecha}`,
+        `Invitados aproximados: ${record.invitados}`, `Estilo: ${record.estilo}`,
         `Funciones: ${record.funciones.length ? record.funciones.join(", ") : "Por definir"}`,
-        "",
-        `Detalles adicionales: ${record.detalles || "Sin detalles adicionales"}`,
-        "",
-        "Enviado desde el sitio web de LN Studio."
+        "", `Detalles: ${record.detalles || "Sin detalles adicionales"}`
       ].join("\n");
-
-      status.textContent = "Solicitud preparada. Se abrirá tu aplicación de correo para enviarla a LN Studio.";
+      status.textContent = "Solicitud preparada. Se abrirá tu aplicación de correo.";
       setTimeout(() => {
-        window.location.href = `mailto:${LNStudio.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      }, 350);
+        location.href = `mailto:${this.email}?subject=${encodeURIComponent(`Solicitud de cotización · ${record.evento} · ${record.nombre}`)}&body=${encodeURIComponent(body)}`;
+      }, 300);
     });
 
     show(0);

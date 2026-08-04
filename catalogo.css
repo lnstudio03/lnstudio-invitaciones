@@ -1,1 +1,105 @@
-/* Reservado para el módulo de Catálogo. */
+.catalog-hero {
+  min-height: 86svh;
+  padding: 160px max(6vw, 28px) 90px;
+  display: grid;
+  align-items: end;
+  color: #fff;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(185, 133, 42, .22), transparent 30%),
+    radial-gradient(circle at 12% 76%, rgba(87, 217, 255, .10), transparent 28%),
+    #080808;
+}
+.catalog-hero-grid {
+  width: min(1280px, 100%);
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1.25fr .75fr;
+  align-items: end;
+  gap: clamp(45px, 8vw, 120px);
+}
+.catalog-hero h1 { max-width: 920px; }
+.catalog-lead { max-width: 730px; margin-top: 28px; color: rgba(255,255,255,.62); font-size: clamp(1rem, 1.7vw, 1.18rem); }
+.featured-invitation {
+  min-height: 380px;
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(103,232,249,.32);
+  background:
+    linear-gradient(180deg, rgba(3,5,10,.1), rgba(3,5,10,.9)),
+    radial-gradient(circle at 18% 18%, rgba(0,214,255,.75), transparent 32%),
+    radial-gradient(circle at 84% 72%, rgba(255,40,137,.62), transparent 34%),
+    #070811;
+  box-shadow: 0 38px 90px rgba(0,0,0,.34);
+  transition: transform .35s ease, border-color .35s ease;
+}
+.featured-invitation:hover { transform: translateY(-8px); border-color: rgba(103,232,249,.8); }
+.featured-invitation span, .featured-invitation small { text-transform: uppercase; letter-spacing: .16em; font-size: .68rem; }
+.featured-invitation span { color: #67e8f9; }
+.featured-invitation strong { font: 600 clamp(2.2rem, 4vw, 4.3rem)/.92 var(--serif); }
+.featured-invitation small { color: rgba(255,255,255,.72); }
+.catalog-toolbar {
+  position: sticky;
+  z-index: 10;
+  top: 88px;
+  padding: 18px max(6vw, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: rgba(248,245,239,.92);
+  border-bottom: 1px solid rgba(0,0,0,.08);
+  backdrop-filter: blur(16px);
+}
+.catalog-toolbar .filter-bar { margin: 0; }
+.catalog-toolbar p { margin: 0; color: var(--muted); font-size: .78rem; white-space: nowrap; }
+.catalog-section { padding: 70px max(6vw, 28px) 110px; background: var(--ivory); }
+.catalog-showcase {
+  width: min(1280px, 100%);
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 4vw, 52px);
+}
+.invitation-card { display: grid; grid-template-columns: minmax(0, .92fr) minmax(230px, .58fr); min-height: 520px; background: #fff; box-shadow: 0 26px 75px rgba(26,22,16,.09); overflow: hidden; }
+.invitation-card.is-featured { grid-column: 1 / -1; grid-template-columns: 1.15fr .85fr; min-height: 610px; }
+.invitation-visual { position: relative; min-height: 100%; padding: 24px; display: grid; place-items: center; overflow: hidden; isolation: isolate; }
+.invitation-visual::before { position: absolute; inset: 0; z-index: -2; content: ""; background: var(--card-background); transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+.invitation-card:hover .invitation-visual::before { transform: scale(1.06); }
+.invitation-visual::after { position: absolute; inset: 0; z-index: -1; content: ""; background: linear-gradient(145deg, rgba(255,255,255,.04), rgba(0,0,0,.22)); }
+.phone-preview { width: min(260px, 76%); aspect-ratio: 9 / 17.5; padding: 10px; border: 1px solid rgba(255,255,255,.35); border-radius: 32px; background: rgba(5,5,7,.88); box-shadow: 0 34px 70px rgba(0,0,0,.34); transform: rotate(-3deg); transition: transform .45s ease; }
+.invitation-card:hover .phone-preview { transform: rotate(0deg) translateY(-6px); }
+.phone-screen { height: 100%; padding: 26px 18px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; color: var(--card-text); border-radius: 24px; border: 1px solid rgba(255,255,255,.14); background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.18)); overflow: hidden; }
+.phone-screen small { font-size: .52rem; letter-spacing: .19em; text-transform: uppercase; color: var(--card-accent); }
+.phone-screen strong { font: 600 clamp(1.65rem, 3.2vw, 2.65rem)/.9 var(--serif); }
+.phone-screen span { font-size: .62rem; letter-spacing: .13em; }
+.phone-screen i { width: 38px; height: 1px; margin: 0 auto; background: var(--card-accent); }
+.invitation-info { padding: clamp(28px, 4vw, 50px); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.invitation-info .card-badge { color: var(--gold); font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; }
+.invitation-info h3 { margin: 12px 0 15px; font-size: clamp(2.3rem, 4vw, 4.2rem); }
+.invitation-info p { color: var(--muted); }
+.invitation-meta { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+.invitation-meta span { padding: 7px 10px; border: 1px solid var(--line); font-size: .62rem; letter-spacing: .11em; text-transform: uppercase; }
+.card-actions { width: 100%; margin-top: auto; padding-top: 32px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.card-actions a:first-child { font-size: .72rem; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; }
+.card-actions a:first-child:hover { color: var(--gold); }
+.card-actions .mini-link { color: var(--muted); font-size: .75rem; }
+.catalog-empty { grid-column: 1/-1; padding: 80px 25px; text-align: center; }
+.catalog-custom { padding: 100px max(6vw, 28px); display: grid; grid-template-columns: 1fr 1fr; gap: 70px; color: #fff; background: #090909; }
+.catalog-custom > * { max-width: 620px; }
+.catalog-custom p:not(.eyebrow) { color: rgba(255,255,255,.62); margin-bottom: 30px; }
+@media (max-width: 1050px) {
+  .catalog-hero-grid, .catalog-custom { grid-template-columns: 1fr; }
+  .featured-invitation { min-height: 300px; }
+  .invitation-card, .invitation-card.is-featured { grid-column: auto; grid-template-columns: 1fr; min-height: 0; }
+  .invitation-visual { min-height: 520px; }
+}
+@media (max-width: 760px) {
+  .catalog-hero { padding-top: 130px; }
+  .catalog-toolbar { top: 76px; align-items: flex-start; flex-direction: column; overflow-x: auto; }
+  .catalog-toolbar .filter-bar { flex-wrap: nowrap; min-width: max-content; }
+  .catalog-showcase { grid-template-columns: 1fr; }
+  .invitation-visual { min-height: 460px; }
+  .featured-invitation strong { font-size: 2.65rem; }
+}

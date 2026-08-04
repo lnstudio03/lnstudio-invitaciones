@@ -1,87 +1,92 @@
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
-  <title>Colecciones | LN Studio</title>
-  <meta name="description" content="Explora las colecciones editoriales de invitaciones digitales de LN Studio.">
-  
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0b0b0b">
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<script type="module" src="app.js"></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0b0b">
+  <meta name="description" content="Explora invitaciones digitales de muestra de LN Studio y abre cada experiencia completa antes de personalizarla.">
+  <title>Catálogo de invitaciones | LN Studio</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="catalogo.css">
+  <script type="module" src="app.js"></script>
 </head>
 <body>
-  
-<header class="site-header" id="top">
-  <a class="brand" href="index.html" aria-label="Ir al inicio de LN Studio">
-    <img src="logo.png" alt="Escudo oficial de LN Studio" width="52" height="70">
-    <span><strong>LN</strong><small>Studio</small></span>
-  </a>
-  <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">
-    <span></span><span></span><span></span><span class="sr-only">Abrir menú</span>
-  </button>
-  <nav id="main-navigation" class="main-navigation" aria-label="Navegación principal">
-    <a href="index.html">Inicio</a>
-    <a href="catalogo.html">Colecciones</a>
-    <a href="index.html#servicios">Servicios</a>
-    <a href="contacto.html">Contacto</a>
-    <a class="button button-small button-outline" href="cotizar.html">Cotizar</a>
-  </nav>
-</header>
+  <header class="site-header" id="top">
+    <a class="brand" href="index.html" aria-label="Ir al inicio de LN Studio">
+      <img src="logo.png" alt="Escudo oficial de LN Studio" width="52" height="70">
+      <span><strong>LN</strong><small>Studio</small></span>
+    </a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">
+      <span></span><span></span><span></span><span class="sr-only">Abrir menú</span>
+    </button>
+    <nav id="main-navigation" class="main-navigation" aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="catalogo.html" aria-current="page">Catálogo</a>
+      <a href="invitacion.html?modelo=aniversario-fantasmas">Invitación aniversario</a>
+      <a href="contacto.html">Contacto</a>
+      <a class="button button-small button-outline" href="cotizar.html">Cotizar</a>
+    </nav>
+  </header>
 
   <main>
-    <section class="page-hero">
-      <p class="eyebrow">Colecciones</p>
-      <h1>Ideas que inspiran.<br><em>Historias que se transforman.</em></h1>
-      <p>Cada colección funciona como punto de partida. Colores, textos y detalles se adaptan a tu celebración.</p>
+    <section class="catalog-hero">
+      <div class="catalog-hero-grid">
+        <div>
+          <p class="eyebrow">Catálogo interactivo</p>
+          <h1>Primero la exploras.<br><em>Después la hacemos tuya.</em></h1>
+          <p class="catalog-lead">Estas no son imágenes estáticas: abre cada modelo y recorre una invitación digital completa, adaptable a celular y preparada para integrar confirmación de asistencia.</p>
+        </div>
+        <a class="featured-invitation" href="invitacion.html?modelo=aniversario-fantasmas">
+          <span>Proyecto oficial en desarrollo</span>
+          <strong>1.er aniversario<br>Fantasmas Biker's Shop</strong>
+          <small>Ver invitación completa →</small>
+        </a>
+      </div>
     </section>
-    <section class="catalog-section section">
-      <div class="filter-bar" role="group" aria-label="Filtrar colecciones">
+
+    <section class="catalog-toolbar" aria-label="Filtros del catálogo">
+      <div class="filter-bar" role="group" aria-label="Filtrar invitaciones">
         <button class="filter-button active" data-filter="todos">Todas</button>
         <button class="filter-button" data-filter="boda">Bodas</button>
         <button class="filter-button" data-filter="xv">XV años</button>
         <button class="filter-button" data-filter="social">Sociales</button>
         <button class="filter-button" data-filter="corporativo">Empresariales</button>
       </div>
-      <div id="catalog-grid" class="catalog-grid" aria-live="polite"></div>
-      <noscript><p>Activa JavaScript para explorar las colecciones.</p></noscript>
+      <p><strong data-catalog-count>0</strong> experiencias disponibles</p>
     </section>
-    <section class="catalog-note section section-dark">
-      <p class="eyebrow">Diseño a medida</p>
-      <h2>¿No encontraste exactamente lo que imaginabas?</h2>
-      <p>Podemos construir una dirección visual completamente personalizada.</p>
-      <a class="button" href="cotizar.html">Contarnos tu idea</a>
+
+    <section class="catalog-section" aria-labelledby="catalog-title">
+      <div class="sr-only"><h2 id="catalog-title">Invitaciones disponibles</h2></div>
+      <div id="catalog-grid" class="catalog-showcase" aria-live="polite"></div>
+      <noscript><p>Activa JavaScript para explorar las invitaciones.</p></noscript>
+    </section>
+
+    <section class="catalog-custom">
+      <div>
+        <p class="eyebrow">Diseño a medida</p>
+        <h2>El catálogo es un punto de partida, no un límite.</h2>
+      </div>
+      <div>
+        <p>Podemos combinar estilos, cambiar completamente la paleta, adaptar la narrativa y crear funciones específicas para tu evento.</p>
+        <a class="button" href="cotizar.html">Crear mi invitación</a>
+      </div>
     </section>
   </main>
-  
-<footer class="site-footer">
-  <div>
-    <a class="footer-brand" href="index.html">
-      <img src="logo.png" alt="" width="50" height="68">
-      <span>LN Studio</span>
-    </a>
-    <p>Creamos experiencias que cuentan historias.</p>
-  </div>
-  <div>
-    <strong>Contacto</strong>
-    <a href="mailto:lnstudio.eventos@gmail.com">lnstudio.eventos@gmail.com</a>
-    <a href="https://www.instagram.com/lnstudio.invitaciones/" target="_blank" rel="noopener noreferrer">@lnstudio.invitaciones</a>
-  </div>
-  <div>
-    <strong>Explorar</strong>
-    <a href="catalogo.html">Colecciones</a>
-    <a href="cotizar.html">Solicitar cotización</a>
-    <a href="contacto.html">Contacto</a>
-  </div>
-  <p class="footer-bottom">© <span data-current-year></span> LN Studio. Todos los derechos reservados.</p>
-</footer>
 
+  <footer class="site-footer">
+    <div>
+      <a class="footer-brand" href="index.html"><img src="logo.png" alt="" width="50" height="68"><span>LN Studio</span></a>
+      <p>Creamos experiencias que cuentan historias.</p>
+    </div>
+    <div><strong>Contacto</strong><a href="mailto:lnstudio.eventos@gmail.com">lnstudio.eventos@gmail.com</a><a href="https://www.instagram.com/lnstudio.invitaciones/" target="_blank" rel="noopener noreferrer">@lnstudio.invitaciones</a></div>
+    <div><strong>Explorar</strong><a href="catalogo.html">Catálogo</a><a href="invitacion.html?modelo=aniversario-fantasmas">Aniversario Fantasmas</a><a href="admin.html">Control de asistencia</a></div>
+    <p class="footer-bottom">© <span data-current-year></span> LN Studio. Todos los derechos reservados.</p>
+  </footer>
 </body>
 </html>

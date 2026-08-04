@@ -4,15 +4,69 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>Administración en preparación | LN Studio</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#080808">
+  <title>Control de asistencia | LN Studio</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+  <script type="module" src="dashboard.js"></script>
 </head>
-<body style="display:grid;min-height:100svh;place-items:center;background:#080808;color:#fff;text-align:center">
-  <main class="container">
-    <p class="eyebrow">LN Studio Admin</p>
-    <h1 style="font-size:clamp(2.5rem,7vw,5rem)">Panel en preparación</h1>
-    <p style="color:rgba(255,255,255,.65)">El panel administrativo se implementará en su módulo correspondiente.</p>
-    <a class="button" href="index.html">Volver al sitio</a>
+<body>
+  <main class="admin-shell">
+    <div class="admin-login" data-login-view>
+      <div class="login-brand"><img src="logo.png" alt="LN Studio"><span>LN Studio</span></div>
+      <p class="admin-eyebrow">Acceso administrativo</p>
+      <h1>Control de asistencia</h1>
+      <p data-login-copy>Ingresa el PIN local para consultar las respuestas registradas en este navegador.</p>
+      <form id="admin-login-form" class="login-form">
+        <label data-email-field hidden>Correo administrativo<input type="email" name="email" autocomplete="username" placeholder="correo@dominio.com"></label>
+        <label data-password-label>PIN de acceso<input type="password" name="password" autocomplete="current-password" required placeholder="••••••"></label>
+        <button type="submit">Entrar al panel</button>
+        <p id="login-status" role="status" aria-live="polite"></p>
+      </form>
+      <a href="invitacion.html?modelo=aniversario-fantasmas">← Volver a la invitación</a>
+    </div>
+
+    <div class="admin-app" data-admin-view hidden>
+      <header class="admin-header">
+        <div class="admin-brand"><img src="logo.png" alt=""><div><span>LN Studio</span><small>Control de asistencia</small></div></div>
+        <div class="admin-header-actions"><span class="mode-badge" data-mode>Modo local</span><button type="button" class="ghost-button" data-refresh>Actualizar</button><button type="button" class="ghost-button" data-logout>Salir</button></div>
+      </header>
+
+      <div class="admin-intro">
+        <div><p class="admin-eyebrow">Evento activo</p><h1>Primer aniversario Fantasmas</h1><p>Respuestas, acompañantes y registro de llegada en un solo lugar.</p></div>
+        <div class="intro-actions"><a href="invitacion.html?modelo=aniversario-fantasmas" target="_blank">Abrir invitación</a><button type="button" data-export>Exportar CSV</button></div>
+      </div>
+
+      <div class="metrics-grid">
+        <article><span>Respuestas</span><strong data-metric-total>0</strong><small>Registros recibidos</small></article>
+        <article><span>Asistentes</span><strong data-metric-guests>0</strong><small>Confirmados + acompañantes</small></article>
+        <article><span>No asistirán</span><strong data-metric-declined>0</strong><small>Respuestas negativas</small></article>
+        <article><span>Check-in</span><strong data-metric-checkin>0</strong><small>Personas que ya llegaron</small></article>
+      </div>
+
+      <div class="admin-controls">
+        <label>Buscar<input type="search" data-search placeholder="Nombre, teléfono o folio"></label>
+        <label>Evento<select data-event-filter><option value="todos">Todos los eventos</option><option value="aniversario-fantasmas">Aniversario Fantasmas</option></select></label>
+        <label>Respuesta<select data-status-filter><option value="todos">Todas</option><option value="confirmado">Confirmados</option><option value="no_asiste">No asistirán</option></select></label>
+        <label>Registro<select data-checkin-filter><option value="todos">Todos</option><option value="pendiente">Sin check-in</option><option value="registrado">Con check-in</option></select></label>
+      </div>
+
+      <div class="guest-table-wrap">
+        <table class="guest-table">
+          <thead><tr><th>Invitado</th><th>Respuesta</th><th>Acompañantes</th><th>Contacto</th><th>Registro</th><th></th></tr></thead>
+          <tbody data-table-body></tbody>
+        </table>
+        <div class="empty-state" data-empty hidden><strong>No hay respuestas para mostrar.</strong><p>Las confirmaciones aparecerán aquí.</p></div>
+      </div>
+
+      <footer class="admin-footer">
+        <p data-storage-note>Los datos están guardados únicamente en este navegador.</p>
+        <button type="button" class="danger-link" data-clear-local>Vaciar datos locales</button>
+      </footer>
+    </div>
   </main>
 </body>
 </html>

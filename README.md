@@ -1,61 +1,100 @@
-# LN Studio v2.0 · Catálogo, invitaciones y RSVP
+# LN Studio v2.1 · Catálogo, invitación y RSVP con Supabase
 
-Sitio estático oficial de LN Studio, preparado para publicarse directamente en Cloudflare Pages y GitHub sin proceso de compilación.
+Sitio estático independiente de LN Studio, preparado para GitHub y Cloudflare Pages sin frameworks ni proceso de compilación.
 
 ## Identidad
 - Marca: LN Studio
 - Eslogan: Creamos experiencias que cuentan historias.
 - Instagram: @lnstudio.invitaciones
-- Correo: lnstudio.eventos@gmail.com
+- Correo administrativo: lnstudio.eventos@gmail.com
 - Logo principal: `logo.png`
 
-## Novedades de esta versión
-- Catálogo visual con 10 invitaciones de muestra.
-- Cada modelo abre una experiencia completa y responsive.
-- Invitación oficial para el primer aniversario de Fantasmas Biker's Shop.
-- Lanzamiento de Aliados Fantasma integrado en la narrativa.
-- Cuenta regresiva, ubicación, compartir y archivo para calendario.
-- Formulario RSVP con respuesta, acompañantes, mensaje y folio.
-- Panel de control de asistencia con métricas, filtros, check-in y exportación CSV.
-- Funcionamiento inmediato en modo local.
-- Integración opcional con Supabase para centralizar respuestas entre dispositivos.
+## Incluye
+- Catálogo visual con invitaciones de muestra.
+- Invitación oficial del primer aniversario de Fantasmas Biker's Shop.
+- Lanzamiento de Aliados Fantasma integrado únicamente como contenido del evento.
+- Cuenta regresiva, ubicación, compartir y calendario.
+- Confirmación de asistencia, acompañantes, mensajes y folios.
+- Panel administrativo con métricas, búsqueda, filtros, check-in y CSV.
+- Integración separada con Supabase para LN Studio.
 
-## Archivos principales
-- `index.html`: sitio público de LN Studio.
-- `catalogo.html`, `catalogo.css`, `catalogo.js`, `catalogo.json`: catálogo interactivo.
-- `invitacion.html`, `invitacion.css`, `invitation.js`: invitaciones dinámicas.
-- `admin.html`, `dashboard.css`, `dashboard.js`: control de asistencia.
-- `supabase.js`: credenciales públicas y PIN del modo local.
-- `supabase.sql`: tablas, políticas RLS y evento oficial.
-- `cotizar.html`, `contacto.html`: formularios de LN Studio.
+## Configuración segura de Supabase
 
-## Probar de inmediato
-1. Publica todos los archivos en la raíz del repositorio.
-2. Abre `catalogo.html`.
-3. Entra a “Aniversario Fantasma”.
-4. Registra una respuesta.
-5. Abre `admin.html` y usa el PIN local definido en `supabase.js`.
+### 1. Crear el proyecto independiente
+Usa la cuenta de LN Studio y crea una organización llamada `LN Studio`.
 
-PIN local inicial: `LN2026`
+Nombre recomendado del proyecto:
+`lnstudio-invitaciones`
 
-El modo local guarda los RSVP únicamente en el navegador donde se registran. Sirve para pruebas y demostraciones.
+Guarda la contraseña de la base de datos en un lugar seguro.
 
-## Conectar Supabase
-1. Crea o utiliza un proyecto de Supabase.
-2. Ejecuta `supabase.sql` en SQL Editor.
-3. Crea un usuario administrador en Authentication > Users.
-4. Copia la URL del proyecto y la clave pública `anon` en `supabase.js`.
-5. Publica nuevamente los archivos.
+### 2. Crear las tablas y políticas
+En Supabase abre:
+`SQL Editor > New query`
 
-Al detectar credenciales, la invitación enviará los RSVP a Supabase y `admin.html` pedirá correo y contraseña del usuario administrador.
+Copia y ejecuta todo el archivo:
+`supabase.sql`
 
-Nunca coloques la clave `service_role` en estos archivos.
+### 3. Crear el administrador
+Abre:
+`Authentication > Users > Add user`
 
-## Publicación en Cloudflare Pages
+Crea el usuario:
+`lnstudio.eventos@gmail.com`
+
+Usa una contraseña fuerte y confirma el usuario desde el panel cuando esa opción aparezca.
+
+Después vuelve a `SQL Editor` y ejecuta:
+`supabase-admin.sql`
+
+La consulta final debe mostrar una fila con el correo administrativo.
+
+### 4. Desactivar registros públicos de usuarios
+En `Authentication > Sign In / Providers` o la configuración general de Auth, desactiva:
+`Allow new users to sign up`
+
+Los invitados no necesitan cuenta. El formulario RSVP escribe usando la clave pública y las políticas RLS.
+
+### 5. Copiar las credenciales públicas
+Abre `Project Settings > API` o el panel `Connect` del proyecto y copia:
+
+- Project URL
+- Publishable key (`sb_publishable_...`)
+
+Pégalas en `supabase.js`:
+
+```js
+export const SUPABASE_CONFIG = Object.freeze({
+  url: "https://TU-PROYECTO.supabase.co",
+  publishableKey: "sb_publishable_TU_CLAVE",
+  localAdminPin: "LN2026"
+});
+```
+
+La publishable key puede estar en el navegador. Nunca pegues una secret key ni una `service_role` key en los archivos del sitio.
+
+### 6. Publicar y probar
+1. Sube todos los archivos a la raíz del repositorio de LN Studio.
+2. Publica en Cloudflare Pages.
+3. Abre `invitacion.html?modelo=aniversario-fantasmas`.
+4. Registra una confirmación.
+5. Abre `admin.html`.
+6. Inicia sesión con `lnstudio.eventos@gmail.com` y la contraseña creada.
+7. Comprueba que aparece la respuesta y prueba el check-in.
+
+## Modo local
+Mientras `url` y `publishableKey` estén vacías, el proyecto sigue funcionando en modo local para pruebas. Los datos locales solo existen en ese navegador y no son el sistema definitivo.
+
+## Archivos de Supabase
+- `supabase.js`: Project URL y publishable key.
+- `supabase.sql`: tablas, evento, RLS y Realtime.
+- `supabase-admin.sql`: autoriza al usuario administrador.
+
+## Cloudflare Pages
 - Framework preset: None
 - Build command: vacío
 - Build output directory: `.`
 - Root directory: vacío
 - Production branch: `main`
 
-Todos los archivos deben permanecer directamente en la raíz del repositorio.
+Todos los archivos permanecen directamente en la raíz del repositorio.
