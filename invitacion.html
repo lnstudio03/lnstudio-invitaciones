@@ -3,16 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex">
-  <title>Módulo en preparación | LN Studio</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#05070b">
+  <meta name="description" content="Invitación digital interactiva creada por LN Studio.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Invitación digital | LN Studio">
+  <meta property="og:description" content="Abre la invitación, consulta todos los detalles y confirma tu asistencia.">
+  <meta property="og:image" content="social-preview.jpg">
+  <title>Invitación digital | LN Studio</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="invitacion.css">
+  <script type="module" src="invitation.js"></script>
 </head>
-<body style="display:grid;min-height:100svh;place-items:center;background:#080808;color:#fff;text-align:center">
-  <main class="container">
-    <p class="eyebrow">LN Studio</p>
-    <h1 style="font-size:clamp(2.5rem,7vw,5rem)">Módulo en preparación</h1>
-    <p style="color:rgba(255,255,255,.65)">Esta sección se habilitará en la entrega correspondiente.</p>
-    <a class="button" href="index.html">Volver al inicio</a>
+<body class="invitation-page" data-model="aniversario-fantasmas">
+  <div class="invite-progress" aria-hidden="true"><span></span></div>
+
+  <div class="invite-tools">
+    <a href="catalogo.html" aria-label="Volver al catálogo">← Catálogo</a>
+    <button type="button" data-share>Compartir</button>
+  </div>
+
+  <main class="invite-flow">
+    <div class="invite-opening">
+      <div class="ambient ambient-one" aria-hidden="true"></div>
+      <div class="ambient ambient-two" aria-hidden="true"></div>
+      <div class="opening-grid">
+        <div class="opening-copy invite-reveal">
+          <p class="invite-kicker" data-kicker>Estás invitado</p>
+          <p class="invite-brand" data-brand>Fantasmas Biker's Shop</p>
+          <h1 data-title>Primer aniversario</h1>
+          <p class="invite-subtitle" data-subtitle>y lanzamiento oficial de Aliados Fantasma</p>
+          <div class="opening-date"><span data-day>29</span><div><small data-month>Agosto</small><strong data-year>2026</strong></div></div>
+        </div>
+        <div class="opening-emblem invite-reveal" aria-hidden="true">
+          <div class="emblem-ring"></div>
+          <div class="emblem-center"><span data-emblem>01</span><small>AÑO</small></div>
+          <div class="emblem-pulse"></div>
+        </div>
+      </div>
+      <a class="invite-scroll" href="#detalles">Descubre la invitación <span>↓</span></a>
+    </div>
+
+    <div class="invite-statement invite-reveal">
+      <p data-intro>Hace un año comenzó una idea entre productos, motos, amigos y comunidad. Hoy queremos celebrar contigo todo lo recorrido y presentar el siguiente capítulo.</p>
+      <strong data-statement>Una tienda. Una comunidad. Una nueva red de aliados.</strong>
+    </div>
+
+    <div class="invite-countdown invite-reveal" aria-label="Cuenta regresiva para el evento">
+      <p>Faltan</p>
+      <div class="countdown-grid">
+        <div><strong data-days>00</strong><span>Días</span></div>
+        <div><strong data-hours>00</strong><span>Horas</span></div>
+        <div><strong data-minutes>00</strong><span>Minutos</span></div>
+        <div><strong data-seconds>00</strong><span>Segundos</span></div>
+      </div>
+      <p class="event-started" data-event-started hidden>La celebración ya comenzó.</p>
+    </div>
+
+    <div class="invite-details" id="detalles">
+      <div class="detail-intro invite-reveal">
+        <p class="invite-kicker">La cita</p>
+        <h2 data-full-date>Sábado 29 de agosto de 2026</h2>
+      </div>
+      <div class="detail-columns">
+        <div class="detail-card invite-reveal"><span>Hora</span><strong data-time>3:00 p.m.</strong><p>Llega con tiempo para vivir la experiencia completa.</p></div>
+        <div class="detail-card invite-reveal"><span>Lugar</span><strong data-location-short>Fantasmas Biker's Shop</strong><p data-address>Av. Gobernadora 656, Cd. Azteca, Ecatepec.</p><a data-map-link target="_blank" rel="noopener noreferrer">Abrir ubicación →</a></div>
+        <div class="detail-card invite-reveal"><span>Motivo</span><strong data-purpose>Celebrar y presentar lo que sigue</strong><p data-purpose-copy>Primer aniversario de la tienda y lanzamiento oficial de Aliados Fantasma.</p></div>
+      </div>
+    </div>
+
+    <div class="invite-moment invite-reveal">
+      <div class="moment-number" data-moment-number>01</div>
+      <div>
+        <p class="invite-kicker">Primer aniversario</p>
+        <h2 data-moment-title>Gracias por ser parte de esta historia.</h2>
+        <p data-moment-copy>Este encuentro está dedicado a clientes, amistades, negocios y personas que han acompañado a Fantasmas Biker's Shop durante su primer año.</p>
+      </div>
+    </div>
+
+    <div class="invite-launch invite-reveal">
+      <p class="invite-kicker">Una nueva etapa</p>
+      <h2 data-launch-title>Aliados Fantasma despierta.</h2>
+      <p data-launch-copy>Durante el aniversario presentaremos oficialmente la red creada para conectar, impulsar y dar visibilidad a negocios locales.</p>
+      <div class="launch-line"><span></span><strong data-launch-tagline>Comunidad que compra local. Negocios que crecen juntos.</strong><span></span></div>
+    </div>
+
+    <div class="invite-rsvp" id="confirmar">
+      <div class="rsvp-copy invite-reveal">
+        <p class="invite-kicker">Confirma tu asistencia</p>
+        <h2 data-rsvp-title>Queremos contar contigo.</h2>
+        <p data-rsvp-copy>Registra tu respuesta para ayudarnos a organizar la celebración. Puedes confirmar también a tus acompañantes.</p>
+        <div class="rsvp-note"><span>RSVP</span><p>La información se utiliza únicamente para organizar este evento.</p></div>
+      </div>
+
+      <form class="rsvp-form invite-reveal" id="rsvp-form">
+        <input type="hidden" name="event_slug" data-event-slug value="aniversario-fantasmas">
+        <fieldset class="attendance-choice">
+          <legend>¿Podrás acompañarnos?</legend>
+          <label><input type="radio" name="attendance" value="confirmado" required><span>Sí, ahí estaré</span></label>
+          <label><input type="radio" name="attendance" value="no_asiste" required><span>No podré asistir</span></label>
+        </fieldset>
+
+        <label>Nombre completo<input type="text" name="name" autocomplete="name" maxlength="100" required placeholder="Escribe tu nombre"></label>
+        <label>WhatsApp<input type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="20" required placeholder="Ej. 55 1234 5678"></label>
+
+        <div class="form-pair">
+          <label>Acompañantes<select name="guests_count"><option value="0">Sin acompañantes</option><option value="1">1 acompañante</option><option value="2">2 acompañantes</option><option value="3">3 acompañantes</option><option value="4">4 acompañantes</option><option value="5">5 acompañantes</option></select></label>
+          <label data-guest-names-wrap>Nombres de acompañantes<input type="text" name="guest_names" maxlength="220" placeholder="Opcional"></label>
+        </div>
+
+        <label>Mensaje para los anfitriones<textarea name="message" rows="3" maxlength="400" placeholder="Opcional"></textarea></label>
+        <label class="privacy-check"><input type="checkbox" required><span>Acepto enviar estos datos para el control de asistencia.</span></label>
+        <button type="submit" class="rsvp-submit"><span>Registrar respuesta</span><small>Confirmar asistencia →</small></button>
+        <p class="rsvp-status" id="rsvp-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+
+    <div class="invite-success" data-success hidden>
+      <div class="success-mark">✓</div>
+      <p class="invite-kicker">Respuesta registrada</p>
+      <h2 data-success-title>Gracias por confirmar.</h2>
+      <p data-success-copy>Tu respuesta quedó guardada para el evento.</p>
+      <div class="success-reference">Folio <strong data-reference>—</strong></div>
+      <div class="success-actions"><button type="button" data-calendar>Agregar al calendario</button><button type="button" data-share>Compartir invitación</button></div>
+    </div>
+
+    <div class="invite-close invite-reveal">
+      <div class="close-symbol" aria-hidden="true">✦</div>
+      <p data-close-copy>Nos vemos para celebrar el camino recorrido y todo lo que está por comenzar.</p>
+      <strong data-close-brand>Fantasmas Biker's Shop</strong>
+      <small>Invitación digital creada por <a href="index.html">LN Studio</a></small>
+    </div>
   </main>
 </body>
 </html>
