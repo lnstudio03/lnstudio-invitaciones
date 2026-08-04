@@ -1,8 +1,196 @@
-import {getSupabaseClient} from './supabase.js';const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let c,eventId,eventData,rsvps=[],groups=[],members=[],passes=[],checkins=[];document.addEventListener('DOMContentLoaded',init);
-async function init(){c=await getSupabaseClient();eventId=new URLSearchParams(location.search).get('id');const {data:{session}}=await c.auth.getSession();if(!session)return location.href='admin.html';$('[data-logout]').onclick=async()=>{await c.auth.signOut();location.href='admin.html'};document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>tab(b.dataset.tab));$('[data-add-guest]').onclick=()=>$('#guest-dialog').showModal();$('[data-add-member]').onclick=()=>$('#member-dialog').showModal();$('#guest-form').addEventListener('submit',saveGuest);$('#member-form').addEventListener('submit',saveMember);$('#settings-form').addEventListener('submit',saveSettings);await load()}
-async function load(){const [e,r,g,m,p,k]=await Promise.all([c.from('events').select('*,clients(business_name)').eq('id',eventId).single(),c.from('rsvp_responses').select('*').eq('event_id',eventId).order('created_at',{ascending:false}),c.from('guest_groups').select('*').eq('event_id',eventId).order('created_at',{ascending:false}),c.from('event_members').select('*').eq('event_id',eventId),c.from('access_passes').select('*').eq('event_id',eventId),c.from('checkins').select('*').eq('event_id',eventId).order('created_at',{ascending:false})]);if(e.error)return alert(e.error.message);eventData=e.data;rsvps=r.data||[];groups=g.data||[];members=m.data||[];passes=p.data||[];checkins=k.data||[];render()}
-function render(){$('[data-client]').textContent=eventData.clients?.business_name||'';$('[data-title]').textContent=eventData.name;$('[data-meta]').textContent=eventData.event_date?new Intl.DateTimeFormat('es-MX',{dateStyle:'full',timeStyle:'short'}).format(new Date(eventData.event_date)):'Fecha pendiente';$('[data-open]').href=`evento.html?token=${eventData.private_token}`;$('[data-scan]').href=`scanner.html?event=${eventId}`;$('[data-rsvp]').textContent=rsvps.length;$('[data-confirmed]').textContent=rsvps.filter(x=>x.attendance==='confirmed').reduce((a,x)=>a+Number(x.party_size||0),0);$('[data-checkin]').textContent=checkins.filter(x=>x.decision==='approved').reduce((a,x)=>a+Number(x.entries||0),0);$('[data-pending]').textContent=groups.filter(x=>x.status==='pending').length;$('[data-rsvp-body]').innerHTML=rsvps.map(r=>{const p=passes.find(x=>x.rsvp_id===r.id),used=p?.used_entries||0;return `<tr><td><b>${esc(r.respondent_name)}</b><small>${esc(r.phone||'')}</small></td><td>${r.attendance==='confirmed'?'Confirmado':'No asistirá'}</td><td>${r.party_size}</td><td>${esc(p?.folio||'—')}</td><td>${used}/${p?.allowed_entries||0}</td></tr>`}).join('');$('[data-guests-body]').innerHTML=groups.map(g=>`<tr><td><b>${esc(g.display_name)}</b><small>${esc(g.status)}</small></td><td>${esc(g.phone||g.email||'—')}</td><td>${g.allowed_entries}</td><td>${esc(g.table_name||'—')}</td><td>${esc(g.invitation_code)}</td></tr>`).join('');$('[data-members-body]').innerHTML=members.map(m=>`<tr><td>${esc(m.email)}</td><td>${esc(m.role)}</td><td>${m.active?'Activo':'Suspendido'}</td></tr>`).join('');const f=$('#settings-form');['name','status','venue_name','venue_address','maps_url','description','max_companions'].forEach(n=>f.elements[n].value=eventData[n]??'');if(eventData.event_date)f.elements.event_date.value=new Date(new Date(eventData.event_date).getTime()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16)}
-function tab(name){document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==name)}
-async function saveGuest(e){e.preventDefault();const v=Object.fromEntries(new FormData(e.currentTarget));v.event_id=eventId;v.allowed_entries=Number(v.allowed_entries);const {error}=await c.from('guest_groups').insert(v);if(error)return alert(error.message);e.currentTarget.reset();$('#guest-dialog').close();load()}
-async function saveMember(e){e.preventDefault();const v=Object.fromEntries(new FormData(e.currentTarget));v.event_id=eventId;v.email=v.email.toLowerCase().trim();const {error}=await c.from('event_members').upsert(v,{onConflict:'event_id,email'});if(error)return alert(error.message);e.currentTarget.reset();$('#member-dialog').close();load()}
-async function saveSettings(e){e.preventDefault();const v=Object.fromEntries(new FormData(e.currentTarget));v.max_companions=Number(v.max_companions);if(v.event_date)v.event_date=new Date(v.event_date).toISOString();else delete v.event_date;const {error}=await c.from('events').update(v).eq('id',eventId);if(error)return alert(error.message);alert('Evento actualizado');load()}
+import { api, ApiError } from "./supabase.js";
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const esc = (value = "") => String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+
+const state = { eventId: null, user: null, profile: null, event: null, client: null, rsvps: [], groups: [], members: [], passes: [], checkins: [], canAdmin: false, canScan: false };
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  state.eventId = new URLSearchParams(location.search).get("id");
+  if (!state.eventId) return fail("Falta el identificador del evento.");
+  const session = await api.getSession();
+  if (!session) return location.replace("admin.html");
+  state.user = await api.getUser();
+  bind();
+  await load();
+}
+
+function bind() {
+  $("[data-logout]").addEventListener("click", async () => { await api.signOut(); location.replace("admin.html"); });
+  $$('[data-tab]').forEach((button) => button.addEventListener("click", () => tab(button.dataset.tab)));
+  $$('[data-close]').forEach((button) => button.addEventListener("click", () => button.closest("dialog")?.close()));
+  $("[data-add-guest]").addEventListener("click", () => openGuest());
+  $("[data-add-member]").addEventListener("click", () => openMember());
+  $("#guest-form").addEventListener("submit", saveGuest);
+  $("#member-form").addEventListener("submit", saveMember);
+  $("#settings-form").addEventListener("submit", saveSettings);
+  $("[data-rsvp-search]").addEventListener("input", renderRsvps);
+  $("[data-rsvp-filter]").addEventListener("change", renderRsvps);
+  $("[data-export]").addEventListener("click", exportCsv);
+}
+
+async function load() {
+  setStatus("Cargando evento…", "loading");
+  try {
+    const [profiles, events, rsvps, groups, members, passes, checkins] = await Promise.all([
+      api.select("profiles", { filters: { id: state.user.id }, limit: 1 }),
+      api.select("events", { filters: { id: state.eventId }, limit: 1 }),
+      api.select("rsvp_responses", { filters: { event_id: state.eventId }, order: "created_at.desc" }),
+      api.select("guest_groups", { filters: { event_id: state.eventId }, order: "created_at.desc" }),
+      api.select("event_members", { filters: { event_id: state.eventId }, order: "created_at.desc" }),
+      api.select("access_passes", { filters: { event_id: state.eventId }, order: "created_at.desc" }),
+      api.select("checkins", { filters: { event_id: state.eventId }, order: "created_at.desc" })
+    ]);
+    state.profile = profiles?.[0] || null;
+    state.event = events?.[0] || null;
+    if (!state.event) throw new Error("No tienes acceso a este evento o ya no existe.");
+    state.rsvps = rsvps || []; state.groups = groups || []; state.members = members || []; state.passes = passes || []; state.checkins = checkins || [];
+    if (state.event.client_id) state.client = (await api.select("clients", { filters: { id: state.event.client_id }, limit: 1 }))?.[0] || null;
+    const ownMembership = state.members.find((member) => member.user_id === state.user.id || member.email?.toLowerCase() === state.user.email?.toLowerCase());
+    const globalAdmin = ["owner", "staff"].includes(state.profile?.global_role);
+    state.canAdmin = globalAdmin || ownMembership?.role === "client_admin";
+    state.canScan = globalAdmin || ["client_admin", "event_staff"].includes(ownMembership?.role);
+    render(); setStatus("", "info");
+  } catch (error) { fail(errorMessage(error)); }
+}
+
+function render() {
+  $("[data-client]").textContent = state.client?.business_name || "Evento privado";
+  $("[data-title]").textContent = state.event.name;
+  $("[data-meta]").textContent = formatDate(state.event.event_date);
+  $("[data-open]").href = `evento.html?token=${encodeURIComponent(state.event.private_token)}`;
+  $("[data-scan]").href = `scanner.html?event=${encodeURIComponent(state.eventId)}`;
+  $("[data-scan]").hidden = !state.canScan;
+  $("[data-add-guest]").hidden = !state.canAdmin;
+  $("[data-add-member]").hidden = !state.canAdmin;
+  $("#settings-form").querySelectorAll("input,select,textarea,button").forEach((field) => field.disabled = !state.canAdmin);
+
+  const confirmed = state.rsvps.filter((item) => item.attendance === "confirmed").reduce((sum, item) => sum + Number(item.party_size || 0), 0);
+  const checked = state.checkins.filter((item) => item.decision === "approved").reduce((sum, item) => sum + Number(item.entries || 0), 0);
+  setText("[data-rsvp]", state.rsvps.length); setText("[data-confirmed]", confirmed); setText("[data-checkin]", checked); setText("[data-pending]", state.groups.filter((group) => group.status === "pending").length);
+
+  renderRsvps(); renderGuests(); renderMembers(); renderCheckins(); renderLatest(); fillSettings();
+}
+
+function renderRsvps() {
+  const query = ($("[data-rsvp-search]").value || "").trim().toLowerCase();
+  const filter = $("[data-rsvp-filter]").value;
+  const passMap = new Map(state.passes.map((pass) => [pass.rsvp_id, pass]));
+  const rows = state.rsvps.filter((rsvp) => {
+    const pass = passMap.get(rsvp.id);
+    const haystack = `${rsvp.respondent_name} ${rsvp.phone || ""} ${pass?.folio || ""}`.toLowerCase();
+    return (filter === "all" || rsvp.attendance === filter) && (!query || haystack.includes(query));
+  });
+  $("[data-rsvp-body]").innerHTML = rows.map((rsvp) => {
+    const pass = passMap.get(rsvp.id);
+    return `<tr><td><b>${esc(rsvp.respondent_name)}</b><small>${esc(rsvp.phone || rsvp.email || "")}</small></td><td>${rsvp.attendance === "confirmed" ? "Confirmado" : "No asistirá"}</td><td>${Number(rsvp.party_size || 0)}</td><td>${esc(pass?.folio || "—")}</td><td>${pass ? `${Number(pass.used_entries || 0)}/${Number(pass.allowed_entries || 0)}` : "—"}</td><td>${state.canAdmin ? `<button type="button" class="delete-button" data-delete-rsvp="${rsvp.id}">×</button>` : ""}</td></tr>`;
+  }).join("");
+  $("[data-rsvp-empty]").hidden = rows.length > 0;
+  $$('[data-delete-rsvp]').forEach((button) => button.addEventListener("click", () => deleteRsvp(button.dataset.deleteRsvp)));
+}
+
+function renderGuests() {
+  $("[data-guests-body]").innerHTML = state.groups.map((group) => `<tr><td><b>${esc(group.display_name)}</b><small>${statusLabel(group.status)}</small></td><td>${esc(group.phone || group.email || "—")}</td><td>${Number(group.allowed_entries || 1)}</td><td>${esc(group.table_name || "—")}</td><td>${esc(group.invitation_code)}</td><td>${state.canAdmin ? `<button type="button" data-edit-guest="${group.id}">Editar</button>` : ""}</td></tr>`).join("");
+  $("[data-guests-empty]").hidden = state.groups.length > 0;
+  $$('[data-edit-guest]').forEach((button) => button.addEventListener("click", () => openGuest(button.dataset.editGuest)));
+}
+
+function renderMembers() {
+  $("[data-members-body]").innerHTML = state.members.map((member) => `<tr><td>${esc(member.email)}</td><td>${roleLabel(member.role)}</td><td>${member.active ? "Activo" : "Pausado"}</td><td>${state.canAdmin ? `<button type="button" data-edit-member="${member.id}">Editar</button>` : ""}</td></tr>`).join("");
+  $("[data-members-empty]").hidden = state.members.length > 0;
+  $$('[data-edit-member]').forEach((button) => button.addEventListener("click", () => openMember(button.dataset.editMember)));
+}
+
+function renderCheckins() {
+  const passMap = new Map(state.passes.map((pass) => [pass.id, pass]));
+  $("[data-checkins-body]").innerHTML = state.checkins.map((item) => `<tr><td>${formatDate(item.created_at)}</td><td>${esc(passMap.get(item.pass_id)?.folio || "—")}</td><td>${item.decision === "approved" ? "Aprobado" : item.decision === "rejected" ? "Rechazado" : "Revertido"}</td><td>${Number(item.entries || 0)}</td><td>${esc(item.reason || "—")}</td></tr>`).join("");
+  $("[data-checkins-empty]").hidden = state.checkins.length > 0;
+}
+
+function renderLatest() {
+  const passMap = new Map(state.passes.map((pass) => [pass.id, pass]));
+  $("[data-latest-checkins]").innerHTML = state.checkins.slice(0, 5).map((item) => `<article class="member-row"><div><strong>${esc(passMap.get(item.pass_id)?.folio || "Pase")}</strong><small>${formatDate(item.created_at)}</small></div><span>${item.decision === "approved" ? `${item.entries} acceso(s)` : "Rechazado"}</span></article>`).join("") || '<div class="empty-state">Todavía no hay accesos.</div>';
+}
+
+function fillSettings() {
+  const form = $("#settings-form");
+  const fields = ["name", "status", "template_key", "venue_name", "venue_address", "maps_url", "description", "dress_code", "max_companions", "logo_url", "secondary_logo_url", "hero_image_url", "music_url", "theme_primary", "theme_secondary"];
+  fields.forEach((name) => { if (form.elements[name]) form.elements[name].value = state.event[name] ?? ""; });
+  form.elements.event_date.value = state.event.event_date ? toLocalInput(state.event.event_date) : "";
+  form.elements.allow_general_rsvp.value = String(Boolean(state.event.allow_general_rsvp));
+  form.elements.qr_enabled.value = String(Boolean(state.event.qr_enabled));
+}
+
+function tab(name) { $$('[data-tab]').forEach((button) => button.classList.toggle("active", button.dataset.tab === name)); $$('[data-panel]').forEach((panel) => panel.hidden = panel.dataset.panel !== name); }
+
+function openGuest(id = null) {
+  const form = $("#guest-form"); form.reset(); form.elements.id.value = ""; form.elements.allowed_entries.value = "1"; $("[data-guest-status]").textContent = "";
+  const group = id ? state.groups.find((item) => item.id === id) : null; $("[data-guest-title]").textContent = group ? "Editar grupo" : "Nuevo grupo";
+  if (group) fillForm(form, group); $("#guest-dialog").showModal();
+}
+
+async function saveGuest(event) {
+  event.preventDefault(); const form = event.currentTarget; if (!form.reportValidity()) return;
+  const status = $("[data-guest-status]"); status.textContent = "Guardando…"; setBusy(form, true);
+  try {
+    const id = form.elements.id.value; const values = Object.fromEntries(new FormData(form)); delete values.id;
+    values.event_id = state.eventId; values.allowed_entries = Number(values.allowed_entries || 1); values.email = values.email ? values.email.toLowerCase().trim() : null;
+    if (id) await api.update("guest_groups", values, { id }); else await api.insert("guest_groups", values);
+    $("#guest-dialog").close(); await load();
+  } catch (error) { status.textContent = errorMessage(error); } finally { setBusy(form, false); }
+}
+
+function openMember(id = null) {
+  const form = $("#member-form"); form.reset(); form.elements.id.value = ""; form.elements.active.checked = true; $("[data-member-status]").textContent = "";
+  const member = id ? state.members.find((item) => item.id === id) : null; if (member) { fillForm(form, member); form.elements.active.checked = member.active; }
+  $("#member-dialog").showModal();
+}
+
+async function saveMember(event) {
+  event.preventDefault(); const form = event.currentTarget; if (!form.reportValidity()) return;
+  const status = $("[data-member-status]"); status.textContent = "Guardando…"; setBusy(form, true);
+  try {
+    await api.rpc("upsert_event_member", { p_event_id: state.eventId, p_email: form.elements.email.value.trim().toLowerCase(), p_role: form.elements.role.value, p_active: form.elements.active.checked });
+    $("#member-dialog").close(); await load();
+  } catch (error) { status.textContent = errorMessage(error); } finally { setBusy(form, false); }
+}
+
+async function saveSettings(event) {
+  event.preventDefault(); const form = event.currentTarget; if (!form.reportValidity()) return;
+  const status = $("[data-settings-status]"); status.textContent = "Guardando…"; setBusy(form, true);
+  try {
+    const values = Object.fromEntries(new FormData(form));
+    values.event_date = values.event_date ? new Date(values.event_date).toISOString() : null;
+    values.max_companions = Number(values.max_companions || 0); values.allow_general_rsvp = values.allow_general_rsvp === "true"; values.qr_enabled = values.qr_enabled === "true";
+    await api.update("events", values, { id: state.eventId }); status.textContent = "Cambios guardados."; await load(); tab("settings");
+  } catch (error) { status.textContent = errorMessage(error); } finally { setBusy(form, false); }
+}
+
+async function deleteRsvp(id) {
+  if (!confirm("¿Eliminar esta confirmación y su pase QR?")) return;
+  try { await api.remove("rsvp_responses", { id }); await load(); tab("rsvp"); } catch (error) { alert(errorMessage(error)); }
+}
+
+function exportCsv() {
+  if (!state.rsvps.length) return alert("Todavía no hay confirmaciones para exportar.");
+  const passMap = new Map(state.passes.map((pass) => [pass.rsvp_id, pass]));
+  const rows = [["Nombre", "Teléfono", "Correo", "Respuesta", "Personas", "Acompañantes", "Folio", "Usados", "Autorizados", "Fecha"]];
+  state.rsvps.forEach((item) => { const pass = passMap.get(item.id); rows.push([item.respondent_name, item.phone, item.email, item.attendance, item.party_size, item.guest_names, pass?.folio, pass?.used_entries, pass?.allowed_entries, item.created_at]); });
+  const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n"); const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `${slugify(state.event.name)}-invitados.csv`; link.click(); URL.revokeObjectURL(link.href);
+}
+
+function fail(message) { setStatus(message, "error"); }
+function setStatus(message, type) { const node = $("[data-page-status]"); node.hidden = !message; node.dataset.type = type; node.textContent = message; }
+function setText(selector, value) { $(selector).textContent = String(value); }
+function fillForm(form, data) { Object.entries(data).forEach(([key, value]) => { const field = form.elements[key]; if (!field || value == null) return; if (field.type === "checkbox") field.checked = Boolean(value); else field.value = value; }); }
+function setBusy(form, busy) { $$('button', form).forEach((field) => field.disabled = busy); form.setAttribute('aria-busy', String(busy)); }
+function errorMessage(error) { return error instanceof ApiError ? error.message : error?.message || "Ocurrió un error inesperado."; }
+function formatDate(value) { if (!value) return "Fecha pendiente"; try { return new Intl.DateTimeFormat("es-MX", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); } catch { return value; } }
+function toLocalInput(value) { const date = new Date(value); return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
+function statusLabel(value) { return ({ pending: "Pendiente", confirmed: "Confirmado", declined: "No asistirá", cancelled: "Cancelado" })[value] || value; }
+function roleLabel(value) { return ({ client_admin: "Cliente administrador", event_staff: "Personal de acceso", viewer: "Solo lectura" })[value] || value; }
+function csvCell(value) { return `"${String(value ?? "").replaceAll('"', '""')}"`; }
+function slugify(value) { return String(value || "evento").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }

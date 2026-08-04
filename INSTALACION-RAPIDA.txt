@@ -1,0 +1,34 @@
+LN STUDIO v4.0 — INSTALACIÓN RÁPIDA
+
+1. SUPABASE
+   SQL Editor > New query.
+   Copia y ejecuta TODO el archivo MIGRACION-v4.sql.
+
+2. AUTH
+   Authentication > URL Configuration.
+   Site URL: https://lnstudio-invitaciones.pages.dev
+   Redirect URLs:
+   https://lnstudio-invitaciones.pages.dev/admin
+   https://lnstudio-invitaciones.pages.dev/admin.html
+
+3. GITHUB
+   Elimina primero si todavía existen:
+   _redirects
+   wrangler.jsonc
+   wrangler.toml
+
+   Sube todos los archivos del ZIP a la raíz y reemplaza los anteriores.
+
+4. CLOUDFLARE
+   Build command: vacío
+   Build output directory: .
+   Root directory: /
+
+5. ENTRAR
+   https://lnstudio-invitaciones.pages.dev/admin
+   Correo: lnstudio.eventos@gmail.com
+   Contraseña: la que ya creaste en Supabase.
+
+6. IMPORTANTE
+   El enlace privado del aniversario se renueva al ejecutar la migración.
+   Ábrelo desde el botón “Invitación” dentro del dashboard.

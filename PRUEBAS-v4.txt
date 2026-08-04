@@ -1,0 +1,50 @@
+LN STUDIO v4.0 — REPORTE DE PRUEBAS
+Fecha: 4 de agosto de 2026
+
+RESULTADO GENERAL
+28 de 28 pruebas funcionales aprobadas.
+Revisión estática: aprobada.
+Errores JavaScript no controlados: 0.
+Referencias locales revisadas: 165.
+
+FLUJOS PROBADOS EN NAVEGADOR
+[OK] Página principal carga.
+[OK] La página principal no muestra el evento real.
+[OK] Catálogo público carga y contiene muestras.
+[OK] El catálogo no expone el aniversario real.
+[OK] La plantilla biker usa datos ficticios.
+[OK] Cotizador inicia en paso 1 de 6.
+[OK] Cotizador termina en resumen final, sin “Paso 6 de 5”.
+[OK] Cotización se registra y genera folio.
+[OK] Login no coloca credenciales en la URL.
+[OK] Dashboard propietario abre.
+[OK] Dashboard muestra herramientas de alta.
+[OK] Dashboard carga el evento de Fantasmas.
+[OK] Crear cliente.
+[OK] Crear evento.
+[OK] Abrir panel específico del evento.
+[OK] Agregar grupo o familia invitada.
+[OK] Asignar personal de acceso por correo.
+[OK] Editar configuración del evento.
+[OK] Crear plantilla.
+[OK] Convertir una cotización en cliente.
+[OK] Abrir invitación oficial privada.
+[OK] Meta noindex/nofollow en invitación privada.
+[OK] Registrar RSVP y generar QR local.
+[OK] Guardar el pase en el backend.
+[OK] Validar pase en el escáner.
+[OK] Registrar entrada parcial y conservar accesos restantes.
+[OK] Sin errores JavaScript no controlados.
+
+PRUEBAS TÉCNICAS
+[OK] Sintaxis de todos los archivos JavaScript.
+[OK] JSON y manifest válidos.
+[OK] Enlaces, scripts, estilos e imágenes locales existentes.
+[OK] No existen `_redirects` ni configuraciones Wrangler incompatibles.
+[OK] La cabecera permite cámara en el mismo dominio.
+[OK] Páginas privadas marcadas como noindex.
+[OK] Formularios de contraseña no usan método GET.
+[OK] Separación entre muestras públicas y evento real.
+
+NOTA
+Las pruebas de navegador usaron un backend de pruebas compatible con las llamadas del frontend. Para producción es obligatorio ejecutar MIGRACION-v4.sql en el Supabase real de LN Studio.

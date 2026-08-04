@@ -1,1 +1,86 @@
-import {getSupabaseClient} from './supabase.js';const $=s=>document.querySelector(s);let c,currentToken,currentPass;document.addEventListener('DOMContentLoaded',init);async function init(){c=await getSupabaseClient();const {data:{session}}=await c.auth.getSession();if(!session)return location.href='admin.html';$('#manual-form').addEventListener('submit',e=>{e.preventDefault();lookup(extract(new FormData(e.currentTarget).get('token')))});$('[data-approve]').onclick=()=>process('approved');$('[data-reject]').onclick=()=>process('rejected');const initial=new URLSearchParams(location.search).get('token');if(initial)lookup(initial);if(window.Html5Qrcode){const qr=new Html5Qrcode('reader');qr.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:250}},text=>{qr.pause(true);lookup(extract(text)).finally(()=>setTimeout(()=>qr.resume(),1800))}).catch(()=>$('#scan-status').textContent='La cámara no está disponible. Usa el campo manual.') }}function extract(v=''){try{return new URL(v).searchParams.get('token')||v.split('/').pop()}catch{return v.trim()}}async function lookup(t){currentToken=t;$('#scan-status').textContent='Consultando…';const {data,error}=await c.from('access_passes').select('*,rsvp_responses(respondent_name,phone),events(name)').eq('token',t).maybeSingle();if(error||!data){show(false,'Código no válido','No se encontró un pase con este código.');return}currentPass=data;const rem=Math.max(data.allowed_entries-data.used_entries,0);$('[data-folio]').textContent=data.folio;$('[data-remaining]').textContent=`${rem} de ${data.allowed_entries}`;$('[data-entries]').max=Math.max(rem,1);$('[data-entries]').value=Math.max(Math.min(rem,1),1);show(data.status==='active'&&rem>0,data.rsvp_responses?.respondent_name||'Pase digital',data.status==='completed'?'Este pase ya fue utilizado por completo.':data.status==='cancelled'?'Este pase fue cancelado.':`Evento: ${data.events?.name||''}`)}function show(ok,title,msg){$('[data-result]').hidden=false;$('[data-result-title]').textContent=title;$('[data-result-message]').textContent=msg;$('[data-approve]').disabled=!ok;$('#scan-status').textContent=''}async function process(decision){if(!currentToken)return;const entries=Number($('[data-entries]').value||1);const {data,error}=await c.rpc('process_checkin',{p_token:currentToken,p_entries:entries,p_decision:decision,p_reason:decision==='rejected'?'Rechazado por operador':null,p_device:navigator.userAgent});if(error)return $('#scan-status').textContent=error.message;$('#scan-status').textContent=data.message;lookup(currentToken)}
+import { api, ApiError } from "./supabase.js";
+const $ = (selector) => document.querySelector(selector);
+let events = [], currentToken = null, currentData = null, stream = null, detector = null, scanning = false;
+
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  const session = await api.getSession(); if (!session) return location.replace("admin.html");
+  bind();
+  try {
+    events = await api.select("events", { order: "event_date.asc" }) || [];
+    const select = $("[data-event-select]");
+    select.innerHTML = '<option value="">Selecciona un evento</option>' + events.map((event) => `<option value="${event.id}">${escapeHtml(event.name)}</option>`).join("");
+    const requestedEvent = new URLSearchParams(location.search).get("event"); if (requestedEvent && events.some((event) => event.id === requestedEvent)) select.value = requestedEvent;
+    const token = extractToken(new URLSearchParams(location.search).get("token") || ""); if (token) await lookup(token);
+  } catch (error) { status(errorMessage(error)); }
+}
+
+function bind() {
+  $("#manual-form").addEventListener("submit", async (event) => { event.preventDefault(); const token = extractToken(new FormData(event.currentTarget).get("token")); if (token) await lookup(token); });
+  $("[data-start-camera]").addEventListener("click", startCamera);
+  $("[data-stop-camera]").addEventListener("click", stopCamera);
+  $("[data-approve]").addEventListener("click", () => processDecision("approved"));
+  $("[data-reject]").addEventListener("click", () => processDecision("rejected"));
+}
+
+async function startCamera() {
+  if (!("BarcodeDetector" in window)) return status("Este navegador no permite escanear directamente. Usa el campo manual o abre la página en Chrome Android actualizado.");
+  if (!navigator.mediaDevices?.getUserMedia) return status("No se encontró acceso a la cámara. Usa el campo manual.");
+  try {
+    detector = new BarcodeDetector({ formats: ["qr_code"] });
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+    const video = $("[data-video]"); video.srcObject = stream; video.hidden = false; $("[data-camera-placeholder]").hidden = true; await video.play();
+    scanning = true; $("[data-stop-camera]").hidden = false; $("[data-start-camera]").hidden = true; status("Apunta la cámara al código QR."); scanFrame();
+  } catch (error) { status(`No fue posible abrir la cámara: ${error.message}`); stopCamera(); }
+}
+
+async function scanFrame() {
+  if (!scanning || !detector) return;
+  try {
+    const codes = await detector.detect($("[data-video]"));
+    const raw = codes?.[0]?.rawValue;
+    if (raw) { scanning = false; await lookup(extractToken(raw)); setTimeout(() => { if (stream) { scanning = true; scanFrame(); } }, 1800); return; }
+  } catch { /* Se reintenta en el siguiente cuadro. */ }
+  requestAnimationFrame(scanFrame);
+}
+
+function stopCamera() {
+  scanning = false; stream?.getTracks().forEach((track) => track.stop()); stream = null;
+  const video = $("[data-video]"); video.pause(); video.srcObject = null; video.hidden = true; $("[data-camera-placeholder]").hidden = false; $("[data-stop-camera]").hidden = true; $("[data-start-camera]").hidden = false;
+}
+
+async function lookup(token) {
+  if (!token) return status("Escribe o escanea un token.");
+  currentToken = token; currentData = null; status("Consultando pase…");
+  try {
+    const eventId = $("[data-event-select]").value || null;
+    const result = await api.rpc("lookup_access_pass", { p_token: token, p_event_id: eventId });
+    currentData = result;
+    if (!result?.ok) return show(false, "Código no válido", result?.message || "No se encontró el pase.");
+    const pass = result.pass; const remaining = Number(result.remaining || 0);
+    $("[data-folio]").textContent = pass.folio; $("[data-remaining]").textContent = `${remaining} de ${pass.allowed_entries}`; $("[data-event-name]").textContent = result.event?.name || "—"; $("[data-phone]").textContent = result.guest?.phone || "—";
+    const entries = $("[data-entries]"); entries.max = Math.max(remaining, 1); entries.value = Math.max(Math.min(remaining, 1), 1);
+    const valid = pass.status === "active" && remaining > 0;
+    show(valid, result.guest?.name || "Pase digital", pass.status === "completed" ? "Este pase ya fue utilizado por completo." : pass.status === "cancelled" ? "Este pase fue cancelado." : `${remaining} acceso(s) disponible(s).`);
+  } catch (error) { show(false, "No fue posible validar", errorMessage(error)); }
+}
+
+function show(valid, title, message) {
+  $("[data-result]").hidden = false; $("[data-result-state]").textContent = valid ? "Pase válido" : "Revisión requerida"; $("[data-result-title]").textContent = title; $("[data-result-message]").textContent = message; $("[data-approve]").disabled = !valid; status("");
+}
+
+async function processDecision(decision) {
+  if (!currentToken) return;
+  const button = decision === "approved" ? $("[data-approve]") : $("[data-reject]"); button.disabled = true; status("Registrando decisión…");
+  try {
+    const result = await api.rpc("process_checkin", { p_token: currentToken, p_entries: Number($("[data-entries]").value || 1), p_decision: decision, p_reason: $("[data-reason]").value || null, p_device: navigator.userAgent, p_event_id: $("[data-event-select]").value || null });
+    status(result?.message || "Operación registrada."); await lookup(currentToken);
+  } catch (error) { status(errorMessage(error)); button.disabled = false; }
+}
+
+function extractToken(value = "") { const text = String(value || "").trim(); if (!text) return ""; try { const url = new URL(text); return url.searchParams.get("token") || url.pathname.split("/").filter(Boolean).pop() || ""; } catch { return text.replace(/^.*token=/, "").split("&")[0]; } }
+function status(message) { $("#scan-status").textContent = message; }
+function errorMessage(error) { return error instanceof ApiError ? error.message : error?.message || "Error inesperado."; }
+function escapeHtml(value = "") { return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char])); }
+window.addEventListener("beforeunload", stopCamera);

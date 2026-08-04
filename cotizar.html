@@ -43,9 +43,9 @@
         <h1>Cuéntanos la historia que estás por celebrar.</h1>
         <p>Completa este breve recorrido. Al finalizar, prepararemos un correo con toda tu información dirigido a LN Studio.</p>
         <div class="progress-track"><span id="quote-progress"></span></div>
-        <small id="quote-step-label">Paso 1 de 5</small>
+        <small id="quote-step-label">Paso 1 de 6</small>
       </div>
-      <form id="quote-form" class="quote-form">
+      <form id="quote-form" class="quote-form" action="#" onsubmit="return false;" novalidate>
         <fieldset class="quote-step active" data-step="1">
           <legend>¿Qué vas a celebrar?</legend>
           <div class="choice-grid">
@@ -107,10 +107,16 @@
           <label>Detalles adicionales<textarea name="detalles" rows="5" placeholder="Colores, temática, referencias o cualquier detalle importante."></textarea></label>
         </fieldset>
 
+        <fieldset class="quote-step" data-step="6">
+          <legend>Revisa tu solicitud</legend>
+          <div class="quote-summary" id="quote-summary"></div>
+          <p class="form-note">Al enviarla recibirás un folio. LN Studio podrá convertirla en cliente y evento desde su panel.</p>
+        </fieldset>
+
         <div class="quote-actions">
           <button type="button" id="quote-back" class="button button-ghost" hidden>Anterior</button>
           <button type="button" id="quote-next" class="button">Continuar</button>
-          <button type="submit" id="quote-submit" class="button" hidden>Preparar solicitud</button>
+          <button type="submit" id="quote-submit" class="button" hidden>Enviar solicitud</button>
         </div>
         <p id="quote-status" class="form-note" role="status"></p>
       </form>

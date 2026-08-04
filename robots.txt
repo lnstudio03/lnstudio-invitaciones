@@ -1,4 +1,13 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /evento.html
+Disallow: /evento-admin.html
+Disallow: /scanner.html
+Disallow: /clientes.html
+Disallow: /configuracion.html
+Disallow: /pedidos.html
+Disallow: /login.html
 
 Sitemap: https://lnstudio-invitaciones.pages.dev/sitemap.xml

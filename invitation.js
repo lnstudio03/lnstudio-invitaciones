@@ -1,5 +1,3 @@
-import { getSupabaseClient, isSupabaseConfigured } from "./supabase.js";
-
 const INVITATIONS = {
   "biker-rebel-neon": sample({
     theme: "fantasma", accent: "#1748ff", accentTwo: "#ff0875", background: "#030309",
@@ -159,22 +157,13 @@ function initializeRsvp() {
 }
 
 async function saveRsvp(record) {
+  // Las invitaciones del catálogo son muestras ficticias y no escriben en la base real.
   const reference = createReference(state.model);
-  const payload = { ...record, reference_code: reference };
-
-  if (isSupabaseConfigured()) {
-    const client = await getSupabaseClient();
-    const { error } = await client.from("rsvps").insert(payload);
-    if (error) throw error;
-    return { reference, mode:"supabase" };
-  }
-
-  const key = "lnstudio_rsvps";
+  const key = "lnstudio_demo_rsvps";
   const records = JSON.parse(localStorage.getItem(key) || "[]");
-  const id = records.reduce((max,item) => Math.max(max,Number(item.id)||0),0) + 1;
-  records.push({ id,...payload });
-  localStorage.setItem(key,JSON.stringify(records));
-  return { reference, mode:"local" };
+  records.push({ id: crypto.randomUUID?.() || String(Date.now()), ...record, reference_code: reference });
+  localStorage.setItem(key, JSON.stringify(records.slice(-20)));
+  return { reference, mode: "demo" };
 }
 
 function createReference(model) {

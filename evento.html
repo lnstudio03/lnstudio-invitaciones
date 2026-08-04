@@ -1,1 +1,45 @@
-<!doctype html><html lang="es-MX"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Invitación | LN Studio</title><link rel="icon" href="favicon.png"><link rel="stylesheet" href="invitacion.css"><script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script><script type="module" src="rsvp.js"></script></head><body><main class="invitation-page"><section class="hero invitation-hero"><p class="eyebrow">LN Studio presenta</p><h1 data-name>Cargando invitación…</h1><p data-description></p><div class="event-facts"><div><span>Fecha</span><strong data-date>—</strong></div><div><span>Lugar</span><strong data-venue>—</strong></div></div><a class="primary-button" data-map target="_blank">Ver ubicación</a></section><section class="rsvp-section" data-form-section><p class="eyebrow">Confirmación</p><h2>¿Nos acompañas?</h2><form id="rsvp-form" class="rsvp-form"><label>Nombre completo<input name="name" required></label><label>WhatsApp<input name="phone" required></label><label>Correo opcional<input name="email" type="email"></label><fieldset><legend>Respuesta</legend><label><input type="radio" name="attendance" value="confirmed" checked> Sí asistiré</label><label><input type="radio" name="attendance" value="declined"> No podré asistir</label></fieldset><label>Número total de personas<input name="party_size" type="number" min="1" value="1"></label><label>Nombres de acompañantes<textarea name="guest_names"></textarea></label><label>Restricciones alimentarias<textarea name="dietary"></textarea></label><label>Mensaje<textarea name="message"></textarea></label><button class="primary-button">Confirmar asistencia</button><p id="status"></p></form></section><section class="rsvp-section" data-pass hidden><p class="eyebrow">Acceso confirmado</p><h2>Tu pase digital</h2><p>Guarda este código y preséntalo al llegar.</p><canvas id="qr"></canvas><strong data-folio></strong><p data-capacity></p></section></main></body></html>
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Invitación privada | LN Studio</title><link rel="icon" href="favicon.png"><link rel="stylesheet" href="invitacion.css">
+  <script src="qr-local.js"></script><script type="module" src="rsvp.js"></script>
+</head>
+<body class="private-event">
+<main class="official-event" data-event-shell>
+  <section class="official-hero">
+    <div class="official-glow blue"></div><div class="official-glow pink"></div>
+    <p class="invite-kicker">Invitación digital privada · LN Studio</p>
+    <img class="shop-logo" data-logo alt="Identidad del evento" hidden>
+    <h1 data-name>Cargando invitación…</h1><p class="official-subtitle" data-description></p>
+    <div class="official-brand-row" data-brand-row hidden><img data-secondary-logo alt="Logo secundario"></div>
+    <div class="event-facts"><div><span>Fecha</span><strong data-date>—</strong></div><div><span>Lugar</span><strong data-venue>—</strong></div></div>
+    <div class="success-actions"><a class="primary-button" data-map target="_blank" rel="noopener">Ver ubicación</a><button type="button" class="ghost-button" data-calendar>Agregar al calendario</button></div>
+  </section>
+
+  <section class="official-message">
+    <p class="invite-kicker">Cuenta regresiva</p><h2 data-countdown>Estamos por comenzar.</h2><p data-dress-code></p>
+  </section>
+
+  <section class="rsvp-section" data-form-section>
+    <p class="invite-kicker">Confirmación de asistencia</p><h2>¿Nos acompañas?</h2>
+    <form id="rsvp-form" class="rsvp-form" action="#" onsubmit="return false;" novalidate>
+      <label>Nombre completo<input name="name" required autocomplete="name" maxlength="120"></label>
+      <div class="form-pair"><label>WhatsApp<input name="phone" required autocomplete="tel" maxlength="30"></label><label>Correo opcional<input name="email" type="email" autocomplete="email" maxlength="160"></label></div>
+      <fieldset class="attendance-choice"><legend>Respuesta</legend><label><input type="radio" name="attendance" value="confirmed" checked><span>Sí asistiré</span></label><label><input type="radio" name="attendance" value="declined"><span>No podré asistir</span></label></fieldset>
+      <div class="form-pair" data-party-fields><label>Número total de personas<input name="party_size" type="number" min="1" value="1"></label><label>Nombres de acompañantes<textarea name="guest_names" rows="3"></textarea></label></div>
+      <label data-party-fields>Restricciones alimentarias<textarea name="dietary" rows="2"></textarea></label><label>Mensaje para los anfitriones<textarea name="message" rows="3"></textarea></label>
+      <label class="privacy-check"><input type="checkbox" required> Acepto que mis datos se utilicen exclusivamente para administrar este evento.</label>
+      <button class="rsvp-submit" type="submit"><span>Confirmar asistencia</span><small>Generar pase digital</small></button><p id="status" class="rsvp-status" role="status"></p>
+    </form>
+  </section>
+
+  <section class="invite-success digital-pass" data-pass hidden>
+    <div class="success-mark">✓</div><p class="invite-kicker">Confirmación registrada</p><h2 data-pass-title>Tu pase digital</h2><p data-pass-copy>Guarda este código y preséntalo al llegar.</p><canvas id="qr" hidden></canvas><div class="success-reference"><span>Folio: </span><strong data-folio></strong></div><p data-capacity></p><div class="success-actions"><button type="button" data-download-qr hidden>Guardar QR</button><button type="button" data-copy-pass hidden>Copiar pase</button></div>
+  </section>
+
+  <section class="invite-close"><span class="close-symbol">✦</span><p>Gracias por ser parte de esta historia.</p><strong>Invitación creada por LN Studio</strong></section>
+</main>
+</body>
+</html>
