@@ -1,0 +1,31 @@
+LN STUDIO · VERSIÓN CONECTADA A SUPABASE
+
+Project URL configurada:
+https://kdaxxmszehjwcqpuzkki.supabase.co
+
+Publishable key configurada:
+sb_publishable_UpGMapFj20qOKGOCxg1GsQ_PqPrXZXr
+
+IMPORTANTE:
+1. Sube todos los archivos del ZIP a la raíz del repositorio.
+2. En Supabase, ejecuta supabase.sql una sola vez si todavía no lo hiciste.
+3. Crea el usuario administrador en Authentication > Users.
+4. Ejecuta supabase-admin.sql después de crear ese usuario.
+5. Abre invitacion.html?modelo=aniversario-fantasmas para probar el RSVP.
+6. Abre admin.html para iniciar sesión y revisar respuestas.
+
+RUTAS REVISADAS:
+- index.html
+- catalogo.html
+- invitacion.html?modelo=aniversario-fantasmas
+- admin.html
+- contacto.html
+- cotizar.html
+- clientes.html
+- configuracion.html
+- login.html
+- pedidos.html
+- plantillas.html
+- 404.html
+
+No se detectaron referencias locales faltantes en HTML, CSS, JavaScript, imágenes o JSON.

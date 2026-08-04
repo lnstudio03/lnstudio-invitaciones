@@ -8,8 +8,8 @@
  * Nunca coloques aquí una secret key ni una service_role key.
  */
 export const SUPABASE_CONFIG = Object.freeze({
-  url: "",
-  publishableKey: "",
+  url: "https://kdaxxmszehjwcqpuzkki.supabase.co",
+  publishableKey: "sb_publishable_UpGMapFj20qOKGOCxg1GsQ_PqPrXZXr",
   localAdminPin: "LN2026"
 });
 
