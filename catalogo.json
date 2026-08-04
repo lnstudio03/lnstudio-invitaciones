@@ -1,18 +1,5 @@
 [
   {
-    "id": "aniversario-fantasmas",
-    "nombre": "Aniversario Fantasma",
-    "categoria": "social",
-    "categoriaTexto": "Aniversario · Experiencia oficial",
-    "etiqueta": "Proyecto destacado",
-    "descripcion": "Una invitación oscura, eléctrica y dinámica para el primer aniversario de Fantasmas Biker's Shop y el lanzamiento de Aliados Fantasma.",
-    "fondo": "radial-gradient(circle at 18% 18%, rgba(0,214,255,.72), transparent 28%), radial-gradient(circle at 82% 72%, rgba(255,40,137,.58), transparent 32%), linear-gradient(145deg,#03050a,#111526 55%,#050507)",
-    "acento": "#67e8f9",
-    "texto": "#ffffff",
-    "fecha": "29 AGO 2026",
-    "destacado": true
-  },
-  {
     "id": "boda-eternite",
     "nombre": "Éternité",
     "categoria": "boda",

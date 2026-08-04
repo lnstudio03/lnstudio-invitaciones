@@ -61,13 +61,13 @@ function sample(data) {
   };
 }
 
-const state = { model: "aniversario-fantasmas", data: null };
+const state = { model: "boda-eternite", data: null };
 
 document.addEventListener("DOMContentLoaded", initializeInvitation);
 
 async function initializeInvitation() {
-  state.model = new URLSearchParams(location.search).get("modelo") || "aniversario-fantasmas";
-  state.data = INVITATIONS[state.model] || INVITATIONS["aniversario-fantasmas"];
+  state.model = new URLSearchParams(location.search).get("modelo") || "boda-eternite";
+  state.data = INVITATIONS[state.model] || INVITATIONS["boda-eternite"];
   document.body.dataset.model = state.model;
   applyInvitation(state.data);
   initializeReveal();
