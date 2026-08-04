@@ -171,3 +171,29 @@ body.theme-light .invite-close { background:#e9e1d6; }
 
 /* Evento oficial privado Fantasmas */
 .private-event{background:#020208;color:#fff}.official-event{overflow:hidden}.official-hero{position:relative;min-height:100svh;padding:70px 7vw;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 20% 20%,rgba(23,72,255,.22),transparent 32%),radial-gradient(circle at 82% 20%,rgba(255,8,117,.22),transparent 35%),#020208}.official-glow{position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(90px);opacity:.35}.official-glow.blue{left:-100px;top:15%;background:#1748ff}.official-glow.pink{right:-100px;bottom:10%;background:#ff0875}.shop-logo{width:min(460px,74vw);max-height:390px;object-fit:contain;filter:drop-shadow(0 0 35px rgba(255,255,255,.16));z-index:1}.official-hero h1{max-width:1000px;margin:20px 0 10px;font:700 clamp(3.2rem,9vw,8rem)/.83 var(--invite-serif);letter-spacing:-.055em;text-transform:uppercase}.official-subtitle{max-width:820px;color:rgba(255,255,255,.72);font-size:clamp(1rem,2vw,1.4rem)}.official-brand-row{margin:35px 0;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}.official-brand-row img:first-child{width:110px}.official-brand-row img:last-child{width:min(330px,70vw);max-height:210px;object-fit:contain}.official-brand-row span{font-size:2rem;color:#fff}.official-message{padding:100px 7vw;text-align:center;background:linear-gradient(135deg,rgba(23,72,255,.12),rgba(255,8,117,.12))}.official-message h2{max-width:1000px;margin:20px auto;font:700 clamp(2.5rem,6vw,6rem)/.92 var(--invite-serif)}.official-message p{max-width:760px;margin:0 auto;color:rgba(255,255,255,.7)}.digital-pass canvas{background:#fff;padding:12px;border-radius:10px}.event-facts{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:1px;width:min(800px,100%);margin:25px auto;background:rgba(255,255,255,.18)}.event-facts>div{padding:24px;background:#080812}.event-facts span{display:block;color:#ff4d9d;text-transform:uppercase;letter-spacing:.18em;font-size:.65rem}.event-facts strong{display:block;margin-top:8px}.primary-button{display:inline-flex;justify-content:center;align-items:center;min-height:54px;padding:0 24px;background:linear-gradient(90deg,#1748ff,#ff0875);color:#fff;border:0;text-decoration:none;font-weight:700}.rsvp-section{padding:90px max(7vw,24px);background:#f4f1ea;color:#111}.rsvp-section>h2{font:700 clamp(2.5rem,5vw,5rem)/.95 var(--invite-serif)}@media(max-width:650px){.official-hero{padding:55px 20px}.event-facts{grid-template-columns:1fr}.official-brand-row img:first-child{width:80px}.official-brand-row img:last-child{width:240px}}
+
+
+/* Corrección de contraste para el pase digital */
+.invite-success .success-reference {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.28);
+  color: rgba(255,255,255,.78);
+}
+.invite-success .success-reference strong {
+  display: inline-block;
+  margin-left: 4px;
+  color: #ffffff !important;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-shadow: 0 0 16px rgba(255,255,255,.22);
+}
+.invite-success [data-capacity] {
+  color: rgba(255,255,255,.88) !important;
+}
+.invite-success .success-actions button {
+  border-color: rgba(255,255,255,.28);
+  color: #ffffff;
+}
+.invite-success .success-actions button:hover {
+  background: rgba(255,255,255,.09);
+}

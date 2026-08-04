@@ -28,8 +28,10 @@ function bind() {
 
 function renderEvent() {
   document.title = `${eventData.name} | Invitación`;
-  document.documentElement.style.setProperty("--invite-accent", eventData.theme_secondary || "#1748ff");
-  document.documentElement.style.setProperty("--invite-accent-two", eventData.theme_primary || "#ff0875");
+  const accent = visibleAccent(eventData.theme_secondary, "#67e8f9");
+  const accentTwo = visibleAccent(eventData.theme_primary, "#ff4d9d");
+  document.documentElement.style.setProperty("--invite-accent", accent);
+  document.documentElement.style.setProperty("--invite-accent-two", accentTwo);
   $("[data-name]").textContent = eventData.name;
   $("[data-description]").textContent = eventData.description || "";
   $("[data-date]").textContent = formatDate(eventData.event_date);
@@ -112,3 +114,14 @@ function safeAsset(value) { const text = String(value || "").trim(); if (/^(http
 function formatDate(value) { if (!value) return "Por confirmar"; return new Intl.DateTimeFormat("es-MX", { dateStyle: "full", timeStyle: "short" }).format(new Date(value)); }
 function errorMessage(error) { return error instanceof ApiError ? error.message : error?.message || "No fue posible guardar la respuesta."; }
 function ics(value) { return String(value || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;"); }
+
+
+function visibleAccent(value, fallback) {
+  const color = String(value || "").trim();
+  if (!/^#[0-9a-f]{6}$/i.test(color)) return fallback;
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return luminance < 0.22 ? fallback : color;
+}
