@@ -60,6 +60,19 @@
     "fecha": "05 SEP 2026"
   },
   {
+    "id": "biker-rebel-neon",
+    "nombre": "Rebel Neon",
+    "categoria": "social",
+    "categoriaTexto": "Aniversario · Biker",
+    "etiqueta": "Colección rebelde",
+    "descripcion": "Una experiencia biker con negro, azul eléctrico, rosa neón, cadenas y energía urbana. Todos los datos son ficticios.",
+    "fondo": "radial-gradient(circle at 20% 25%, rgba(20,65,255,.9), transparent 28%), radial-gradient(circle at 82% 20%, rgba(255,0,111,.86), transparent 30%), linear-gradient(145deg,#020207,#12121a)",
+    "acento": "#ff0a73",
+    "texto": "#ffffff",
+    "fecha": "19 SEP 2026",
+    "destacado": true
+  },
+  {
     "id": "bautizo-alba",
     "nombre": "Alba",
     "categoria": "social",

@@ -1,40 +1,16 @@
 import { getSupabaseClient, isSupabaseConfigured } from "./supabase.js";
 
 const INVITATIONS = {
-  "aniversario-fantasmas": {
-    official: true,
-    theme: "fantasma",
-    accent: "#67e8f9",
-    accentTwo: "#ff4d9d",
-    background: "#05070b",
-    kicker: "Estás invitado",
-    brand: "Fantasmas Biker's Shop",
-    title: "Primer aniversario",
-    subtitle: "y lanzamiento oficial de Aliados Fantasma",
-    emblem: "01",
-    emblemLabel: "AÑO",
-    date: "2026-08-29T15:00:00-06:00",
-    fullDate: "Sábado 29 de agosto de 2026",
-    day: "29",
-    month: "Agosto",
-    year: "2026",
-    time: "3:00 p.m.",
-    locationShort: "Fantasmas Biker's Shop",
-    address: "Avenida Gobernadora 656, Tolotzin I, Condominio T37, Mz. 003, Cd. Azteca, Ecatepec, Estado de México.",
-    map: "https://www.google.com/maps/search/?api=1&query=Avenida+Gobernadora+656+Tolotzin+I+Cd+Azteca+Ecatepec",
-    purpose: "Celebrar y presentar lo que sigue",
-    purposeCopy: "Primer aniversario de Fantasmas Biker's Shop y lanzamiento oficial de Aliados Fantasma.",
-    intro: "Hace un año comenzó una idea entre productos, motos, amigos y comunidad. Hoy queremos celebrar contigo todo lo recorrido y presentar el siguiente capítulo.",
-    statement: "Una tienda. Una comunidad. Una nueva red de aliados.",
-    momentTitle: "Gracias por ser parte de esta historia.",
-    momentCopy: "Este encuentro está dedicado a clientes, amistades, negocios y personas que han acompañado a Fantasmas Biker's Shop durante su primer año.",
-    launchTitle: "Aliados Fantasma despierta.",
-    launchCopy: "Durante el aniversario presentaremos oficialmente la red creada para conectar, impulsar y dar visibilidad a negocios locales.",
-    launchTagline: "Comunidad que compra local. Negocios que crecen juntos.",
-    rsvpTitle: "Queremos contar contigo.",
-    rsvpCopy: "Registra tu respuesta para ayudarnos a organizar la celebración. Puedes confirmar también a tus acompañantes.",
-    closeCopy: "Nos vemos para celebrar el camino recorrido y todo lo que está por comenzar."
-  },
+  "biker-rebel-neon": sample({
+    theme: "fantasma", accent: "#1748ff", accentTwo: "#ff0875", background: "#030309",
+    brand: "Riders United", title: "Noche de aniversario", subtitle: "Ruta, música y comunidad biker",
+    date: "2026-09-19T18:00:00-06:00", fullDate: "Sábado 19 de septiembre de 2026", day: "19", month: "Septiembre", year: "2026", time: "6:00 p.m.",
+    locationShort: "Garage Rebel", address: "Zona Metropolitana · Ubicación de muestra", purpose: "Aniversario biker", purposeCopy: "Una celebración ficticia creada para mostrar esta plantilla.",
+    intro: "Motores, amistad y una comunidad que no deja de avanzar. Esta experiencia de muestra presenta una invitación con identidad biker.",
+    statement: "Una ruta. Una hermandad. Una noche para recordar.",
+    momentTitle: "La carretera nos reunió.", momentCopy: "Una invitación demostrativa con estilo rebelde, neón, cadenas y alto contraste.",
+    launchTitle: "Enciende la noche.", launchCopy: "Música, exhibición y convivencia en un evento completamente ficticio.", launchTagline: "Riders United · Demo LN Studio."
+  }),
   "boda-eternite": sample({
     theme: "gold", accent: "#d6ad61", accentTwo: "#f5e0a8", background: "#080706",
     brand: "Lucía & Nicolás", title: "Nuestra boda", subtitle: "Una historia para toda la vida",
@@ -202,7 +178,7 @@ async function saveRsvp(record) {
 }
 
 function createReference(model) {
-  const prefix = model === "aniversario-fantasmas" ? "AF" : "DEMO";
+  const prefix = "DEMO";
   const time = Date.now().toString(36).slice(-5).toUpperCase();
   const random = Math.random().toString(36).slice(2,5).toUpperCase();
   return `${prefix}-${time}${random}`;
