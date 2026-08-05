@@ -53,8 +53,8 @@ async function init() {
 function bind() {
   $("#manual-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const token = extractToken(new FormData(event.currentTarget).get("token"));
-    if (token) await lookup(token);
+    const credential = extractToken(new FormData(event.currentTarget).get("token"));
+    if (credential) await lookup(credential);
   });
   $("[data-start-camera]").addEventListener("click", startCamera);
   $("[data-stop-camera]").addEventListener("click", stopCamera);
@@ -173,10 +173,17 @@ function stopCamera() {
   if ($("[data-start-camera]")) $("[data-start-camera]").hidden = false;
 }
 
-async function lookup(token) {
-  if (!token) return status("Escribe o escanea un token.");
-  state.currentToken = token; state.currentData = null; status("Consultando pase…");
+async function lookup(credential) {
+  if (!credential) return status("Escribe, pega o escanea un pase.");
+  state.currentData = null;
+  status("Consultando pase…");
   try {
+    const token = await resolvePassToken(credential);
+    if (!token) {
+      state.currentToken = null;
+      return show(false, "Pase no encontrado", "No se encontró un pase de este evento con ese folio o código.");
+    }
+    state.currentToken = token;
     const result = await api.rpc("lookup_access_pass", { p_token: token, p_event_id: state.eventId });
     state.currentData = result;
     if (!result?.ok) return show(false, "Código no válido", result?.message || "No se encontró el pase para este evento.");
@@ -226,7 +233,42 @@ function disableScanner() {
   $("#manual-form button").disabled = true;
   $("#manual-form input").disabled = true;
 }
-function extractToken(value = "") { const text = String(value || "").trim(); if (!text) return ""; try { const url = new URL(text); return url.searchParams.get("token") || url.pathname.split("/").filter(Boolean).pop() || ""; } catch { return text.replace(/^.*token=/, "").split("&")[0]; } }
+function extractToken(value = "") {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  try {
+    const url = new URL(text);
+    return decodeURIComponent(url.searchParams.get("token") || url.searchParams.get("folio") || url.pathname.split("/").filter(Boolean).pop() || "").trim();
+  } catch {
+    return decodeURIComponent(text.replace(/^.*(?:token|folio)=/i, "").split("&")[0]).trim();
+  }
+}
+
+function isUuid(value = "") {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value).trim());
+}
+
+async function resolvePassToken(value = "") {
+  const credential = extractToken(value);
+  if (!credential) return null;
+  if (isUuid(credential)) return credential;
+
+  const normalizedFolio = credential.toUpperCase().replace(/\s+/g, "");
+  let pass = state.passes.find((item) => String(item.folio || "").toUpperCase().replace(/\s+/g, "") === normalizedFolio);
+
+  if (!pass && state.eventId) {
+    try {
+      const matches = await api.select("access_passes", {
+        filters: { event_id: state.eventId, folio: credential },
+        limit: 1
+      });
+      pass = matches?.[0] || null;
+    } catch { /* Se mostrará un mensaje amistoso abajo. */ }
+  }
+
+  return pass?.token && isUuid(pass.token) ? pass.token : null;
+}
+
 function status(message) { $("#scan-status").textContent = message; }
 function setPageStatus(message, type) { const node = $("[data-page-status]"); node.hidden = !message; node.dataset.type = type; node.textContent = message; }
 function fail(message) { setPageStatus(message, "error"); }

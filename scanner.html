@@ -6,8 +6,8 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>Escáner del evento | LN Studio</title>
   <link rel="icon" href="favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="dashboard.css?v=4.4.4">
-  <script type="module" src="scanner.js?v=4.4.4"></script>
+  <link rel="stylesheet" href="dashboard.css?v=4.4.8">
+  <script type="module" src="scanner.js?v=4.4.8"></script>
 </head>
 <body>
   <main class="scanner-shell event-scanner-shell">
@@ -43,10 +43,10 @@
         <p class="admin-eyebrow">Validación segura</p>
         <h2>Escanear pase QR</h2>
         <p class="scanner-event-lock">Este lector solo acepta pases del evento mostrado arriba.</p>
-        <div class="camera-box" data-camera-box><video data-video playsinline muted hidden></video><div class="camera-placeholder" data-camera-placeholder>Activa la cámara o pega el token manualmente.</div></div>
+        <div class="camera-box" data-camera-box><video data-video playsinline muted hidden></video><div class="camera-placeholder" data-camera-placeholder>Activa la cámara o escribe el folio del pase.</div></div>
         <button type="button" class="primary-button" data-start-camera>Activar cámara</button>
         <form id="manual-form" class="login-form" action="#" onsubmit="return false;">
-          <label>Token o enlace<input name="token" placeholder="Pega el código manualmente" autocomplete="off"></label>
+          <label>Folio, token o enlace<input name="token" placeholder="Ejemplo: LN-B2EE339310" autocomplete="off" autocapitalize="characters"></label>
           <button type="submit">Consultar pase</button>
         </form>
         <div class="scan-result" data-result hidden>

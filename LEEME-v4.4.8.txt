@@ -1,0 +1,14 @@
+LN Studio v4.4.8 · ESCÁNER DEL CLIENTE
+
+SUBE A LA RAÍZ DE GITHUB Y REEMPLAZA:
+- scanner.html
+- scanner.js
+- dashboard.css
+
+No necesitas ejecutar SQL.
+
+Correcciones:
+- El campo manual acepta folio LN-..., token UUID o enlace completo.
+- Ya no envía el folio como UUID a Supabase.
+- Muestra un mensaje entendible si el pase no existe.
+- El resultado y las estadísticas ahora son oscuros y legibles.

@@ -485,3 +485,122 @@ dialog,.dialog-card{background:#101724!important;color:#eef3ff!important}
 .guest-table-wrap{background:#111827!important}.guest-table{background:#111827!important}.guest-table th{background:#151e2e!important;color:#9facc2!important}.guest-table td{color:#eef3ff!important}
 .panel-actions button{background:linear-gradient(135deg,#8f7dff,#6f9dff)!important;border-color:transparent!important;color:#fff!important}
 @media(max-width:700px){.admin-header{background:#080c13!important}.dialog-actions{background:#101724!important}.dialog-title{background:#101724!important}}
+
+/* =========================================================
+   LN Studio v4.4.8 · escáner del cliente legible y oscuro
+   ========================================================= */
+.event-scanner-shell{
+  color:#eef2ff;
+}
+.event-scanner-shell .scanner-event-summary{
+  background:linear-gradient(135deg,#131c2e,#111827)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  color:#fff!important;
+}
+.event-scanner-shell .scanner-event-summary h1,
+.event-scanner-shell .scanner-event-summary p{
+  color:#eef2ff!important;
+}
+.event-scanner-shell .scanner-metrics article{
+  background:#111827!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  color:#fff!important;
+}
+.event-scanner-shell .scanner-metrics span{
+  color:#aab6d0!important;
+}
+.event-scanner-shell .scanner-metrics strong{
+  color:#fff!important;
+}
+.event-scanner-shell .scanner-card,
+.event-scanner-shell .scanner-activity-card{
+  background:#111827!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  color:#eef2ff!important;
+}
+.event-scanner-shell .camera-box{
+  background:#0b1220!important;
+  border:1px dashed rgba(143,125,255,.38)!important;
+}
+.event-scanner-shell .camera-placeholder,
+.event-scanner-shell .scanner-event-lock{
+  color:#aab6d0!important;
+}
+.event-scanner-shell .login-form{
+  background:#0d1525!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  box-shadow:none!important;
+}
+.event-scanner-shell .login-form label,
+.event-scanner-shell .scan-result label{
+  color:#c7d2fe!important;
+}
+.event-scanner-shell .login-form input,
+.event-scanner-shell .scan-result input{
+  background:#19253a!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  color:#fff!important;
+}
+.event-scanner-shell .scan-result{
+  margin-top:22px;
+  padding:22px!important;
+  border:1px solid rgba(143,125,255,.28)!important;
+  border-radius:18px!important;
+  background:linear-gradient(145deg,#151f33,#101827)!important;
+  color:#eef2ff!important;
+}
+.event-scanner-shell .scan-result h2,
+.event-scanner-shell .scan-result p,
+.event-scanner-shell .scan-result dd{
+  color:#fff!important;
+}
+.event-scanner-shell .scan-result [data-result-message]{
+  color:#bac5dc!important;
+}
+.event-scanner-shell .scan-result dl div{
+  background:#1a263b!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+}
+.event-scanner-shell .scan-result dt{
+  color:#9ba8c2!important;
+}
+.event-scanner-shell .scan-result dd{
+  word-break:break-word;
+}
+.event-scanner-shell .scan-result .intro-actions button{
+  min-height:46px;
+  padding:11px 16px;
+  border-radius:11px;
+}
+.event-scanner-shell .scan-result [data-approve]{
+  background:linear-gradient(135deg,#7c6cff,#62a2ff)!important;
+  border:0!important;
+  color:#fff!important;
+  font-weight:800;
+}
+.event-scanner-shell .scan-result [data-reject]{
+  background:rgba(255,127,145,.08)!important;
+  border:1px solid rgba(255,127,145,.28)!important;
+  color:#ffb3bf!important;
+}
+.event-scanner-shell .scan-result button:disabled{
+  opacity:.42!important;
+  color:#b4bfd6!important;
+  cursor:not-allowed;
+}
+.event-scanner-shell .member-row,
+.event-scanner-shell .empty-state{
+  background:#182338!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  color:#fff!important;
+}
+.event-scanner-shell .scanner-manage-link{
+  background:rgba(143,125,255,.12)!important;
+  border:1px solid rgba(143,125,255,.3)!important;
+  color:#c6bcff!important;
+}
+@media(max-width:640px){
+  .event-scanner-shell .scan-result dl{grid-template-columns:1fr!important}
+  .event-scanner-shell .scan-result .intro-actions{display:grid!important;grid-template-columns:1fr!important}
+  .event-scanner-shell .scan-result .intro-actions button{width:100%!important}
+}
