@@ -1,0 +1,22 @@
+LN Studio v4.4.14 — autoacomodo de logos
+
+Sube y reemplaza en la RAÍZ de GitHub solamente:
+- disenador.html
+- disenador.css
+- disenador.js
+- evento.html
+- invitacion.css
+- rsvp.js
+
+Qué corrige:
+- El logo principal y el secundario permanecen juntos en la portada.
+- Ya no aparece un logo arriba del título y el otro debajo.
+- Con un solo logo, se centra automáticamente.
+- Con dos logos normales o verticales, se colocan uno al lado del otro.
+- Si ambos logos son extremadamente horizontales, se apilan automáticamente para evitar que se vuelvan ilegibles.
+- Ambos se normalizan por altura visual sin deformarse.
+- El mismo acomodo aparece en el diseñador y en la invitación final.
+- Funciona en celular y escritorio.
+
+No requiere SQL ni cambios en Supabase.
+Después de subir, espera el despliegue de Cloudflare y recarga con Ctrl + Shift + R.

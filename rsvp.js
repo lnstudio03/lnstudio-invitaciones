@@ -73,9 +73,10 @@ function renderEvent() {
   map.href = eventData.maps_url || "#";
   map.hidden = !eventData.maps_url;
   $("[data-dress-code]").textContent = eventData.dress_code ? `Código de vestimenta: ${eventData.dress_code}` : "";
-  setEventImage($("[data-logo]"), eventData.logo_url);
-  const secondary = $("[data-secondary-logo]");
-  setEventImage(secondary, eventData.secondary_logo_url, () => { $("[data-brand-row]").hidden = false; }, () => { $("[data-brand-row]").hidden = true; });
+  const refreshLogoCluster = () => updateEventLogoCluster();
+  setEventImage($("[data-logo]"), eventData.logo_url, refreshLogoCluster, refreshLogoCluster);
+  setEventImage($("[data-secondary-logo]"), eventData.secondary_logo_url, refreshLogoCluster, refreshLogoCluster);
+  updateEventLogoCluster();
   setEventImage($("[data-hero-image]"), eventData.hero_image_url);
   renderGallery(config.media.gallery);
   configureMusic(config);
@@ -145,11 +146,44 @@ function renderGallery(gallery) {
 
 function setEventImage(image, value, onLoad = null, onError = null) {
   const url = safeAsset(value);
-  if (!url) { image.hidden = true; image.removeAttribute("src"); if (onError) onError(); return; }
+  if (!url) {
+    image.hidden = true;
+    image.dataset.assetReady = "false";
+    image.removeAttribute("src");
+    if (onError) onError();
+    return;
+  }
   image.hidden = false;
-  image.onload = () => { image.hidden = false; if (onLoad) onLoad(); };
-  image.onerror = () => { image.hidden = true; if (onError) onError(); };
+  image.dataset.assetReady = "false";
+  image.onload = () => {
+    image.hidden = false;
+    image.dataset.assetReady = "true";
+    if (onLoad) onLoad();
+  };
+  image.onerror = () => {
+    image.hidden = true;
+    image.dataset.assetReady = "false";
+    if (onError) onError();
+  };
   image.src = url;
+}
+
+function updateEventLogoCluster() {
+  const cluster = $("[data-logo-cluster]");
+  if (!cluster) return;
+  const images = [$("[data-logo]"), $("[data-secondary-logo]")].filter((image) => image && !image.hidden && image.dataset.assetReady === "true");
+  cluster.classList.remove("logo-count-0", "logo-count-1", "logo-count-2", "logo-layout-row", "logo-layout-stacked");
+  cluster.classList.add(`logo-count-${images.length}`);
+  cluster.hidden = images.length === 0;
+  if (!images.length) return;
+  if (images.length === 1) {
+    cluster.classList.add("logo-layout-row");
+    return;
+  }
+  const ratios = images.map((image) => image.naturalWidth / Math.max(1, image.naturalHeight));
+  const bothVeryWide = ratios.every((ratio) => ratio > 2.25);
+  const combinedWidth = ratios.reduce((sum, ratio) => sum + ratio, 0);
+  cluster.classList.add(bothVeryWide || combinedWidth > 6.2 ? "logo-layout-stacked" : "logo-layout-row");
 }
 
 function configureMusic(config) {

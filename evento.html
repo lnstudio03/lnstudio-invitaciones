@@ -6,8 +6,8 @@
   <title>Invitación privada | LN Studio</title>
   <link rel="icon" href="favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Bebas+Neue&family=Cinzel:wght@500;600;700&family=Fredoka:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="invitacion.css?v=4.4.13">
-  <script src="qr-local.js?v=4.4.6"></script><script type="module" src="rsvp.js?v=4.4.13"></script>
+  <link rel="stylesheet" href="invitacion.css?v=4.4.14">
+  <script src="qr-local.js?v=4.4.6"></script><script type="module" src="rsvp.js?v=4.4.14"></script>
 </head>
 <body class="private-event">
 <div class="event-preview-banner" data-preview-banner hidden>
@@ -21,11 +21,13 @@
 <main class="official-event" data-event-shell>
   <section class="official-hero invite-animated" data-section="hero">
     <div class="official-overlay"></div><div class="official-glow blue"></div><div class="official-glow pink"></div>
+    <div class="event-logo-cluster logo-layout-auto" data-logo-cluster hidden>
+      <img class="shop-logo" data-logo alt="Logo principal del evento" hidden>
+      <img class="secondary-logo" data-secondary-logo alt="Logo secundario del evento" hidden>
+    </div>
     <p class="invite-kicker" data-kicker>Invitación digital privada · LN Studio</p>
-    <img class="shop-logo" data-logo alt="Identidad del evento" hidden>
     <img class="official-hero-image" data-hero-image alt="Fotografía principal" hidden>
     <h1 data-name>Cargando invitación…</h1><p class="official-subtitle" data-description></p>
-    <div class="official-brand-row" data-brand-row hidden><img data-secondary-logo alt="Logo secundario"></div>
     <div class="event-facts"><div><span>Fecha</span><strong data-date>—</strong></div><div><span>Lugar</span><strong data-venue>—</strong></div></div>
     <div class="success-actions"><a class="primary-button" data-map target="_blank" rel="noopener">Ver ubicación</a><button type="button" class="ghost-button" data-calendar>Agregar al calendario</button></div>
   </section>

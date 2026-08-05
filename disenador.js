@@ -476,8 +476,9 @@ function render() {
   $("[data-preview-rsvp-title]").textContent = config.content.rsvpTitle;
   $("[data-preview-rsvp-copy]").textContent = config.content.rsvpCopy;
   setPreviewImage($("[data-preview-logo]"), data.logo_url, "logo_url");
-  setPreviewImage($("[data-preview-hero-image]"), data.hero_image_url, "hero_image_url");
   setPreviewImage($("[data-preview-secondary-logo]"), data.secondary_logo_url, "secondary_logo_url");
+  updatePreviewLogoCluster();
+  setPreviewImage($("[data-preview-hero-image]"), data.hero_image_url, "hero_image_url");
   const gallery = $("[data-preview-gallery]"); gallery.innerHTML = state.gallery.length ? state.gallery.slice(0,6).map((url) => `<img src="${escapeAttr(url)}" alt="">`).join("") : '<div class="gallery-placeholder">Las fotografías aparecerán aquí.</div>';
   state.sections.forEach((key) => { const node = $(`[data-preview-section="${key}"]`); if (node) screen.appendChild(node); });
   Object.entries(state.enabled).forEach(([key, enabled]) => { const node = $(`[data-preview-section="${key}"]`); if (node) node.hidden = !enabled; });
@@ -491,15 +492,49 @@ function render() {
 
 function setPreviewImage(image, value, fieldName) {
   const url = safeAsset(value);
-  if (!url) { image.hidden = true; image.removeAttribute("src"); return; }
+  const isLogo = fieldName === "logo_url" || fieldName === "secondary_logo_url";
+  if (!url) {
+    image.hidden = true;
+    image.dataset.assetReady = "false";
+    image.removeAttribute("src");
+    if (isLogo) updatePreviewLogoCluster();
+    return;
+  }
   image.hidden = false;
+  image.dataset.assetReady = "false";
   image.classList.add("asset-loading");
-  image.onload = () => { image.classList.remove("asset-loading","asset-error"); requestAnimationFrame(fitPreviewTitle); };
+  image.onload = () => {
+    image.dataset.assetReady = "true";
+    image.classList.remove("asset-loading","asset-error");
+    if (isLogo) updatePreviewLogoCluster();
+    requestAnimationFrame(() => { fitPreviewTitle(); fitPreviewToVisibleArea(); });
+  };
   image.onerror = () => {
+    image.dataset.assetReady = "false";
+    image.hidden = true;
     image.classList.remove("asset-loading"); image.classList.add("asset-error");
+    if (isLogo) updatePreviewLogoCluster();
     syncAssetFeedback(fieldName, value, "error", "La URL existe, pero la imagen no pudo mostrarse. Revisa Storage y vuelve a subirla.");
   };
   image.src = url;
+}
+
+function updatePreviewLogoCluster() {
+  const cluster = $("[data-preview-logo-cluster]");
+  if (!cluster) return;
+  const images = [$("[data-preview-logo]"), $("[data-preview-secondary-logo]")].filter((image) => image && !image.hidden && image.dataset.assetReady === "true");
+  cluster.classList.remove("logo-count-0", "logo-count-1", "logo-count-2", "logo-layout-row", "logo-layout-stacked");
+  cluster.classList.add(`logo-count-${images.length}`);
+  cluster.hidden = images.length === 0;
+  if (!images.length) return;
+  if (images.length === 1) {
+    cluster.classList.add("logo-layout-row");
+    return;
+  }
+  const ratios = images.map((image) => image.naturalWidth / Math.max(1, image.naturalHeight));
+  const bothVeryWide = ratios.every((ratio) => ratio > 2.25);
+  const combinedWidth = ratios.reduce((sum, ratio) => sum + ratio, 0);
+  cluster.classList.add(bothVeryWide || combinedWidth > 6.2 ? "logo-layout-stacked" : "logo-layout-row");
 }
 
 async function save() {

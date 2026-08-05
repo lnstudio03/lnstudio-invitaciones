@@ -623,3 +623,66 @@ body{
   box-shadow:none!important;
   filter:drop-shadow(0 10px 22px rgba(0,0,0,.28))!important;
 }
+
+
+/* ===== LN Studio v4.4.14 · autoacomodo de logos en vista previa ===== */
+.preview-logo-cluster{
+  width:min(88%,620px);
+  margin:0 auto 15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(12px,2.4vw,28px);
+  flex-wrap:nowrap;
+  min-height:82px;
+}
+
+.preview-logo-cluster[hidden]{display:none!important}
+
+.preview-logo-cluster img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:42%!important;
+  max-height:105px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 9px 20px rgba(0,0,0,.3))!important;
+  flex:0 1 auto;
+}
+
+.preview-logo-cluster.logo-count-1 img{
+  max-width:58%!important;
+  max-height:135px!important;
+}
+
+.preview-logo-cluster.logo-layout-row{flex-direction:row}
+.preview-logo-cluster.logo-layout-stacked{flex-direction:column;gap:10px}
+.preview-logo-cluster.logo-layout-stacked img{max-width:70%!important;max-height:82px!important}
+
+.preview-device.mobile .preview-logo-cluster{
+  width:92%;
+  gap:10px;
+  min-height:58px;
+  margin-bottom:10px;
+}
+
+.preview-device.mobile .preview-logo-cluster img{
+  max-width:44%!important;
+  max-height:72px!important;
+}
+
+.preview-device.mobile .preview-logo-cluster.logo-count-1 img{
+  max-width:62%!important;
+  max-height:100px!important;
+}
+
+.preview-device.mobile .preview-logo-cluster.logo-layout-stacked img{
+  max-width:72%!important;
+  max-height:62px!important;
+}
