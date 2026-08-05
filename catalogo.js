@@ -46,7 +46,7 @@ export async function initializeCatalog() {
 
 function createCard(item) {
   const url = `invitacion.html?modelo=${encodeURIComponent(item.id)}`;
-  const classes = item.destacado ? "invitation-card is-featured" : "invitation-card";
+  const classes = "invitation-card is-featured";
   return `
     <article class="${classes}">
       <a class="invitation-visual" href="${url}" aria-label="Abrir invitación ${escapeHtml(item.nombre)}" style="--card-background:${escapeHtml(item.fondo)};--card-accent:${escapeHtml(item.acento)};--card-text:${escapeHtml(item.texto)}">

@@ -1,0 +1,16 @@
+LN Studio v4.4.3 · VISTA FIJA + CATÁLOGO GRANDE
+
+SUBIR A GITHUB:
+- Descomprime este ZIP.
+- Sube todos los archivos directamente a la RAÍZ.
+- Reemplaza los existentes.
+- No crees carpetas.
+
+CAMBIOS:
+1. En computadora, solo se desplaza el panel lateral del diseñador.
+2. La vista previa permanece fija y centrada.
+3. Todas las invitaciones del catálogo usan una tarjeta grande como Rebel.
+4. Las tarjetas se adaptan a una columna en tablet y celular sin cortar la vista previa.
+5. Se actualizó la versión de recursos a v4.4.3 para evitar caché anterior.
+
+No requiere SQL ni cambios en Supabase.

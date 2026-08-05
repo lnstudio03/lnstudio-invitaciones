@@ -1,0 +1,14 @@
+LN Studio v4.4.2 · diseñador con vista previa fija
+
+Esta versión completa mantiene la vista previa inmóvil en computadora.
+Únicamente se desplaza el panel lateral de edición.
+
+La invitación dentro del marco conserva su propio desplazamiento para revisar todas sus secciones.
+En pantallas pequeñas el diseñador vuelve al flujo vertical para no perder usabilidad.
+
+SUBIDA
+- Descomprime el ZIP.
+- Sube todos los archivos directamente a la raíz de GitHub.
+- Reemplaza los existentes.
+- No crees carpetas.
+- No requiere SQL ni cambios en Supabase.

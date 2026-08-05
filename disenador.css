@@ -41,3 +41,185 @@ html{color-scheme:dark!important;background:#080c13!important}body{background:li
 .primary-button{background:linear-gradient(135deg,#8f7dff,#6f9dff)!important;color:#fff!important}
 button:disabled,.primary-button:disabled,.soft-button:disabled{opacity:1!important;background:#263146!important;border:1px solid rgba(255,255,255,.08)!important;color:#9da9bf!important;box-shadow:none!important;cursor:not-allowed!important}
 .preview-area{background:radial-gradient(circle at 15% 20%,rgba(143,125,255,.12),transparent 28%),radial-gradient(circle at 85% 20%,rgba(255,127,145,.09),transparent 24%),#0b111c!important}
+
+/* =========================================================
+   LN Studio v4.4.2 · editor fijo con panel lateral desplazable
+   ========================================================= */
+html,
+body{
+  width:100%;
+  height:100%;
+  min-height:100%;
+  overflow:hidden!important;
+}
+body{
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr);
+}
+.designer-topbar{
+  position:relative!important;
+  top:auto!important;
+  flex:0 0 auto;
+}
+.designer-layout{
+  width:100%;
+  height:auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+.designer-controls{
+  height:100%;
+  min-height:0;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  scroll-behavior:smooth;
+}
+.preview-area{
+  position:relative;
+  height:100%;
+  min-height:0!important;
+  padding:22px 28px;
+  overflow:hidden!important;
+  place-items:center;
+}
+.preview-device{
+  position:relative!important;
+  top:auto!important;
+  max-width:100%;
+  max-height:100%;
+}
+.preview-device.mobile{
+  width:min(390px,100%);
+  height:min(760px,calc(100% - 8px));
+}
+.preview-device.desktop{
+  width:min(1040px,100%);
+  height:min(720px,calc(100% - 8px));
+}
+.preview-screen{
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+.designer-controls::-webkit-scrollbar,
+.preview-screen::-webkit-scrollbar{
+  width:10px;
+}
+.designer-controls::-webkit-scrollbar-track,
+.preview-screen::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.025);
+}
+.designer-controls::-webkit-scrollbar-thumb,
+.preview-screen::-webkit-scrollbar-thumb{
+  border:2px solid transparent;
+  border-radius:999px;
+  background:rgba(167,178,203,.45);
+  background-clip:padding-box;
+}
+.designer-controls::-webkit-scrollbar-thumb:hover,
+.preview-screen::-webkit-scrollbar-thumb:hover{
+  background:rgba(189,179,255,.7);
+  background-clip:padding-box;
+}
+
+/* En pantallas estrechas el editor se mantiene utilizable:
+   controles arriba y vista previa debajo, con desplazamiento normal. */
+@media(max-width:980px){
+  html,
+  body{
+    height:auto;
+    min-height:100%;
+    overflow:auto!important;
+  }
+  body{
+    display:block;
+  }
+  .designer-topbar{
+    position:sticky!important;
+    top:0!important;
+  }
+  .designer-layout{
+    min-height:auto!important;
+    overflow:visible!important;
+  }
+  .designer-controls{
+    height:auto;
+    max-height:none;
+    overflow:visible!important;
+  }
+  .preview-area{
+    height:auto;
+    min-height:720px!important;
+    overflow:visible!important;
+  }
+  .preview-device.mobile,
+  .preview-device.desktop{
+    height:690px;
+    max-height:none;
+  }
+}
+@media(max-width:520px){
+  .preview-area{
+    min-height:620px!important;
+  }
+  .preview-device.mobile,
+  .preview-device.desktop{
+    height:600px;
+  }
+}
+
+/* =========================================================
+   LN Studio v4.4.3 · editor lateral con vista previa fija
+   En escritorio solo se desplazan los controles del diseñador.
+   ========================================================= */
+@media(min-width:981px){
+  html,body{
+    width:100%;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    overflow:hidden!important;
+  }
+  body{
+    display:grid!important;
+    grid-template-rows:auto minmax(0,1fr)!important;
+  }
+  .designer-topbar{
+    position:relative!important;
+    inset:auto!important;
+    z-index:50;
+  }
+  .designer-layout{
+    height:100%!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+  .designer-controls{
+    height:100%!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain;
+    scrollbar-gutter:stable;
+  }
+  .preview-area{
+    position:relative!important;
+    height:100%!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    display:grid!important;
+    place-items:center!important;
+  }
+  .preview-device{
+    position:relative!important;
+    top:auto!important;
+    margin:0!important;
+    max-height:calc(100% - 10px)!important;
+  }
+  .preview-device.mobile{
+    height:min(760px,calc(100% - 10px))!important;
+  }
+  .preview-device.desktop{
+    height:min(720px,calc(100% - 10px))!important;
+  }
+}

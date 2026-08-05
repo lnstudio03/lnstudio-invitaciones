@@ -127,3 +127,57 @@
 .card-actions a:first-child,.catalog-card a,.catalog-item a{background:linear-gradient(135deg,#8f7dff,#6f9dff)!important;color:#fff!important}.card-actions .mini-link{color:#b3bed3!important}
 .catalog-custom{background:linear-gradient(135deg,#111827,#172239 55%,#10232c)!important;color:#eef2ff!important}.catalog-custom h2{color:#fff!important}.catalog-custom p,.catalog-custom p:not(.eyebrow){color:#aeb9cf!important}.catalog-custom .button{background:linear-gradient(135deg,#8f7dff,#6f9dff)!important;color:#fff!important}
 .catalog-empty{color:#b8c2d8!important}
+
+/* =========================================================
+   LN Studio v4.4.3 · tarjetas grandes uniformes
+   Todas las colecciones usan el formato amplio de Rebel.
+   ========================================================= */
+.catalog-showcase{
+  grid-template-columns:1fr!important;
+  gap:clamp(30px,4vw,54px)!important;
+}
+.invitation-card,
+.invitation-card.is-featured{
+  grid-column:1 / -1!important;
+  grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr)!important;
+  min-height:610px!important;
+  width:100%;
+  border-radius:26px!important;
+}
+.invitation-visual{
+  min-height:610px!important;
+  padding:34px!important;
+}
+.phone-preview{
+  width:min(285px,76%)!important;
+  max-height:550px;
+}
+.invitation-info{
+  min-width:0;
+  padding:clamp(34px,5vw,62px)!important;
+}
+.invitation-info h3{
+  overflow-wrap:anywhere;
+}
+@media(max-width:1050px){
+  .invitation-card,
+  .invitation-card.is-featured{
+    grid-template-columns:1fr!important;
+    min-height:0!important;
+  }
+  .invitation-visual{
+    min-height:540px!important;
+  }
+  .phone-preview{
+    width:min(270px,74%)!important;
+  }
+}
+@media(max-width:620px){
+  .catalog-section{padding-inline:16px!important}
+  .catalog-showcase{gap:24px!important}
+  .invitation-card,
+  .invitation-card.is-featured{border-radius:20px!important}
+  .invitation-visual{min-height:470px!important;padding:22px!important}
+  .phone-preview{width:min(240px,82%)!important;max-height:430px}
+  .invitation-info{padding:28px 22px!important}
+}
