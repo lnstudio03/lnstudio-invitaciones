@@ -264,3 +264,32 @@ body[data-animation-intensity="high"] .event-ambient{opacity:1}
 /* LN Studio v4.4.4 · logos siempre visibles */
 .shop-logo,.official-brand-row img{padding:10px;border-radius:16px;background:rgba(255,255,255,.94);box-shadow:0 16px 40px rgba(0,0,0,.3);filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
 .official-brand-row{padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}
+
+/* =========================================================
+   LN Studio v4.4.6 · invitación real estable y vista previa
+   ========================================================= */
+.event-preview-banner{
+  position:fixed;z-index:80;top:12px;left:50%;transform:translateX(-50%);
+  width:min(720px,calc(100% - 24px));padding:10px 14px;border:1px solid rgba(143,125,255,.45);
+  border-radius:14px;background:rgba(8,12,21,.94);color:#fff;display:flex;align-items:center;
+  justify-content:center;gap:10px;flex-wrap:wrap;text-align:center;backdrop-filter:blur(16px);
+  box-shadow:0 16px 45px rgba(0,0,0,.35);font-family:"Manrope",sans-serif
+}
+.event-preview-banner strong{color:#c7beff}.event-preview-banner span{color:#b7c1d5;font-size:.78rem}
+.is-preview .official-hero{padding-top:145px}
+.official-event,.official-event *{box-sizing:border-box}
+.official-event{width:100%;max-width:100%;overflow-x:hidden}
+.official-hero{width:100%;max-width:100%}
+.official-hero h1{overflow-wrap:anywhere;word-break:normal;hyphens:auto}
+.official-subtitle,.event-facts strong,.official-details p,.rsvp-copy{overflow-wrap:anywhere}
+.shop-logo,.official-brand-row img,.official-hero-image{display:block;max-width:100%;height:auto}
+.rsvp-form{width:min(760px,100%);margin-inline:auto}
+.rsvp-form input,.rsvp-form textarea,.rsvp-form select{max-width:100%}
+@media(max-width:560px){
+  .event-preview-banner{top:8px;padding:9px 10px;gap:4px}.event-preview-banner strong,.event-preview-banner span{width:100%}
+  .is-preview .official-hero{padding-top:150px}
+  .official-hero{min-height:100svh;padding-inline:16px}
+  .official-hero h1{font-size:clamp(2.35rem,14vw,4.35rem)!important;line-height:.92!important;letter-spacing:-.045em!important}
+  .official-message,.official-details,.official-gallery,.rsvp-section,.invite-success,.invite-close{padding-left:16px!important;padding-right:16px!important}
+  .official-message h2,.official-details h2,.official-gallery h2,.rsvp-section h2,.invite-success h2{font-size:clamp(2.2rem,12vw,3.8rem)!important;overflow-wrap:anywhere}
+}

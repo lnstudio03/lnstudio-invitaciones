@@ -6,6 +6,8 @@ const DEFAULT_ORDER = ["hero","countdown","details","gallery","rsvp"];
 let eventData = null;
 let token = null;
 let passUrl = "";
+let previewMode = false;
+let previewEventId = null;
 
 const DEFAULT_CONFIG = {
   colors:{ background:"#0d1420",background2:"#1b2537",text:"#ffffff",muted:"#b7c1d5",primary:"#8f7dff",secondary:"#ff7f91",overlay:45,mode:"gradient" },
@@ -19,12 +21,26 @@ const DEFAULT_CONFIG = {
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
-  token = new URLSearchParams(location.search).get("token");
-  if (!token) return fail("Invitación no válida.");
+  const params = new URLSearchParams(location.search);
+  token = params.get("token");
+  previewEventId = params.get("id");
+  previewMode = params.get("preview") === "1" && Boolean(previewEventId);
   bind();
   try {
-    eventData = await api.rpc("get_public_event", { p_token: token }, { publicCall:true });
-    if (!eventData?.id) return fail("Esta invitación no está disponible.");
+    if (previewMode) {
+      const user = await api.getUser();
+      if (!user) return fail("Inicia sesión en LN Studio para abrir esta vista previa.");
+      const rows = await api.select("events", { filters:{ id:previewEventId }, limit:1 });
+      eventData = rows?.[0] || null;
+      if (!eventData?.id) return fail("No tienes acceso a esta vista previa o el evento ya no existe.");
+      document.body.classList.add("is-preview");
+      const banner = $("[data-preview-banner]");
+      if (banner) banner.hidden = false;
+    } else {
+      if (!token) return fail("Invitación no válida.");
+      eventData = await api.rpc("get_public_event", { p_token:token }, { publicCall:true });
+      if (!eventData?.id) return fail("Esta invitación todavía no está publicada o el enlace no es válido.");
+    }
     renderEvent();
   } catch (error) { fail(errorMessage(error)); }
 }
@@ -39,7 +55,8 @@ function bind() {
 }
 
 function renderEvent() {
-  const config = mergeConfig(eventData.design_config);
+  const config = mergeConfig(eventData?.design_config);
+  document.body.dataset.eventStatus = eventData.status || "draft";
   document.title = `${eventData.name} | Invitación`;
   applyVariables(config);
   applyLayout(config);
@@ -50,7 +67,9 @@ function renderEvent() {
   $("[data-venue]").textContent = [eventData.venue_name,eventData.venue_address].filter(Boolean).join(" · ") || "Ubicación por confirmar";
   $("[data-rsvp-title]").textContent = config.content.rsvpTitle;
   $("[data-rsvp-copy]").textContent = config.content.rsvpCopy;
-  const map = $("[data-map]"); map.href = eventData.maps_url || "#"; map.hidden = !eventData.maps_url;
+  const map = $("[data-map]");
+  map.href = eventData.maps_url || "#";
+  map.hidden = !eventData.maps_url;
   $("[data-dress-code]").textContent = eventData.dress_code ? `Código de vestimenta: ${eventData.dress_code}` : "";
   setEventImage($("[data-logo]"), eventData.logo_url);
   const secondary = $("[data-secondary-logo]");
@@ -157,7 +176,12 @@ function togglePartyFields() {
 }
 
 async function submit(event) {
-  event.preventDefault(); const form=event.currentTarget; const status=$("#status"); if(!form.reportValidity())return;
+  event.preventDefault(); const form=event.currentTarget; const status=$("#status");
+  if (previewMode) {
+    status.textContent = "Esta es una vista previa. Publica el evento y abre el enlace público para registrar confirmaciones reales.";
+    return;
+  }
+  if(!form.reportValidity())return;
   const submitButton=form.querySelector('button[type="submit"]'); submitButton.disabled=true; status.textContent="Registrando tu respuesta…";
   try {
     const data=new FormData(form);
@@ -179,7 +203,7 @@ function renderPass(pass) {
 function downloadQr(){const canvas=$("#qr");if(canvas.hidden)return;const link=document.createElement("a");link.download=`pase-${$("[data-folio]").textContent||"ln-studio"}.png`;link.href=canvas.toDataURL("image/png");link.click()}
 async function copyPass(){try{await navigator.clipboard.writeText(passUrl);$("[data-copy-pass]").textContent="Pase copiado"}catch{alert(passUrl)}}
 function downloadCalendar(){if(!eventData?.event_date)return alert("La fecha todavía no está definida.");const start=new Date(eventData.event_date),end=new Date(start.getTime()+3*60*60*1000);const stamp=(date)=>date.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");const content=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//LN Studio//Invitacion//ES","BEGIN:VEVENT",`UID:${eventData.id}@lnstudio`,`DTSTART:${stamp(start)}`,`DTEND:${stamp(end)}`,`SUMMARY:${ics(eventData.name)}`,`LOCATION:${ics([eventData.venue_name,eventData.venue_address].filter(Boolean).join(", "))}`,`DESCRIPTION:${ics(eventData.description||"")}`,"END:VEVENT","END:VCALENDAR"].join("\r\n");const blob=new Blob([content],{type:"text/calendar;charset=utf-8"}),link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download=`${eventData.name}.ics`;link.click();URL.revokeObjectURL(link.href)}
-function startCountdown(){const node=$("[data-countdown]");if(!eventData.event_date){node.textContent="Fecha por confirmar.";return}const target=new Date(eventData.event_date).getTime();const update=()=>{const diff=target-Date.now();if(diff<=0){node.textContent="El gran momento ha llegado.";return}const days=Math.floor(diff/86400000),hours=Math.floor(diff%86400000/3600000),minutes=Math.floor(diff%3600000/60000);node.textContent=`${days} días · ${hours} horas · ${minutes} minutos`};update();setInterval(update,60000)}
+function startCountdown(){const node=$("[data-countdown]");if(!eventData.event_date){node.textContent="Fecha por confirmar.";return}const target=new Date(eventData.event_date).getTime();if(!Number.isFinite(target)){node.textContent="Fecha por confirmar.";return}const update=()=>{const diff=target-Date.now();if(diff<=0){node.textContent="El gran momento ha llegado.";return}const days=Math.floor(diff/86400000),hours=Math.floor(diff%86400000/3600000),minutes=Math.floor(diff%3600000/60000);node.textContent=`${days} días · ${hours} horas · ${minutes} minutos`};update();setInterval(update,60000)}
 function fail(message){$("[data-name]").textContent=message;$("[data-description]").textContent="Verifica que el enlace esté completo o consulta a los anfitriones.";$("[data-form-section]").hidden=true}
 function safeAsset(value){const text=String(value||"").trim();if(/^(https?:|data:|blob:)/i.test(text))return text;return text.replace(/^\/+/,"")}
 function safeColor(value,fallback){return /^#[0-9a-f]{6}$/i.test(String(value||""))?value:fallback}
@@ -188,6 +212,6 @@ function safeAnimation(value){return ["fade-up","fade","zoom","slide-left","floa
 function safeAmbient(value){return ["none","sparkles","bubbles","confetti","neon","stars"].includes(value)?value:"none"}
 function cssUrl(value){return String(value||"").replace(/["'()\\]/g,"")}
 function escapeAttr(value=""){return String(value).replace(/[&<>"']/g,(char)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]))}
-function formatDate(value){if(!value)return"Por confirmar";return new Intl.DateTimeFormat("es-MX",{dateStyle:"full",timeStyle:"short"}).format(new Date(value))}
+function formatDate(value){if(!value)return"Por confirmar";const date=new Date(value);if(!Number.isFinite(date.getTime()))return"Por confirmar";return new Intl.DateTimeFormat("es-MX",{dateStyle:"full",timeStyle:"short"}).format(date)}
 function errorMessage(error){return error instanceof ApiError?error.message:error?.message||"No fue posible guardar la respuesta."}
 function ics(value){return String(value||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;")}

@@ -209,7 +209,7 @@ function eventCards(rows) {
       <div class="event-card-actions">
         <a class="event-action-main" href="evento-admin.html?id=${encodeURIComponent(event.id)}">${isOwner() ? "Administrar" : "Abrir mi evento"}</a>
         ${canDesignEvent(event.id) ? `<a href="disenador.html?id=${encodeURIComponent(event.id)}">Diseñar</a>` : ""}
-        ${event.private_token ? `<a href="evento.html?token=${encodeURIComponent(event.private_token)}" target="_blank" rel="noopener">Invitación</a>` : ""}
+        ${event.private_token ? `<a href="${isOwner() ? `evento.html?id=${encodeURIComponent(event.id)}&preview=1` : `evento.html?token=${encodeURIComponent(event.private_token)}`}" target="_blank" rel="noopener">Invitación</a>` : ""}
         ${canScan ? `<a href="scanner.html?event=${encodeURIComponent(event.id)}">Escáner</a>` : ""}
       </div>
     </article>`;

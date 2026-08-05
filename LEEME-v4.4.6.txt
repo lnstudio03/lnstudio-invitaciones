@@ -1,0 +1,23 @@
+LN Studio v4.4.6 · SOLO ARCHIVOS NECESARIOS
+
+Sube estos archivos directamente a la raíz de GitHub y reemplaza los anteriores.
+No hay carpetas y no necesitas ejecutar SQL.
+
+Corrige:
+- Vista previa funcional aunque el evento siga en borrador.
+- El botón Abrir invitación del diseñador abre una vista privada segura por ID.
+- El botón Abrir invitación del panel owner también abre la vista previa del borrador.
+- La invitación pública por token sigue disponible únicamente cuando el evento está publicado.
+- RSVP bloqueado dentro de la vista previa para evitar registros de prueba.
+- Textos, imágenes y formularios adaptados a celular sin desbordarse.
+- Incluye el ajuste anterior para mantener la vista previa fija en el diseñador.
+
+Archivos:
+- disenador.html
+- disenador.css
+- disenador.js
+- evento.html
+- rsvp.js
+- invitacion.css
+- event-admin.js
+- portal.js

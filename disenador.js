@@ -24,6 +24,8 @@ const PRESETS = {
   fantasy:{ primary:"#9b5de5",secondary:"#00d4b8",background:"#120e24",background2:"#25184a",text:"#ffffff",muted:"#d4cae9",heading:"Cinzel",body:"Poppins",ambient:"stars" }
 };
 let state = { user:null, profile:null, event:null, gallery:[], sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0, localAssets:{} };
+let previewMode = "mobile";
+let previewResizeObserver = null;
 
 window.addEventListener("DOMContentLoaded", init);
 
@@ -46,6 +48,7 @@ async function init() {
     renderSectionManager();
     renderGalleryManager();
     render();
+    setupPreviewFitting();
   } catch (error) { fail(errorMessage(error)); }
 }
 
@@ -56,8 +59,11 @@ function bind() {
     render(); setStatus("Cambios sin guardar");
   });
   $$(`[data-preview-size]`).forEach((button) => button.addEventListener("click", () => {
-    $("[data-preview-device]").className = `preview-device ${button.dataset.previewSize}`;
+    previewMode = button.dataset.previewSize === "desktop" ? "desktop" : "mobile";
+    $("[data-preview-device]").className = `preview-device ${previewMode}`;
     $$(`[data-preview-size]`).forEach((item) => item.classList.toggle("active", item === button));
+    resetPreviewToTop();
+    requestAnimationFrame(fitPreviewToVisibleArea);
   }));
   $$(`[data-preset]`).forEach((button) => button.addEventListener("click", () => applyPreset(button.dataset.preset)));
   $$(`[data-upload]`).forEach((input) => input.addEventListener("change", () => handleUpload(input)));
@@ -70,6 +76,53 @@ function bind() {
     render(); resetPreviewToTop(); setStatus("Archivo quitado · cambios sin guardar");
   }));
   $("[data-fix-contrast]").addEventListener("click", fixContrast);
+}
+
+function setupPreviewFitting() {
+  const area = $(".preview-area");
+  if (!area) return;
+
+  previewResizeObserver?.disconnect();
+  if ("ResizeObserver" in window) {
+    previewResizeObserver = new ResizeObserver(() => fitPreviewToVisibleArea());
+    previewResizeObserver.observe(area);
+  }
+
+  window.addEventListener("resize", fitPreviewToVisibleArea, { passive:true });
+  window.visualViewport?.addEventListener("resize", fitPreviewToVisibleArea, { passive:true });
+  window.visualViewport?.addEventListener("scroll", fitPreviewToVisibleArea, { passive:true });
+
+  requestAnimationFrame(() => requestAnimationFrame(fitPreviewToVisibleArea));
+  document.fonts?.ready?.then(fitPreviewToVisibleArea).catch(() => {});
+}
+
+function fitPreviewToVisibleArea() {
+  const area = $(".preview-area");
+  const device = $("[data-preview-device]");
+  if (!area || !device || window.innerWidth <= 980) {
+    if (device) {
+      device.style.removeProperty("width");
+      device.style.removeProperty("height");
+      device.style.removeProperty("transform");
+    }
+    return;
+  }
+
+  const natural = previewMode === "desktop"
+    ? { width:1040, height:720 }
+    : { width:390, height:760 };
+  const styles = getComputedStyle(area);
+  const horizontalPadding = parseFloat(styles.paddingLeft || 0) + parseFloat(styles.paddingRight || 0);
+  const verticalPadding = parseFloat(styles.paddingTop || 0) + parseFloat(styles.paddingBottom || 0);
+  const availableWidth = Math.max(1, area.clientWidth - horizontalPadding - 8);
+  const availableHeight = Math.max(1, area.clientHeight - verticalPadding - 8);
+  const scale = Math.min(availableWidth / natural.width, availableHeight / natural.height, 1);
+
+  device.style.width = `${natural.width}px`;
+  device.style.height = `${natural.height}px`;
+  device.style.transform = `scale(${Math.max(.2, scale)})`;
+  device.style.transformOrigin = "center center";
+  device.dataset.fitScale = scale.toFixed(3);
 }
 
 function fill() {
@@ -107,8 +160,8 @@ function fill() {
   state.sections = normalizeOrder(config.sections.order);
   state.enabled = { ...DEFAULTS.sections.enabled, ...(config.sections.enabled || {}) };
   $("[data-event-title]").textContent = state.event.name;
-  if (state.event.private_token) $("[data-open-invitation]").href = `evento.html?token=${encodeURIComponent(state.event.private_token)}`;
-  else $("[data-open-invitation]").hidden = true;
+  $(`[data-open-invitation]`).href = `evento.html?id=${encodeURIComponent(state.event.id)}&preview=1`;
+  $(`[data-open-invitation]`).hidden = false;
   ["logo_url","secondary_logo_url","hero_image_url","background_image_url","music_url"].forEach((fieldName) => syncAssetFeedback(fieldName, form.elements[fieldName]?.value || "", form.elements[fieldName]?.value ? "saved" : "empty"));
 }
 

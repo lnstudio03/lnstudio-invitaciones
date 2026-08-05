@@ -69,7 +69,9 @@ function render() {
   $("[data-meta]").textContent = formatDate(state.event.event_date);
   $("[data-design]").href = `disenador.html?id=${encodeURIComponent(state.eventId)}`;
   $("[data-design]").hidden = !state.isOwner;
-  $("[data-open]").href = `evento.html?token=${encodeURIComponent(state.event.private_token)}`;
+  $("[data-open]").href = state.isOwner
+    ? `evento.html?id=${encodeURIComponent(state.eventId)}&preview=1`
+    : `evento.html?token=${encodeURIComponent(state.event.private_token)}`;
   $("[data-scan]").href = `scanner.html?event=${encodeURIComponent(state.eventId)}`;
   $("[data-delete-zone]").hidden = !state.isOwner;
   $("[data-delete-event]").hidden = !state.isOwner;
