@@ -1,0 +1,27 @@
+LN STUDIO v4.2 — ARCHIVOS PARA GITHUB
+
+ESTE ZIP SÍ SE SUBE A GITHUB.
+
+1. Descomprime el ZIP.
+2. Selecciona TODOS los archivos que aparecen directamente dentro.
+3. Súbelos a la RAÍZ del repositorio.
+4. Cuando GitHub pregunte, reemplaza los archivos existentes.
+5. No crees carpetas.
+
+ARCHIVOS FUNCIONALES:
+- admin.html
+- portal.js
+- evento-admin.html
+- event-admin.js
+- supabase.js
+- crear-contrasena.html
+- crear-contrasena.js
+
+El archivo LEEME-SUBIR-A-GITHUB.txt es solo una guía. También puede subirse; no afecta el sitio.
+
+DESPUÉS DE SUBIR:
+Espera el despliegue de Cloudflare y haz Ctrl + Shift + R.
+
+IMPORTANTE:
+Para que el envío de invitaciones funcione todavía debes configurar Supabase con el segundo ZIP llamado:
+LN-Studio-v4.2-SUPABASE-NO-SUBIR-GITHUB.zip

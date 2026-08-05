@@ -93,6 +93,7 @@ async function openPortal() {
     const profiles = await api.select("profiles", { filters: { id: user.id }, limit: 1 });
     state.profile = profiles?.[0] || null;
     if (!state.profile?.active) throw new Error("Esta cuenta no está activa en LN Studio.");
+    try { await api.rpc("complete_event_invitation", { p_event_id: null }); } catch { /* Compatible con bases anteriores a v4.2. */ }
 
     $("[data-login]").hidden = true;
     $("[data-app]").hidden = false;
@@ -240,8 +241,13 @@ function renderMembers() {
   const eventMap = new Map(state.events.map((event) => [event.id, event]));
   $("[data-members]").innerHTML = state.members.map((member) => `<article class="member-row">
     <div><strong>${esc(member.email)}</strong><small>${esc(eventMap.get(member.event_id)?.name || "Evento")}</small></div>
-    <span>${roleLabel(member.role)}</span><span class="status-pill ${member.active ? "status-published" : "status-paused"}">${member.active ? "Activo" : "Pausado"}</span>
-    <div class="card-actions"><button type="button" data-edit-member="${member.id}">Editar</button></div>
+    <span>${roleLabel(member.role)}</span>
+    <span class="status-pill ${invitationStatusClass(member)}">${invitationStatusLabel(member)}</span>
+    <div class="card-actions">
+      ${isOwner() && member.invitation_status !== "active" && member.invitation_status !== "revoked" ? `<button type="button" data-resend-member="${member.id}">Reenviar</button>` : ""}
+      ${isOwner() ? `<button type="button" data-edit-member="${member.id}">Editar</button>` : ""}
+      ${isOwner() && member.invitation_status !== "revoked" ? `<button type="button" class="danger-link" data-revoke-member="${member.id}">Revocar</button>` : ""}
+    </div>
   </article>`).join("") || '<div class="empty-state">Todavía no hay usuarios asignados.</div>';
   bindDynamicActions($("[data-members]"));
 }
@@ -254,6 +260,8 @@ function bindDynamicActions(root) {
   $$('[data-template-event]', root).forEach((button) => button.addEventListener("click", () => openEvent({ templateKey: button.dataset.templateEvent })));
   $$('[data-edit-template]', root).forEach((button) => button.addEventListener("click", () => openTemplate(button.dataset.editTemplate)));
   $$('[data-edit-member]', root).forEach((button) => button.addEventListener("click", () => openMember(button.dataset.editMember)));
+  $$('[data-resend-member]', root).forEach((button) => button.addEventListener("click", () => resendMember(button.dataset.resendMember)));
+  $$('[data-revoke-member]', root).forEach((button) => button.addEventListener("click", () => revokeMember(button.dataset.revokeMember)));
   $$('[data-request]', root).forEach((button) => button.addEventListener("click", () => openRequest(button.dataset.request)));
 }
 
@@ -367,25 +375,91 @@ async function saveTemplate(event) {
 }
 
 function openMember(id = null) {
-  const form = $("#member-form"); form.reset(); form.elements.id.value = ""; form.elements.active.checked = true; $("[data-member-status]").textContent = "";
+  const form = $("#member-form");
+  form.reset();
+  form.elements.id.value = "";
+  form.elements.active.checked = true;
+  if (form.elements.send_invite) form.elements.send_invite.checked = true;
+  $("[data-member-status]").textContent = "";
   const item = id ? state.members.find((member) => member.id === id) : null;
-  if (item) { fillForm(form, item); form.elements.active.checked = item.active; }
+  if (item) {
+    fillForm(form, item);
+    form.elements.active.checked = item.active;
+    if (form.elements.send_invite) form.elements.send_invite.checked = item.invitation_status !== "active";
+  }
   $("#member-dialog").showModal();
 }
 
 async function saveMember(event) {
-  event.preventDefault(); const form = event.currentTarget;
+  event.preventDefault();
+  const form = event.currentTarget;
   if (!form.reportValidity()) return;
-  const status = $("[data-member-status]"); status.textContent = "Asignando…"; setBusy(form, true);
+  const status = $("[data-member-status]");
+  const data = new FormData(form);
+  const eventId = String(data.get("event_id"));
+  const email = String(data.get("email")).trim().toLowerCase();
+  const role = String(data.get("role"));
+  const sendInvite = Boolean(form.elements.send_invite?.checked);
+  status.textContent = sendInvite ? "Enviando invitación…" : "Guardando acceso…";
+  setBusy(form, true);
   try {
-    const data = new FormData(form);
-    await api.rpc("upsert_event_member", {
-      p_event_id: data.get("event_id"), p_email: String(data.get("email")).trim().toLowerCase(),
-      p_role: data.get("role"), p_active: form.elements.active.checked
+    if (sendInvite && isOwner()) {
+      const result = await api.invokeFunction("invitar-usuario-evento", {
+        action: form.elements.id.value ? "resend" : "invite",
+        event_id: eventId,
+        email,
+        role
+      });
+      status.textContent = result.message || "Invitación enviada.";
+    } else {
+      await api.rpc("upsert_event_member", {
+        p_event_id: eventId,
+        p_email: email,
+        p_role: role,
+        p_active: form.elements.active.checked
+      });
+    }
+    await load();
+    setTimeout(() => $("#member-dialog").close(), 450);
+  } catch (error) {
+    status.textContent = errorMessage(error);
+  } finally {
+    setBusy(form, false);
+  }
+}
+
+async function resendMember(id) {
+  const member = state.members.find((item) => item.id === id);
+  if (!member || !isOwner()) return;
+  showGlobal(`Reenviando acceso a ${member.email}…`, "loading");
+  try {
+    const result = await api.invokeFunction("invitar-usuario-evento", {
+      action: "resend",
+      event_id: member.event_id,
+      email: member.email,
+      role: member.role
     });
-    $("#member-dialog").close(); await load();
-  } catch (error) { status.textContent = errorMessage(error); }
-  finally { setBusy(form, false); }
+    await load();
+    showGlobal(result.message || "Invitación reenviada.", "success");
+    setTimeout(hideGlobal, 2600);
+  } catch (error) {
+    showGlobal(`No fue posible reenviar: ${errorMessage(error)}`, "error");
+  }
+}
+
+async function revokeMember(id) {
+  const member = state.members.find((item) => item.id === id);
+  if (!member || !isOwner()) return;
+  if (!confirm(`¿Revocar el acceso de ${member.email}? El usuario conservará su cuenta, pero dejará de ver este evento.`)) return;
+  showGlobal(`Revocando acceso de ${member.email}…`, "loading");
+  try {
+    await api.invokeFunction("invitar-usuario-evento", { action: "revoke", member_id: member.id });
+    await load();
+    showGlobal("Acceso revocado.", "success");
+    setTimeout(hideGlobal, 2200);
+  } catch (error) {
+    showGlobal(`No fue posible revocar: ${errorMessage(error)}`, "error");
+  }
 }
 
 function openRequest(id) {
@@ -484,6 +558,14 @@ function toLocalInput(value) { const date = new Date(value); return new Date(dat
 function formatDate(value) { if (!value) return "Fecha pendiente"; try { return new Intl.DateTimeFormat("es-MX", { dateStyle: "long", timeStyle: "short" }).format(new Date(value)); } catch { return value; } }
 function statusLabel(value) { return ({ draft: "Borrador", published: "Publicado", paused: "Pausado", finished: "Finalizado", archived: "Archivado" })[value] || value; }
 function requestStatus(value) { return ({ new: "Nueva", contacted: "Contactada", converted: "Convertida", archived: "Archivada" })[value] || value; }
+function invitationStatusLabel(member) {
+  if (!member.active || member.invitation_status === "revoked") return "Revocado";
+  return ({ assigned: "Asignado", sent: "Invitación enviada", active: "Cuenta activa", error: "Error de envío" })[member.invitation_status] || (member.user_id ? "Cuenta vinculada" : "Asignado");
+}
+function invitationStatusClass(member) {
+  if (!member.active || member.invitation_status === "revoked" || member.invitation_status === "error") return "status-paused";
+  return member.invitation_status === "active" ? "status-published" : "status-draft";
+}
 function roleLabel(value) { return ({ client_admin: "Cliente administrador", event_staff: "Personal de acceso", viewer: "Solo consulta" })[value] || value; }
 function globalRoleLabel(value) { return ({ owner: "Propietario LN Studio", staff: "Equipo LN Studio", client: "Cliente / evento" })[value] || value; }
 function errorMessage(error) { return error instanceof ApiError ? error.message : error?.message || "Ocurrió un error inesperado."; }

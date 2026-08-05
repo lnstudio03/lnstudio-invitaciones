@@ -94,7 +94,7 @@
       </section>
 
       <section class="owner-view" data-panel="usuarios">
-        <div class="module-toolbar"><p class="muted">Cada correo queda limitado a sus eventos asignados. El cliente administra su evento y abre un escáner exclusivo desde su tarjeta.</p><button type="button" class="primary-button" data-new-member>+ Asignar usuario</button></div>
+        <div class="module-toolbar"><p class="muted">Cada correo queda limitado a sus eventos asignados. El cliente administra su evento y abre un escáner exclusivo desde su tarjeta.</p><button type="button" class="primary-button owner-only" data-new-member>+ Asignar usuario</button></div>
         <div class="member-list" data-members></div>
       </section>
     </main>
@@ -143,8 +143,9 @@
       <label>Correo autorizado<input name="email" type="email" required></label>
       <label>Permiso<select name="role"><option value="client_admin">Cliente administrador</option><option value="event_staff">Personal de acceso / escáner</option><option value="viewer">Solo consulta</option></select></label>
       <label class="inline-check"><input name="active" type="checkbox" checked> Acceso activo</label>
-      <p class="muted">El acceso queda vinculado únicamente al evento seleccionado. La opción recomendada es que el cliente active su propia contraseña; también puedes crearle una contraseña temporal desde Supabase Authentication.</p><p class="form-status" data-member-status></p>
-      <div class="dialog-actions"><button type="button" class="ghost-button" data-close>Cancelar</button><button type="submit" class="primary-button">Asignar acceso</button></div>
+      <label class="inline-check"><input name="send_invite" type="checkbox" checked> Enviar correo para que el usuario cree su contraseña</label>
+      <p class="muted">LN Studio registrará el correo en este evento y enviará un enlace personal. El cliente elegirá su propia contraseña; el registro público continuará desactivado.</p><p class="form-status" data-member-status></p>
+      <div class="dialog-actions"><button type="button" class="ghost-button" data-close>Cancelar</button><button type="submit" class="primary-button">Guardar y enviar acceso</button></div>
     </form>
   </dialog>
 

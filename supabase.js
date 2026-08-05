@@ -250,6 +250,15 @@ export const api = {
       method: "POST",
       body: JSON.stringify(args)
     }, session);
+  },
+
+  async invokeFunction(name, body = {}) {
+    const session = await getValidSession();
+    if (!session) throw new ApiError("Debes iniciar sesión para realizar esta acción.", 401);
+    return rawFetch(`/functions/v1/${encodeURIComponent(name)}`, {
+      method: "POST",
+      body: JSON.stringify(body)
+    }, session);
   }
 };
 

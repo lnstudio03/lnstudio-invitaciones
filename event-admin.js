@@ -14,6 +14,7 @@ async function init() {
   const session = await api.getSession();
   if (!session) return location.replace("admin.html");
   state.user = await api.getUser();
+  try { await api.rpc("complete_event_invitation", { p_event_id: state.eventId }); } catch { /* Compatible con bases anteriores a v4.2. */ }
   bind();
   await load();
 }
@@ -72,7 +73,7 @@ function render() {
   $("[data-delete-event]").hidden = !state.isOwner;
   $("[data-scan]").hidden = !state.canScan;
   $("[data-add-guest]").hidden = !state.canAdmin;
-  $("[data-add-member]").hidden = !state.canAdmin;
+  $("[data-add-member]").hidden = !state.isOwner;
   $("#settings-form").querySelectorAll("input,select,textarea,button").forEach((field) => field.disabled = !state.canAdmin);
 
   const confirmed = state.rsvps.filter((item) => item.attendance === "confirmed").reduce((sum, item) => sum + Number(item.party_size || 0), 0);
@@ -106,9 +107,16 @@ function renderGuests() {
 }
 
 function renderMembers() {
-  $("[data-members-body]").innerHTML = state.members.map((member) => `<tr><td>${esc(member.email)}</td><td>${roleLabel(member.role)}</td><td>${member.active ? "Activo" : "Pausado"}</td><td>${state.canAdmin ? `<button type="button" data-edit-member="${member.id}">Editar</button>` : ""}</td></tr>`).join("");
+  $("[data-members-body]").innerHTML = state.members.map((member) => `<tr>
+    <td>${esc(member.email)}</td>
+    <td>${roleLabel(member.role)}</td>
+    <td><span class="status-pill ${invitationStatusClass(member)}">${invitationStatusLabel(member)}</span></td>
+    <td>${state.isOwner ? `<button type="button" data-edit-member="${member.id}">Editar</button>${member.invitation_status !== "active" && member.invitation_status !== "revoked" ? `<button type="button" data-resend-member="${member.id}">Reenviar</button>` : ""}${member.invitation_status !== "revoked" ? `<button type="button" class="danger-link" data-revoke-member="${member.id}">Revocar</button>` : ""}` : ""}</td>
+  </tr>`).join("");
   $("[data-members-empty]").hidden = state.members.length > 0;
   $$('[data-edit-member]').forEach((button) => button.addEventListener("click", () => openMember(button.dataset.editMember)));
+  $$('[data-resend-member]').forEach((button) => button.addEventListener("click", () => resendMember(button.dataset.resendMember)));
+  $$('[data-revoke-member]').forEach((button) => button.addEventListener("click", () => revokeMember(button.dataset.revokeMember)));
 }
 
 function renderCheckins() {
@@ -151,18 +159,89 @@ async function saveGuest(event) {
 }
 
 function openMember(id = null) {
-  const form = $("#member-form"); form.reset(); form.elements.id.value = ""; form.elements.active.checked = true; $("[data-member-status]").textContent = "";
-  const member = id ? state.members.find((item) => item.id === id) : null; if (member) { fillForm(form, member); form.elements.active.checked = member.active; }
+  if (!state.isOwner) return;
+  const form = $("#member-form");
+  form.reset();
+  form.elements.id.value = "";
+  form.elements.active.checked = true;
+  if (form.elements.send_invite) form.elements.send_invite.checked = true;
+  $("[data-member-status]").textContent = "";
+  const member = id ? state.members.find((item) => item.id === id) : null;
+  if (member) {
+    fillForm(form, member);
+    form.elements.active.checked = member.active;
+    if (form.elements.send_invite) form.elements.send_invite.checked = member.invitation_status !== "active";
+  }
   $("#member-dialog").showModal();
 }
 
 async function saveMember(event) {
-  event.preventDefault(); const form = event.currentTarget; if (!form.reportValidity()) return;
-  const status = $("[data-member-status]"); status.textContent = "Guardando…"; setBusy(form, true);
+  event.preventDefault();
+  if (!state.isOwner) return;
+  const form = event.currentTarget;
+  if (!form.reportValidity()) return;
+  const status = $("[data-member-status]");
+  const email = form.elements.email.value.trim().toLowerCase();
+  const role = form.elements.role.value;
+  const sendInvite = Boolean(form.elements.send_invite?.checked);
+  status.textContent = sendInvite ? "Enviando invitación…" : "Guardando acceso…";
+  setBusy(form, true);
   try {
-    await api.rpc("upsert_event_member", { p_event_id: state.eventId, p_email: form.elements.email.value.trim().toLowerCase(), p_role: form.elements.role.value, p_active: form.elements.active.checked });
-    $("#member-dialog").close(); await load();
-  } catch (error) { status.textContent = errorMessage(error); } finally { setBusy(form, false); }
+    if (sendInvite) {
+      const result = await api.invokeFunction("invitar-usuario-evento", {
+        action: form.elements.id.value ? "resend" : "invite",
+        event_id: state.eventId,
+        email,
+        role
+      });
+      status.textContent = result.message || "Invitación enviada.";
+    } else {
+      await api.rpc("upsert_event_member", {
+        p_event_id: state.eventId,
+        p_email: email,
+        p_role: role,
+        p_active: form.elements.active.checked
+      });
+    }
+    await load();
+    setTimeout(() => $("#member-dialog").close(), 450);
+  } catch (error) {
+    status.textContent = errorMessage(error);
+  } finally {
+    setBusy(form, false);
+  }
+}
+
+async function resendMember(id) {
+  const member = state.members.find((item) => item.id === id);
+  if (!member || !state.isOwner) return;
+  setStatus(`Reenviando acceso a ${member.email}…`, "loading");
+  try {
+    const result = await api.invokeFunction("invitar-usuario-evento", {
+      action: "resend",
+      event_id: state.eventId,
+      email: member.email,
+      role: member.role
+    });
+    await load();
+    setStatus(result.message || "Invitación reenviada.", "info");
+  } catch (error) {
+    setStatus(`No fue posible reenviar: ${errorMessage(error)}`, "error");
+  }
+}
+
+async function revokeMember(id) {
+  const member = state.members.find((item) => item.id === id);
+  if (!member || !state.isOwner) return;
+  if (!confirm(`¿Revocar el acceso de ${member.email}? La cuenta seguirá existiendo, pero no podrá ver este evento.`)) return;
+  setStatus(`Revocando acceso de ${member.email}…`, "loading");
+  try {
+    await api.invokeFunction("invitar-usuario-evento", { action: "revoke", member_id: member.id });
+    await load();
+    setStatus("Acceso revocado.", "info");
+  } catch (error) {
+    setStatus(`No fue posible revocar: ${errorMessage(error)}`, "error");
+  }
 }
 
 async function saveSettings(event) {
@@ -211,6 +290,14 @@ function errorMessage(error) { return error instanceof ApiError ? error.message 
 function formatDate(value) { if (!value) return "Fecha pendiente"; try { return new Intl.DateTimeFormat("es-MX", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); } catch { return value; } }
 function toLocalInput(value) { const date = new Date(value); return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
 function statusLabel(value) { return ({ pending: "Pendiente", confirmed: "Confirmado", declined: "No asistirá", cancelled: "Cancelado" })[value] || value; }
+function invitationStatusLabel(member) {
+  if (!member.active || member.invitation_status === "revoked") return "Revocado";
+  return ({ assigned: "Asignado", sent: "Invitación enviada", active: "Cuenta activa", error: "Error de envío" })[member.invitation_status] || (member.user_id ? "Cuenta vinculada" : "Asignado");
+}
+function invitationStatusClass(member) {
+  if (!member.active || member.invitation_status === "revoked" || member.invitation_status === "error") return "status-paused";
+  return member.invitation_status === "active" ? "status-published" : "status-draft";
+}
 function roleLabel(value) { return ({ client_admin: "Cliente administrador", event_staff: "Personal de acceso", viewer: "Solo lectura" })[value] || value; }
 function csvCell(value) { return `"${String(value ?? "").replaceAll('"', '""')}"`; }
 function slugify(value) { return String(value || "evento").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
