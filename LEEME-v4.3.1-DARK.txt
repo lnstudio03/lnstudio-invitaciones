@@ -1,0 +1,14 @@
+LN Studio v4.3.1 · PARCHE OSCURO + CENTRADO MÓVIL
+
+Archivos incluidos:
+- style.css
+
+Qué corrige:
+1) Centra mejor la portada y secciones en celular.
+2) Cambia el sitio público a tonos oscuros para reducir fatiga visual.
+3) Mantiene el estilo más creativo de LN Studio.
+
+Cómo subir:
+- Sube este style.css a la RAÍZ de GitHub.
+- Reemplaza el archivo anterior.
+- No uses carpetas.
