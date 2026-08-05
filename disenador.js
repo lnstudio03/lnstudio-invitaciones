@@ -23,7 +23,7 @@ const PRESETS = {
   corporate:{ primary:"#2774d8",secondary:"#40b8c4",background:"#0d1724",background2:"#182a3d",text:"#f6fbff",muted:"#b7c7d8",heading:"Montserrat",body:"Manrope",ambient:"none" },
   fantasy:{ primary:"#9b5de5",secondary:"#00d4b8",background:"#120e24",background2:"#25184a",text:"#ffffff",muted:"#d4cae9",heading:"Cinzel",body:"Poppins",ambient:"stars" }
 };
-let state = { user:null, profile:null, event:null, gallery:[], sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0 };
+let state = { user:null, profile:null, event:null, gallery:[], sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0, localAssets:{} };
 
 window.addEventListener("DOMContentLoaded", init);
 
@@ -62,9 +62,12 @@ function bind() {
   $$(`[data-preset]`).forEach((button) => button.addEventListener("click", () => applyPreset(button.dataset.preset)));
   $$(`[data-upload]`).forEach((input) => input.addEventListener("change", () => handleUpload(input)));
   $$(`[data-remove-asset]`).forEach((button) => button.addEventListener("click", () => {
-    const field = $("#designer-form").elements[button.dataset.removeAsset];
+    const fieldName = button.dataset.removeAsset;
+    const field = $("#designer-form").elements[fieldName];
+    revokeLocalAsset(fieldName);
     if (field) field.value = "";
-    render(); setStatus("Cambios sin guardar");
+    syncAssetFeedback(fieldName, "", "empty");
+    render(); resetPreviewToTop(); setStatus("Archivo quitado · cambios sin guardar");
   }));
   $("[data-fix-contrast]").addEventListener("click", fixContrast);
 }
@@ -106,6 +109,7 @@ function fill() {
   $("[data-event-title]").textContent = state.event.name;
   if (state.event.private_token) $("[data-open-invitation]").href = `evento.html?token=${encodeURIComponent(state.event.private_token)}`;
   else $("[data-open-invitation]").hidden = true;
+  ["logo_url","secondary_logo_url","hero_image_url","background_image_url","music_url"].forEach((fieldName) => syncAssetFeedback(fieldName, form.elements[fieldName]?.value || "", form.elements[fieldName]?.value ? "saved" : "empty"));
 }
 
 function mergeConfig(value) {
@@ -145,41 +149,127 @@ function applyPreset(name) {
 
 async function handleUpload(input) {
   const role = input.dataset.upload;
-  const files = [...(input.files || [])]; if (!files.length) return;
+  const files = [...(input.files || [])];
+  if (!files.length) return;
+
   if (role === "gallery") {
     const remaining = Math.max(0, 8 - state.gallery.length);
-    if (!remaining) return alert("La galería ya tiene 8 imágenes.");
+    if (!remaining) { input.value = ""; return alert("La galería ya tiene 8 imágenes."); }
     for (const file of files.slice(0, remaining)) {
-      const url = await uploadOne(file, "gallery");
-      if (url) state.gallery.push(url);
+      try {
+        const url = await uploadOne(file, "gallery");
+        if (url) state.gallery.push(url);
+      } catch (error) {
+        setStatus(`No se pudo subir ${file.name}: ${errorMessage(error)}`);
+        alert(errorMessage(error));
+      }
     }
-    renderGalleryManager(); render(); setStatus("Cambios sin guardar"); input.value = ""; return;
+    renderGalleryManager(); render(); setStatus("Galería actualizada · guarda el diseño"); input.value = ""; return;
   }
-  const file = files[0];
+
   const fieldMap = { logo:"logo_url", "secondary-logo":"secondary_logo_url", hero:"hero_image_url", background:"background_image_url", music:"music_url" };
-  const fieldName = fieldMap[role]; if (!fieldName) return;
-  const url = await uploadOne(file, role);
-  if (url) {
-    $("#designer-form").elements[fieldName].value = url;
-    render(); setStatus("Cambios sin guardar");
+  const fieldName = fieldMap[role];
+  const file = files[0];
+  if (!fieldName || !file) { input.value = ""; return; }
+
+  const field = $("#designer-form").elements[fieldName];
+  const previousValue = field.value;
+  revokeLocalAsset(fieldName);
+
+  try {
+    validateFile(file, role);
+    const localUrl = URL.createObjectURL(file);
+    state.localAssets[fieldName] = localUrl;
+    field.value = localUrl;
+    syncAssetFeedback(fieldName, localUrl, "uploading", `Vista previa local de ${file.name}. Subiendo…`);
+    render(); resetPreviewToTop();
+
+    const publicUrl = await uploadOne(file, role);
+    await verifyPublicAsset(publicUrl, role);
+    field.value = publicUrl;
+    syncAssetFeedback(fieldName, publicUrl, "ready", `${file.name} subido correctamente. Presiona “Guardar diseño”.`);
+    render(); resetPreviewToTop();
+    setStatus(`${assetLabel(fieldName)} listo · falta guardar el diseño`);
+    window.setTimeout(() => revokeLocalAsset(fieldName), 1500);
+  } catch (error) {
+    field.value = previousValue || "";
+    syncAssetFeedback(fieldName, previousValue || "", "error", errorMessage(error));
+    render(); resetPreviewToTop();
+    setStatus(`Error al subir ${assetLabel(fieldName)}: ${errorMessage(error)}`);
+    alert(`No se pudo subir el archivo.\n\n${errorMessage(error)}`);
+  } finally {
+    input.value = "";
   }
-  input.value = "";
 }
 
 async function uploadOne(file, role) {
+  validateFile(file, role);
+  state.uploading += 1;
+  setBusy(true);
+  setStatus(`Subiendo ${file.name}…`);
   try {
-    validateFile(file, role);
-    state.uploading += 1; setBusy(true); setStatus(`Subiendo ${file.name}…`);
     const ext = extensionFor(file);
     const safeRole = role.replace(/[^a-z0-9-]/gi, "-");
     const path = `${eventId}/${safeRole}-${Date.now()}-${randomToken()}.${ext}`;
     await api.uploadFile(BUCKET, path, file, { upsert:false, cacheControl:"31536000" });
     return api.getPublicFileUrl(BUCKET, path);
-  } catch (error) {
-    alert(errorMessage(error)); return null;
   } finally {
-    state.uploading = Math.max(0, state.uploading - 1); setBusy(state.uploading > 0);
+    state.uploading = Math.max(0, state.uploading - 1);
+    setBusy(state.uploading > 0);
   }
+}
+
+function verifyPublicAsset(url, role) {
+  return new Promise((resolve, reject) => {
+    const isAudio = role === "music";
+    const node = document.createElement(isAudio ? "audio" : "img");
+    let finished = false;
+    const done = (ok) => {
+      if (finished) return;
+      finished = true;
+      window.clearTimeout(timer);
+      node.removeAttribute("src");
+      ok ? resolve(true) : reject(new Error("El archivo llegó a Storage, pero su URL pública no se puede abrir. Ejecuta la reparación de Storage incluida con esta versión."));
+    };
+    node.addEventListener(isAudio ? "loadedmetadata" : "load", () => done(true), { once:true });
+    node.addEventListener("error", () => done(false), { once:true });
+    const timer = window.setTimeout(() => done(false), 12000);
+    node.src = `${url}${url.includes("?") ? "&" : "?"}v=${Date.now()}`;
+  });
+}
+
+function syncAssetFeedback(fieldName, url, stateName = "empty", message = "") {
+  const root = $(`[data-asset-feedback="${fieldName}"]`);
+  if (!root) return;
+  root.dataset.state = stateName;
+  const thumb = $(`[data-asset-thumb="${fieldName}"]`);
+  const messageNode = $(`[data-asset-message="${fieldName}"]`);
+  const isAudio = fieldName === "music_url";
+  if (messageNode) messageNode.textContent = message || ({
+    empty:"Sin archivo seleccionado.",
+    saved:"Archivo guardado en el evento.",
+    uploading:"Subiendo archivo…",
+    ready:"Archivo listo. Presiona Guardar diseño.",
+    error:"No se pudo cargar el archivo."
+  })[stateName] || "";
+  if (!thumb) return;
+  thumb.hidden = !url;
+  if (!url) { thumb.style.backgroundImage = ""; return; }
+  if (isAudio) { thumb.textContent = "♪"; return; }
+  thumb.style.backgroundImage = `url("${cssUrl(url)}")`;
+}
+
+function assetLabel(fieldName) {
+  return ({ logo_url:"Logo principal", secondary_logo_url:"Logo secundario", hero_image_url:"Imagen principal", background_image_url:"Imagen de fondo", music_url:"Música" })[fieldName] || "Archivo";
+}
+function resetPreviewToTop() {
+  const screen = $(`[data-preview-screen]`);
+  if (screen) screen.scrollTo({ top:0, behavior:"smooth" });
+}
+function revokeLocalAsset(fieldName) {
+  const value = state.localAssets[fieldName];
+  if (value) URL.revokeObjectURL(value);
+  delete state.localAssets[fieldName];
 }
 
 function validateFile(file, role) {
@@ -274,14 +364,27 @@ function render() {
   $("[data-preview-dress-code]").textContent = data.dress_code ? `Código de vestimenta: ${data.dress_code}` : "";
   $("[data-preview-rsvp-title]").textContent = config.content.rsvpTitle;
   $("[data-preview-rsvp-copy]").textContent = config.content.rsvpCopy;
-  const logo = $("[data-preview-logo]"); if (data.logo_url) { logo.src = safeAsset(data.logo_url); logo.hidden = false; } else logo.hidden = true;
-  const heroImage = $("[data-preview-hero-image]"); if (data.hero_image_url) { heroImage.src = safeAsset(data.hero_image_url); heroImage.hidden = false; } else heroImage.hidden = true;
-  const secondaryLogo = $("[data-preview-secondary-logo]"); if (data.secondary_logo_url) { secondaryLogo.src = safeAsset(data.secondary_logo_url); secondaryLogo.hidden = false; } else secondaryLogo.hidden = true;
+  setPreviewImage($("[data-preview-logo]"), data.logo_url, "logo_url");
+  setPreviewImage($("[data-preview-hero-image]"), data.hero_image_url, "hero_image_url");
+  setPreviewImage($("[data-preview-secondary-logo]"), data.secondary_logo_url, "secondary_logo_url");
   const gallery = $("[data-preview-gallery]"); gallery.innerHTML = state.gallery.length ? state.gallery.slice(0,6).map((url) => `<img src="${escapeAttr(url)}" alt="">`).join("") : '<div class="gallery-placeholder">Las fotografías aparecerán aquí.</div>';
   state.sections.forEach((key) => { const node = $(`[data-preview-section="${key}"]`); if (node) screen.appendChild(node); });
   Object.entries(state.enabled).forEach(([key, enabled]) => { const node = $(`[data-preview-section="${key}"]`); if (node) node.hidden = !enabled; });
   $("[data-overlay-output]").textContent = `${config.colors.overlay}%`; $("[data-heading-size-output]").textContent = `${config.typography.headingSize} px`; $("[data-body-size-output]").textContent = `${config.typography.bodySize} px`;
   renderContrast(config.colors.text, config.colors.background);
+}
+
+function setPreviewImage(image, value, fieldName) {
+  const url = safeAsset(value);
+  if (!url) { image.hidden = true; image.removeAttribute("src"); return; }
+  image.hidden = false;
+  image.classList.add("asset-loading");
+  image.onload = () => { image.classList.remove("asset-loading","asset-error"); };
+  image.onerror = () => {
+    image.classList.remove("asset-loading"); image.classList.add("asset-error");
+    syncAssetFeedback(fieldName, value, "error", "La URL existe, pero la imagen no pudo mostrarse. Revisa Storage y vuelve a subirla.");
+  };
+  image.src = url;
 }
 
 async function save() {
@@ -302,6 +405,10 @@ async function save() {
     await api.rpc("update_event_design", { p_event_id:eventId, p_payload:payload });
     state.event = { ...state.event, ...payload };
     $("[data-event-title]").textContent = payload.name;
+    ["logo_url","secondary_logo_url","hero_image_url","background_image_url","music_url"].forEach((fieldName) => {
+      const value = $("#designer-form").elements[fieldName]?.value || "";
+      syncAssetFeedback(fieldName, value, value ? "saved" : "empty", value ? "Archivo guardado en la invitación." : "Sin archivo seleccionado.");
+    });
     setStatus("Diseño guardado", true);
   } catch (error) { setStatus(errorMessage(error)); }
   finally { setBusy(false); }

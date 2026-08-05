@@ -1,0 +1,17 @@
+LN Studio v4.4.4 · RECURSOS VISIBLES
+
+Esta versión corrige la carga de logos, imágenes, fondos y música en el diseñador.
+
+Sube todos los archivos de este ZIP directamente a la raíz de GitHub.
+No uses carpetas.
+
+Después ejecuta el SQL separado de reparación de Storage en Supabase.
+
+Cambios principales:
+- Vista previa local inmediata al seleccionar un archivo.
+- Estado visible: subiendo, listo, guardado o error.
+- Miniatura de cada recurso cargado.
+- Mensaje claro cuando Storage rechaza el archivo.
+- La vista previa regresa a la portada después de subir un logo o imagen.
+- Los logos usan un fondo claro para no desaparecer sobre fondos oscuros.
+- El archivo solo aparece en la invitación pública después de presionar Guardar diseño.

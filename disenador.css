@@ -223,3 +223,24 @@ body{
     height:min(720px,calc(100% - 10px))!important;
   }
 }
+
+/* =========================================================
+   LN Studio v4.4.4 · carga visible y comprobable de recursos
+   ========================================================= */
+.upload-button{position:relative;overflow:hidden}
+.upload-button input[type="file"]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;cursor:pointer!important;pointer-events:auto!important}
+.asset-feedback{min-height:62px;padding:9px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025);display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:10px}
+.asset-feedback p{margin:0;color:#aeb9ce;font-size:.75rem;line-height:1.45;overflow-wrap:anywhere}
+.asset-feedback[data-state="ready"],.asset-feedback[data-state="saved"]{border-color:rgba(57,211,159,.32);background:rgba(57,211,159,.06)}
+.asset-feedback[data-state="ready"] p,.asset-feedback[data-state="saved"] p{color:#aaf0d3}
+.asset-feedback[data-state="uploading"]{border-color:rgba(143,125,255,.42);background:rgba(143,125,255,.08)}
+.asset-feedback[data-state="uploading"] p{color:#d7d0ff}
+.asset-feedback[data-state="error"]{border-color:rgba(255,127,145,.44);background:rgba(255,127,145,.08)}
+.asset-feedback[data-state="error"] p{color:#ffc2cb}
+.asset-thumb{width:52px;height:44px;border-radius:9px;background-color:#fff;background-position:center;background-size:contain;background-repeat:no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.asset-thumb.audio-thumb{display:grid;place-items:center;background:linear-gradient(135deg,#282142,#121827);color:#bcb2ff;font-size:1.4rem;font-weight:800}
+.preview-logo,.preview-secondary-logo{padding:9px;border-radius:14px;background:rgba(255,255,255,.94);box-shadow:0 12px 32px rgba(0,0,0,.28);filter:drop-shadow(0 1px 1px rgba(0,0,0,.18))}
+.preview-logo.asset-loading,.preview-secondary-logo.asset-loading,.preview-hero-image.asset-loading{opacity:.55;animation:assetPulse 1s ease-in-out infinite alternate}
+.preview-logo.asset-error,.preview-secondary-logo.asset-error,.preview-hero-image.asset-error{outline:2px solid #ff7f91}
+@keyframes assetPulse{to{opacity:.9}}
+@media(max-width:520px){.asset-feedback{grid-template-columns:44px minmax(0,1fr)}.asset-thumb{width:44px;height:40px}}

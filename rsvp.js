@@ -52,9 +52,10 @@ function renderEvent() {
   $("[data-rsvp-copy]").textContent = config.content.rsvpCopy;
   const map = $("[data-map]"); map.href = eventData.maps_url || "#"; map.hidden = !eventData.maps_url;
   $("[data-dress-code]").textContent = eventData.dress_code ? `Código de vestimenta: ${eventData.dress_code}` : "";
-  const logo = $("[data-logo]"); if (eventData.logo_url) { logo.src = safeAsset(eventData.logo_url); logo.hidden = false; }
-  const secondary = $("[data-secondary-logo]"); if (eventData.secondary_logo_url) { secondary.src = safeAsset(eventData.secondary_logo_url); $("[data-brand-row]").hidden = false; }
-  const heroImage = $("[data-hero-image]"); if (eventData.hero_image_url) { heroImage.src = safeAsset(eventData.hero_image_url); heroImage.hidden = false; }
+  setEventImage($("[data-logo]"), eventData.logo_url);
+  const secondary = $("[data-secondary-logo]");
+  setEventImage(secondary, eventData.secondary_logo_url, () => { $("[data-brand-row]").hidden = false; }, () => { $("[data-brand-row]").hidden = true; });
+  setEventImage($("[data-hero-image]"), eventData.hero_image_url);
   renderGallery(config.media.gallery);
   configureMusic(config);
   const party = $("#rsvp-form [name=party_size]"); party.max = Number(eventData.max_companions || 0) + 1;
@@ -119,6 +120,15 @@ function renderGallery(gallery) {
   const list = Array.isArray(gallery)?gallery.filter(Boolean).slice(0,8):[];
   const root=$("[data-gallery]"); root.innerHTML=list.map((url,index)=>`<img src="${escapeAttr(safeAsset(url))}" alt="Fotografía ${index+1}" loading="lazy">`).join("");
   $("[data-section=gallery]").hidden = !list.length;
+}
+
+function setEventImage(image, value, onLoad = null, onError = null) {
+  const url = safeAsset(value);
+  if (!url) { image.hidden = true; image.removeAttribute("src"); if (onError) onError(); return; }
+  image.hidden = false;
+  image.onload = () => { image.hidden = false; if (onLoad) onLoad(); };
+  image.onerror = () => { image.hidden = true; if (onError) onError(); };
+  image.src = url;
 }
 
 function configureMusic(config) {

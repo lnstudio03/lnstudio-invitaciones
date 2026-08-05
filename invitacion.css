@@ -260,3 +260,7 @@ body[data-animation-intensity="high"] .invite-animated{transition-duration:1.15s
 body[data-animation-intensity="high"].animation-zoom .invite-animated{transform:scale(.88)}
 body[data-animation-intensity="low"] .event-ambient{opacity:.55}
 body[data-animation-intensity="high"] .event-ambient{opacity:1}
+
+/* LN Studio v4.4.4 · logos siempre visibles */
+.shop-logo,.official-brand-row img{padding:10px;border-radius:16px;background:rgba(255,255,255,.94);box-shadow:0 16px 40px rgba(0,0,0,.3);filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
+.official-brand-row{padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}
