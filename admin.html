@@ -95,7 +95,7 @@
       </section>
 
       <section class="owner-view" data-panel="usuarios">
-        <div class="module-toolbar"><p class="muted">Asigna correos por evento. El cliente o el personal activa su cuenta desde esta misma pantalla de acceso.</p><button type="button" class="primary-button" data-new-member>+ Asignar usuario</button></div>
+        <div class="module-toolbar"><p class="muted">Cada correo queda limitado a sus eventos asignados. El cliente administra su evento y abre un escáner exclusivo desde su tarjeta.</p><button type="button" class="primary-button" data-new-member>+ Asignar usuario</button></div>
         <div class="member-list" data-members></div>
       </section>
     </main>
@@ -144,7 +144,7 @@
       <label>Correo autorizado<input name="email" type="email" required></label>
       <label>Permiso<select name="role"><option value="client_admin">Cliente administrador</option><option value="event_staff">Personal de acceso / escáner</option><option value="viewer">Solo consulta</option></select></label>
       <label class="inline-check"><input name="active" type="checkbox" checked> Acceso activo</label>
-      <p class="form-status" data-member-status></p>
+      <p class="muted">El acceso queda vinculado únicamente al evento seleccionado. La opción recomendada es que el cliente active su propia contraseña; también puedes crearle una contraseña temporal desde Supabase Authentication.</p><p class="form-status" data-member-status></p>
       <div class="dialog-actions"><button type="button" class="ghost-button" data-close>Cancelar</button><button type="submit" class="primary-button">Asignar acceso</button></div>
     </form>
   </dialog>

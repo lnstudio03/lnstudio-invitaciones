@@ -4,7 +4,7 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const esc = (value = "") => String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 
-const state = { eventId: null, user: null, profile: null, event: null, client: null, rsvps: [], groups: [], members: [], passes: [], checkins: [], canAdmin: false, canScan: false };
+const state = { eventId: null, user: null, profile: null, event: null, client: null, rsvps: [], groups: [], members: [], passes: [], checkins: [], canAdmin: false, canScan: false, isOwner: false };
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -30,6 +30,7 @@ function bind() {
   $("[data-rsvp-search]").addEventListener("input", renderRsvps);
   $("[data-rsvp-filter]").addEventListener("change", renderRsvps);
   $("[data-export]").addEventListener("click", exportCsv);
+  $("[data-delete-event]").addEventListener("click", deleteEvent);
 }
 
 async function load() {
@@ -51,9 +52,13 @@ async function load() {
     if (state.event.client_id) state.client = (await api.select("clients", { filters: { id: state.event.client_id }, limit: 1 }))?.[0] || null;
     const ownMembership = state.members.find((member) => member.user_id === state.user.id || member.email?.toLowerCase() === state.user.email?.toLowerCase());
     const globalAdmin = ["owner", "staff"].includes(state.profile?.global_role);
+    state.isOwner = globalAdmin;
     state.canAdmin = globalAdmin || ownMembership?.role === "client_admin";
     state.canScan = globalAdmin || ["client_admin", "event_staff"].includes(ownMembership?.role);
-    render(); setStatus("", "info");
+    render();
+    const requestedTab = new URLSearchParams(location.search).get("tab");
+    if (requestedTab && ["overview", "rsvp", "guests", "checkins", "members", "settings"].includes(requestedTab)) tab(requestedTab);
+    setStatus("", "info");
   } catch (error) { fail(errorMessage(error)); }
 }
 
@@ -63,6 +68,8 @@ function render() {
   $("[data-meta]").textContent = formatDate(state.event.event_date);
   $("[data-open]").href = `evento.html?token=${encodeURIComponent(state.event.private_token)}`;
   $("[data-scan]").href = `scanner.html?event=${encodeURIComponent(state.eventId)}`;
+  $("[data-delete-zone]").hidden = !state.isOwner;
+  $("[data-delete-event]").hidden = !state.isOwner;
   $("[data-scan]").hidden = !state.canScan;
   $("[data-add-guest]").hidden = !state.canAdmin;
   $("[data-add-member]").hidden = !state.canAdmin;
@@ -167,6 +174,19 @@ async function saveSettings(event) {
     values.max_companions = Number(values.max_companions || 0); values.allow_general_rsvp = values.allow_general_rsvp === "true"; values.qr_enabled = values.qr_enabled === "true";
     await api.update("events", values, { id: state.eventId }); status.textContent = "Cambios guardados."; await load(); tab("settings");
   } catch (error) { status.textContent = errorMessage(error); } finally { setBusy(form, false); }
+}
+
+async function deleteEvent() {
+  if (!state.isOwner || !state.event) return;
+  const answer = prompt(`Eliminará permanentemente “${state.event.name}”, incluyendo invitados, confirmaciones, pases QR y accesos. El registro del cliente se conservará.\n\nEscribe ELIMINAR para continuar:`);
+  if (answer !== "ELIMINAR") return;
+  setStatus("Eliminando evento…", "loading");
+  try {
+    await api.remove("events", { id: state.eventId });
+    location.replace("admin.html?view=eventos");
+  } catch (error) {
+    setStatus(`No fue posible eliminar el evento: ${errorMessage(error)}`, "error");
+  }
 }
 
 async function deleteRsvp(id) {

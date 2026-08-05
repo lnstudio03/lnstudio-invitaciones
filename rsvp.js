@@ -81,7 +81,7 @@ async function submit(event) {
 
 function renderPass(pass) {
   const origin = location.origin && location.origin !== "null" ? location.origin : "https://lnstudio-invitaciones.pages.dev";
-  passUrl = `${origin}/scanner.html?token=${encodeURIComponent(pass.token)}`;
+  passUrl = `${origin}/scanner.html?event=${encodeURIComponent(eventData.id)}&token=${encodeURIComponent(pass.token)}`;
   const canvas = $("#qr");
   window.LNQRCode.toCanvas(canvas, passUrl, { width: 300, margin: 4, level: "M" });
   canvas.hidden = false; $("[data-folio]").textContent = pass.folio; $("[data-capacity]").textContent = `Accesos autorizados: ${pass.allowed_entries}`;

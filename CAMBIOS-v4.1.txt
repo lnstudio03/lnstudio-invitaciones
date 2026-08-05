@@ -1,0 +1,24 @@
+LN Studio v4.1 — Control por evento
+
+ARCHIVOS A REEMPLAZAR
+- admin.html
+- portal.js
+- evento-admin.html
+- event-admin.js
+- scanner.html
+- scanner.js
+- rsvp.js
+- dashboard.css
+
+CAMBIOS
+1. El escáner ya no permite elegir entre todos los eventos. Solo abre con scanner.html?event=ID y queda bloqueado a ese evento.
+2. El cliente ve únicamente los eventos asignados por RLS y abre el escáner desde su evento.
+3. Los QR nuevos incluyen el evento; los QR anteriores siguen funcionando al resolverlo de forma segura.
+4. El escáner muestra confirmados, pases, ingresos y pendientes, además de últimos accesos.
+5. LN Studio puede eliminar eventos permanentemente sin eliminar el cliente.
+6. La eliminación requiere escribir ELIMINAR y borra datos dependientes por cascade.
+7. No requiere SQL nuevo: utiliza las políticas y relaciones de MIGRACION-v4.sql.
+
+ACCESO DEL CLIENTE
+- Recomendado: asignar correo y que el cliente pulse “Activar acceso asignado” para crear su contraseña.
+- Contraseña temporal entregada por LN Studio: crear primero el usuario en Supabase > Authentication > Users > Add user y después asignar el mismo correo al evento desde LN Studio.

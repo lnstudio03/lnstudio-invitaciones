@@ -106,7 +106,16 @@ async function openPortal() {
       ? "Administra clientes, eventos, accesos, cotizaciones y plantillas sin editar código."
       : "Consulta y administra únicamente los eventos que LN Studio asignó a tu correo.";
     await load();
-    const requestedView = new URLSearchParams(location.search).get("view");
+    const params = new URLSearchParams(location.search);
+    const requestedReturn = params.get("return");
+    if (requestedReturn) {
+      try {
+        const target = new URL(requestedReturn, location.origin);
+        const allowedPath = /\/(scanner|evento-admin)(?:\.html)?$/.test(target.pathname);
+        if (target.origin === location.origin && allowedPath) return navigateTo(`${target.pathname.replace(/^\//, "")}${target.search}`);
+      } catch { /* Ignorar retornos inválidos. */ }
+    }
+    const requestedView = params.get("view");
     if (requestedView) switchView(requestedView);
   } catch (error) {
     await api.signOut();
@@ -182,7 +191,7 @@ function eventCards(rows) {
     const checkins = state.checkins.filter((item) => item.event_id === event.id && item.decision === "approved").reduce((sum, item) => sum + Number(item.entries || 0), 0);
     const canScan = isOwner() || state.members.some((member) => member.event_id === event.id && member.active && ["client_admin", "event_staff"].includes(member.role));
     return `<article class="event-card">
-      <div class="event-card-top"><span class="status-pill status-${esc(event.status)}">${statusLabel(event.status)}</span>${isOwner() ? `<button type="button" class="dots" data-edit-event="${event.id}" aria-label="Editar evento">Editar</button>` : ""}</div>
+      <div class="event-card-top"><span class="status-pill status-${esc(event.status)}">${statusLabel(event.status)}</span>${isOwner() ? `<div class="event-owner-actions"><button type="button" class="dots" data-edit-event="${event.id}" aria-label="Editar evento">Editar</button><button type="button" class="danger-link" data-delete-event="${event.id}" aria-label="Eliminar evento">Eliminar</button></div>` : ""}</div>
       <p class="admin-eyebrow">${esc(clientMap.get(event.client_id)?.business_name || "Sin cliente")}</p>
       <h2>${esc(event.name)}</h2><p>${formatDate(event.event_date)}</p>
       <div class="event-card-stats"><span><b>${confirmed}</b> confirmados</span><span><b>${checkins}</b> accesos</span></div>
@@ -242,6 +251,7 @@ function bindDynamicActions(root) {
   $$('[data-client-event]', root).forEach((button) => button.addEventListener("click", () => openEvent({ clientId: button.dataset.clientEvent })));
   $$('[data-edit-client]', root).forEach((button) => button.addEventListener("click", () => openClient(button.dataset.editClient)));
   $$('[data-edit-event]', root).forEach((button) => button.addEventListener("click", () => openEvent({ id: button.dataset.editEvent })));
+  $$('[data-delete-event]', root).forEach((button) => button.addEventListener("click", () => deleteEvent(button.dataset.deleteEvent)));
   $$('[data-template-event]', root).forEach((button) => button.addEventListener("click", () => openEvent({ templateKey: button.dataset.templateEvent })));
   $$('[data-edit-template]', root).forEach((button) => button.addEventListener("click", () => openTemplate(button.dataset.editTemplate)));
   $$('[data-edit-member]', root).forEach((button) => button.addEventListener("click", () => openMember(button.dataset.editMember)));
@@ -318,6 +328,22 @@ async function saveEvent(event) {
     if (eventId) navigateTo(`evento-admin.html?id=${encodeURIComponent(eventId)}`);
   } catch (error) { status.textContent = errorMessage(error); }
   finally { setBusy(form, false); }
+}
+
+async function deleteEvent(id) {
+  if (!isOwner()) return;
+  const event = state.events.find((item) => item.id === id);
+  if (!event) return;
+  const answer = prompt(`Eliminará permanentemente “${event.name}”, junto con confirmaciones, QR, invitados y accesos. El cliente NO se eliminará.\n\nEscribe ELIMINAR para continuar:`);
+  if (answer !== "ELIMINAR") return;
+  showGlobal(`Eliminando ${event.name}…`, "loading");
+  try {
+    await api.remove("events", { id });
+    await load();
+    switchView("eventos");
+  } catch (error) {
+    showGlobal(`No fue posible eliminar el evento: ${errorMessage(error)}`, "error");
+  }
 }
 
 function openTemplate(id = null) {

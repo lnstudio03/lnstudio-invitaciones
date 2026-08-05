@@ -1,11 +1,70 @@
 <!doctype html>
-<html lang="es-MX"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>Escáner QR | LN Studio</title><link rel="icon" href="favicon.png"><link rel="stylesheet" href="dashboard.css"><script type="module" src="scanner.js"></script></head>
-<body><main class="scanner-shell">
-<header class="admin-header"><div class="admin-brand"><img src="logo.png" alt=""><div><span>LN Studio</span><small>Control de acceso</small></div></div><div class="admin-header-actions"><a class="ghost-button" href="admin.html">Dashboard</a><button type="button" class="ghost-button" data-stop-camera hidden>Detener cámara</button></div></header>
-<section class="scanner-card"><p class="admin-eyebrow">Escáner seguro</p><h1>Validar pase QR</h1>
-<label>Evento<select data-event-select><option value="">Selecciona un evento</option></select></label>
-<div class="camera-box" data-camera-box><video data-video playsinline muted hidden></video><div class="camera-placeholder" data-camera-placeholder>Activa la cámara o pega el token manualmente.</div></div>
-<button type="button" class="primary-button" data-start-camera>Activar cámara</button>
-<form id="manual-form" class="login-form" action="#" onsubmit="return false;"><label>Token o enlace<input name="token" placeholder="Pega el código manualmente" autocomplete="off"></label><button type="submit">Consultar pase</button></form>
-<div class="scan-result" data-result hidden><p class="admin-eyebrow" data-result-state></p><h2 data-result-title></h2><p data-result-message></p><dl><div><dt>Folio</dt><dd data-folio></dd></div><div><dt>Disponibles</dt><dd data-remaining></dd></div><div><dt>Evento</dt><dd data-event-name></dd></div><div><dt>Teléfono</dt><dd data-phone></dd></div></dl><label>Personas que ingresan ahora<input data-entries type="number" min="1" value="1"></label><label>Motivo / nota<input data-reason placeholder="Opcional"></label><div class="intro-actions"><button type="button" data-approve>Aprobar acceso</button><button type="button" class="ghost-button" data-reject>Rechazar</button></div></div><p id="scan-status" class="form-status" role="status"></p>
-</section></main></body></html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Escáner del evento | LN Studio</title>
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="dashboard.css">
+  <script type="module" src="scanner.js"></script>
+</head>
+<body>
+  <main class="scanner-shell event-scanner-shell">
+    <header class="admin-header">
+      <div class="admin-brand"><img src="logo.png" alt=""><div><span>LN Studio</span><small>Control de acceso por evento</small></div></div>
+      <div class="admin-header-actions">
+        <a class="ghost-button" data-event-admin href="admin.html">Administrar evento</a>
+        <button type="button" class="ghost-button" data-stop-camera hidden>Detener cámara</button>
+        <button type="button" class="ghost-button" data-logout>Salir</button>
+      </div>
+    </header>
+
+    <section class="scanner-event-summary">
+      <div>
+        <p class="admin-eyebrow" data-event-client>Evento privado</p>
+        <h1 data-event-name>Cargando evento…</h1>
+        <p data-event-date></p>
+      </div>
+      <div class="scanner-event-badge">Escáner exclusivo</div>
+    </section>
+
+    <p class="global-status" data-page-status hidden></p>
+
+    <section class="scanner-metrics" aria-label="Resumen del evento">
+      <article><span>Personas confirmadas</span><strong data-confirmed>0</strong></article>
+      <article><span>Pases generados</span><strong data-passes>0</strong></article>
+      <article><span>Ingresos aprobados</span><strong data-checked>0</strong></article>
+      <article><span>Por ingresar</span><strong data-remaining-event>0</strong></article>
+    </section>
+
+    <div class="scanner-workspace">
+      <section class="scanner-card">
+        <p class="admin-eyebrow">Validación segura</p>
+        <h2>Escanear pase QR</h2>
+        <p class="scanner-event-lock">Este lector solo acepta pases del evento mostrado arriba.</p>
+        <div class="camera-box" data-camera-box><video data-video playsinline muted hidden></video><div class="camera-placeholder" data-camera-placeholder>Activa la cámara o pega el token manualmente.</div></div>
+        <button type="button" class="primary-button" data-start-camera>Activar cámara</button>
+        <form id="manual-form" class="login-form" action="#" onsubmit="return false;">
+          <label>Token o enlace<input name="token" placeholder="Pega el código manualmente" autocomplete="off"></label>
+          <button type="submit">Consultar pase</button>
+        </form>
+        <div class="scan-result" data-result hidden>
+          <p class="admin-eyebrow" data-result-state></p><h2 data-result-title></h2><p data-result-message></p>
+          <dl><div><dt>Folio</dt><dd data-folio></dd></div><div><dt>Disponibles</dt><dd data-remaining></dd></div><div><dt>Evento</dt><dd data-result-event></dd></div><div><dt>Teléfono</dt><dd data-phone></dd></div></dl>
+          <label>Personas que ingresan ahora<input data-entries type="number" min="1" value="1"></label>
+          <label>Motivo / nota<input data-reason placeholder="Opcional"></label>
+          <div class="intro-actions"><button type="button" data-approve>Aprobar acceso</button><button type="button" class="ghost-button" data-reject>Rechazar</button></div>
+        </div>
+        <p id="scan-status" class="form-status" role="status"></p>
+      </section>
+
+      <aside class="scanner-activity-card">
+        <div class="section-heading compact"><div><p class="admin-eyebrow">Control en vivo</p><h2>Últimos accesos</h2></div><button type="button" class="text-button" data-refresh>Actualizar</button></div>
+        <div class="member-list" data-latest-checkins></div>
+        <a class="scanner-manage-link" data-guests-link href="admin.html">Ver invitados y pases del evento</a>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>
