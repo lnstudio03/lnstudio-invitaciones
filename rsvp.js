@@ -7,6 +7,7 @@ let eventData = null;
 let token = null;
 let passUrl = "";
 let currentPass = null;
+let currentGuestName = "";
 let previewMode = false;
 let previewEventId = null;
 
@@ -188,6 +189,7 @@ async function submit(event) {
     const data=new FormData(form);
     const result=await api.rpc("submit_public_rsvp",{p_token:token,p_name:data.get("name"),p_phone:data.get("phone"),p_email:data.get("email")||null,p_attendance:data.get("attendance"),p_party_size:Number(data.get("party_size")||1),p_guest_names:data.get("guest_names")||null,p_dietary:data.get("dietary")||null,p_message:data.get("message")||null},{publicCall:true});
     if(!result?.ok)throw new Error(result?.message||"No se pudo registrar la respuesta.");
+    currentGuestName = String(data.get("name") || result?.rsvp?.respondent_name || "").trim();
     $("[data-form-section]").hidden=true; $("[data-pass]").hidden=false;
     if(result.pass)renderPass(result.pass); else {$("[data-pass-title]").textContent="Respuesta registrada";$("[data-pass-copy]").textContent="Gracias por avisar a los anfitriones.";$("[data-folio]").textContent=result.rsvp.id.slice(0,8).toUpperCase();$("[data-capacity]").textContent=""}
     $("[data-pass]").scrollIntoView({behavior:"smooth"});
@@ -221,9 +223,10 @@ async function downloadQr(){
 
 async function buildPassCard(qrCanvas) {
   if (document.fonts?.ready) { try { await document.fonts.ready; } catch {} }
+
   const canvas = document.createElement("canvas");
   canvas.width = 1400;
-  canvas.height = 2000;
+  canvas.height = 2100;
   const ctx = canvas.getContext("2d");
 
   const accent = getCssVariable("--invite-accent", "#8f7dff");
@@ -235,107 +238,126 @@ async function buildPassCard(qrCanvas) {
 
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
   gradient.addColorStop(0, bg);
-  gradient.addColorStop(.62, bgTwo);
+  gradient.addColorStop(.64, bgTwo);
   gradient.addColorStop(1, accentTwo);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Fondo decorativo suave
-  ctx.globalAlpha = 0.14;
-  drawGlow(ctx, 220, 260, 300, accent);
-  drawGlow(ctx, 1180, 360, 260, accentTwo);
-  drawGlow(ctx, 1080, 1720, 340, accent);
+  ctx.globalAlpha = .13;
+  drawGlow(ctx, 220, 260, 320, accent);
+  drawGlow(ctx, 1180, 380, 280, accentTwo);
+  drawGlow(ctx, 1050, 1840, 360, accent);
   ctx.globalAlpha = 1;
 
   const hero = await loadImageSafe(eventData?.hero_image_url);
   if (hero) {
     ctx.save();
-    ctx.globalAlpha = 0.12;
-    drawCoverImage(ctx, hero, 70, 70, 1260, 540, 34);
+    ctx.globalAlpha = .10;
+    drawCoverImage(ctx, hero, 72, 72, 1256, 560, 38);
     ctx.restore();
   }
 
-  roundRect(ctx, 86, 86, 1228, 1828, 42);
-  ctx.fillStyle = "rgba(7,10,18,.72)";
+  roundRect(ctx, 86, 86, 1228, 1928, 44);
+  ctx.fillStyle = "rgba(7,10,18,.78)";
   ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,.09)";
+  ctx.strokeStyle = "rgba(255,255,255,.10)";
   ctx.lineWidth = 2;
   ctx.stroke();
 
   const logo = await loadImageSafe(eventData?.logo_url);
-  if (logo) {
-    drawContainImage(ctx, logo, 135, 126, 200, 120);
-  }
+  if (logo) drawContainImage(ctx, logo, 120, 120, 210, 120);
 
+  ctx.textAlign = "center";
   ctx.fillStyle = accent;
-  ctx.font = '700 34px Manrope, Inter, Arial, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('PASE DIGITAL · LN STUDIO', canvas.width / 2, 180);
+  ctx.font = '800 32px Manrope, Inter, Arial, sans-serif';
+  ctx.fillText('PASE DIGITAL · LN STUDIO', canvas.width / 2, 172);
 
-  let y = 300;
+  const eventName = String(eventData?.name || 'Tu evento').trim();
+  const titleFontSize = eventName.length > 115 ? 62 : eventName.length > 80 ? 70 : eventName.length > 52 ? 78 : 90;
+  const titleLineHeight = Math.round(titleFontSize * 1.08);
+  ctx.font = `700 ${titleFontSize}px Fraunces, Cormorant Garamond, Georgia, serif`;
   ctx.fillStyle = text;
-  ctx.font = '700 94px Fraunces, Cormorant Garamond, Georgia, serif';
-  y = drawWrappedText(ctx, eventData?.name || 'Tu evento', 150, y, 1100, 96, 4);
+  let y = 292;
+  const titleResult = drawTextBlock(ctx, eventName, 150, y, 1100, titleLineHeight, 4, "left");
+  y = titleResult.bottom + 46;
 
-  y += 36;
-  ctx.fillStyle = muted;
-  ctx.font = '600 34px Manrope, Inter, Arial, sans-serif';
-  y = drawWrappedText(ctx, formatDate(eventData?.event_date), 170, y, 1060, 46, 2);
+  const dateText = formatDate(eventData?.event_date);
+  const venueText = [eventData?.venue_name, eventData?.venue_address].filter(Boolean).join(' · ') || 'Ubicación por confirmar';
 
-  const venueText = [eventData?.venue_name, eventData?.venue_address].filter(Boolean).join(' · ');
-  if (venueText) {
-    y += 14;
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '600 32px Manrope, Inter, Arial, sans-serif';
-    y = drawWrappedText(ctx, venueText, 170, y, 1060, 42, 3);
+  y = drawInfoCard(ctx, {
+    x: 140, y, width: 1120,
+    label: 'FECHA', value: dateText,
+    accent, text, muted,
+    valueFont: 32,
+    maxLines: 2
+  }) + 18;
+
+  y = drawInfoCard(ctx, {
+    x: 140, y, width: 1120,
+    label: 'LUGAR', value: venueText,
+    accent, text, muted,
+    valueFont: 30,
+    maxLines: 3
+  }) + 34;
+
+  if (currentGuestName) {
+    ctx.fillStyle = muted;
+    ctx.font = '700 24px Manrope, Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('PASE PARA', canvas.width / 2, y);
+    y += 42;
+    ctx.fillStyle = text;
+    ctx.font = '700 38px Manrope, Inter, Arial, sans-serif';
+    const guest = drawTextBlock(ctx, currentGuestName, 220, y, 960, 44, 2, 'center');
+    y = guest.bottom + 38;
   }
 
-  const qrBoxSize = 560;
+  const qrBoxSize = 530;
   const qrBoxX = (canvas.width - qrBoxSize) / 2;
-  const qrBoxY = y + 70;
+  const qrBoxY = y;
   roundRect(ctx, qrBoxX, qrBoxY, qrBoxSize, qrBoxSize, 34);
   ctx.fillStyle = '#ffffff';
   ctx.fill();
-  ctx.shadowColor = 'rgba(0,0,0,.22)';
-  ctx.shadowBlur = 28;
+  ctx.shadowColor = 'rgba(0,0,0,.25)';
+  ctx.shadowBlur = 30;
   ctx.drawImage(qrCanvas, qrBoxX + 38, qrBoxY + 38, qrBoxSize - 76, qrBoxSize - 76);
   ctx.shadowBlur = 0;
 
-  y = qrBoxY + qrBoxSize + 72;
-  roundRect(ctx, 240, y, 920, 116, 24);
+  y = qrBoxY + qrBoxSize + 62;
+  roundRect(ctx, 240, y, 920, 112, 24);
   ctx.fillStyle = 'rgba(255,255,255,.08)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,.12)';
+  ctx.strokeStyle = 'rgba(255,255,255,.13)';
   ctx.stroke();
   ctx.fillStyle = '#e7ecfb';
-  ctx.font = '600 38px Manrope, Inter, Arial, sans-serif';
+  ctx.font = '700 38px Manrope, Inter, Arial, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(`Folio: ${$("[data-folio]").textContent || ''}`, canvas.width / 2, y + 72);
+  ctx.fillText(`Folio: ${$("[data-folio]").textContent || ''}`, canvas.width / 2, y + 70);
 
-  y += 180;
+  y += 168;
   ctx.fillStyle = '#ffffff';
-  ctx.font = '700 40px Manrope, Inter, Arial, sans-serif';
+  ctx.font = '800 39px Manrope, Inter, Arial, sans-serif';
   ctx.fillText(`Accesos autorizados: ${currentPass?.allowed_entries || 1}`, canvas.width / 2, y);
 
-  y += 70;
+  y += 64;
   ctx.fillStyle = muted;
-  ctx.font = '500 30px Manrope, Inter, Arial, sans-serif';
+  ctx.font = '500 29px Manrope, Inter, Arial, sans-serif';
   ctx.fillText('Presenta este pase al llegar al evento.', canvas.width / 2, y);
 
-  y += 110;
+  y += 104;
   ctx.strokeStyle = 'rgba(255,255,255,.14)';
   ctx.beginPath();
   ctx.moveTo(230, y);
   ctx.lineTo(1170, y);
   ctx.stroke();
 
-  y += 76;
+  y += 72;
   ctx.fillStyle = accent;
-  ctx.font = '700 28px Manrope, Inter, Arial, sans-serif';
-  ctx.fillText('Invitación personalizada', canvas.width / 2, y);
+  ctx.font = '800 27px Manrope, Inter, Arial, sans-serif';
+  ctx.fillText('INVITACIÓN PERSONALIZADA', canvas.width / 2, y);
   ctx.fillStyle = '#ffffff';
   ctx.font = '700 34px Manrope, Inter, Arial, sans-serif';
-  ctx.fillText('Creada con LN Studio', canvas.width / 2, y + 52);
+  ctx.fillText('Creada con LN Studio', canvas.width / 2, y + 50);
 
   return canvas;
 }
@@ -355,28 +377,67 @@ function roundRect(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
-function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 4) {
+function getWrappedLines(ctx, text, maxWidth, maxLines = 4) {
   const words = String(text || '').split(/\s+/).filter(Boolean);
-  if (!words.length) return y;
+  if (!words.length) return [];
+  const lines = [];
   let line = '';
-  let lines = [];
+  let consumed = 0;
   for (const word of words) {
     const test = line ? `${line} ${word}` : word;
-    if (ctx.measureText(test).width <= maxWidth || !line) line = test;
-    else { lines.push(line); line = word; }
-    if (lines.length >= maxLines) break;
+    if (ctx.measureText(test).width <= maxWidth || !line) {
+      line = test;
+      consumed += 1;
+    } else {
+      lines.push(line);
+      line = word;
+      consumed += 1;
+      if (lines.length >= maxLines - 1) break;
+    }
   }
   if (line && lines.length < maxLines) lines.push(line);
-  if (words.length && lines.length === maxLines) {
-    const original = lines[maxLines - 1];
-    let trimmed = original;
-    while (trimmed && ctx.measureText(`${trimmed}…`).width > maxWidth) trimmed = trimmed.slice(0, -1).trim();
-    lines[maxLines - 1] = `${trimmed}…`;
+  if (consumed < words.length && lines.length) {
+    let last = lines[lines.length - 1];
+    while (last && ctx.measureText(`${last}…`).width > maxWidth) last = last.slice(0, -1).trim();
+    lines[lines.length - 1] = `${last}…`;
   }
-  ctx.textAlign = 'left';
-  lines.forEach((value, index) => ctx.fillText(value, x, y + index * lineHeight));
+  return lines;
+}
+
+function drawTextBlock(ctx, text, x, y, maxWidth, lineHeight, maxLines = 4, align = 'left') {
+  const lines = getWrappedLines(ctx, text, maxWidth, maxLines);
+  ctx.textAlign = align;
+  const drawX = align === 'center' ? x + maxWidth / 2 : align === 'right' ? x + maxWidth : x;
+  lines.forEach((line, index) => ctx.fillText(line, drawX, y + index * lineHeight));
   ctx.textAlign = 'center';
-  return y + (lines.length - 1) * lineHeight;
+  return {
+    lines,
+    bottom: y + Math.max(lines.length, 1) * lineHeight
+  };
+}
+
+function drawInfoCard(ctx, { x, y, width, label, value, accent, text, muted, valueFont = 30, maxLines = 2 }) {
+  ctx.font = `700 ${valueFont}px Manrope, Inter, Arial, sans-serif`;
+  const lines = getWrappedLines(ctx, value, width - 70, maxLines);
+  const lineHeight = Math.round(valueFont * 1.34);
+  const height = 54 + Math.max(lines.length, 1) * lineHeight + 28;
+
+  roundRect(ctx, x, y, width, height, 24);
+  ctx.fillStyle = 'rgba(255,255,255,.055)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.12)';
+  ctx.stroke();
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = accent;
+  ctx.font = '800 22px Manrope, Inter, Arial, sans-serif';
+  ctx.fillText(label, x + 34, y + 34);
+
+  ctx.fillStyle = text;
+  ctx.font = `700 ${valueFont}px Manrope, Inter, Arial, sans-serif`;
+  lines.forEach((line, index) => ctx.fillText(line, x + 34, y + 78 + index * lineHeight));
+  ctx.textAlign = 'center';
+  return y + height;
 }
 
 async function loadImageSafe(src) {

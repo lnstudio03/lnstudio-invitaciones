@@ -1,0 +1,13 @@
+LN Studio v4.4.12 — corrección del pase descargable
+
+Sube a la raíz de GitHub y reemplaza solamente:
+- evento.html
+- rsvp.js
+
+Qué corrige:
+- El título largo ya no invade la fecha ni el lugar.
+- Fecha y lugar aparecen dentro de tarjetas separadas.
+- El tamaño del título se ajusta según su longitud.
+- El pase incluye el nombre del invitado cuando se genera desde una confirmación.
+- El QR sigue centrado y el diseño conserva los colores del evento.
+- Se aumentó el alto del pase para mantener espacios seguros.
