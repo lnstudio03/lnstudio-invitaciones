@@ -1,0 +1,41 @@
+LN STUDIO v4.3 — REDISEÑO, PANEL CLIENTE, RESPONSIVE Y DISEÑADOR BÁSICO
+
+ESTE ZIP SÍ SE SUBE COMPLETO A GITHUB.
+TODOS LOS ARCHIVOS VAN DIRECTAMENTE EN LA RAÍZ.
+NO CREES CARPETAS.
+
+ORDEN DEL PROYECTO
+1. Accesos de clientes, RSVP, QR y escáner: conservados.
+2. Rediseño visual y optimización móvil: completado en esta versión.
+3. Diseñador visual básico: incluido en esta versión.
+4. Siguiente fase: diseñador avanzado por bloques, imágenes subidas desde el panel, orden de secciones y más estilos.
+
+QUÉ CAMBIA
+- Identidad visual más neutral, creativa y adaptable a bodas, XV años, fiestas infantiles y eventos temáticos.
+- Sitio público menos rígido y menos minimalista.
+- Dashboard owner moderno y más compacto.
+- Panel del cliente con datos útiles de su evento: confirmados, no asistirán, ingresaron, pendientes y actividad reciente.
+- Optimización para celular del dashboard, administración de eventos, escáner, invitación y catálogo.
+- Nuevo diseñador básico en: disenador.html?id=ID_DEL_EVENTO
+- El diseñador permite editar datos, colores, logos, imagen principal y ver una previsualización en celular o escritorio.
+- No requiere ejecutar SQL nuevo.
+
+INSTALACIÓN
+1. Descomprime este ZIP.
+2. Selecciona todos los archivos.
+3. Súbelos directamente a la raíz de GitHub.
+4. Reemplaza los archivos existentes.
+5. Espera el despliegue de Cloudflare.
+6. Haz una recarga fuerte con Ctrl + Shift + R.
+
+ARCHIVOS NUEVOS
+- disenador.html
+- disenador.js
+- disenador.css
+
+PRUEBAS REALIZADAS
+- Sintaxis de todos los JavaScript.
+- Validación de referencias locales HTML, CSS, JS e imágenes.
+- Validación de selectores críticos de admin, evento, escáner y diseñador.
+- Comprobación de llaves CSS y JSON.
+- El ZIP no contiene carpetas y tiene menos de 100 archivos.

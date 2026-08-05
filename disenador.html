@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Diseñador de invitación | LN Studio</title>
+  <link rel="icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="disenador.css">
+  <script type="module" src="disenador.js"></script>
+</head>
+<body>
+  <header class="designer-topbar">
+    <a class="designer-brand" href="admin.html"><img src="logo.png" alt=""><span>LN Studio<small>Diseñador de invitación</small></span></a>
+    <div class="designer-top-actions">
+      <span class="save-state" data-status>Sin cambios</span>
+      <button type="button" class="soft-button" data-preview-size="mobile">Celular</button>
+      <button type="button" class="soft-button" data-preview-size="desktop">Escritorio</button>
+      <a class="soft-button" data-open-invitation target="_blank" rel="noopener">Abrir invitación</a>
+      <button type="button" class="primary-button" data-save>Guardar diseño</button>
+    </div>
+  </header>
+
+  <main class="designer-layout">
+    <aside class="designer-controls">
+      <div class="designer-intro">
+        <p class="kicker">Editor visual básico</p>
+        <h1 data-event-title>Cargando…</h1>
+        <p>Personaliza la identidad y los datos principales. La vista previa se actualiza mientras editas.</p>
+      </div>
+
+      <form id="designer-form" class="designer-form" action="#" onsubmit="return false;">
+        <details open>
+          <summary>Información principal</summary>
+          <label>Nombre del evento<input name="name" required></label>
+          <label>Descripción<textarea name="description" rows="4"></textarea></label>
+          <div class="form-pair"><label>Fecha<input name="event_date" type="datetime-local"></label><label>Lugar<input name="venue_name"></label></div>
+          <label>Dirección<textarea name="venue_address" rows="2"></textarea></label>
+          <label>Código de vestimenta<input name="dress_code"></label>
+        </details>
+
+        <details open>
+          <summary>Estilo y colores</summary>
+          <div class="palette-grid" data-palettes>
+            <button type="button" data-palette="#7357e7,#ff6d7a"><i style="--a:#7357e7;--b:#ff6d7a"></i>Fiesta</button>
+            <button type="button" data-palette="#2bb2bd,#f3b43f"><i style="--a:#2bb2bd;--b:#f3b43f"></i>Infantil</button>
+            <button type="button" data-palette="#c7799a,#d4a36f"><i style="--a:#c7799a;--b:#d4a36f"></i>Romántica</button>
+            <button type="button" data-palette="#1748ff,#ff0875"><i style="--a:#1748ff;--b:#ff0875"></i>Biker</button>
+            <button type="button" data-palette="#3a6bd7,#43b6c6"><i style="--a:#3a6bd7;--b:#43b6c6"></i>Moderna</button>
+          </div>
+          <div class="form-pair"><label>Color principal<input name="theme_primary" type="color"></label><label>Color secundario<input name="theme_secondary" type="color"></label></div>
+          <label>Plantilla base<input name="template_key"></label>
+        </details>
+
+        <details>
+          <summary>Imágenes y recursos</summary>
+          <label>Logo principal<input name="logo_url" placeholder="logo-evento.png o URL"></label>
+          <label>Logo secundario<input name="secondary_logo_url"></label>
+          <label>Imagen principal<input name="hero_image_url"></label>
+          <label>Música opcional<input name="music_url"></label>
+        </details>
+      </form>
+    </aside>
+
+    <section class="preview-area">
+      <div class="preview-device mobile" data-preview-device>
+        <div class="preview-screen" data-preview-screen>
+          <section class="preview-hero">
+            <div class="preview-shape one"></div><div class="preview-shape two"></div>
+            <img data-preview-logo alt="" hidden>
+            <p data-preview-kicker>Invitación digital</p>
+            <h2 data-preview-name>Tu evento</h2>
+            <p data-preview-description>Una celebración especial está por comenzar.</p>
+            <div class="preview-facts"><span data-preview-date>Fecha pendiente</span><span data-preview-venue>Lugar pendiente</span></div>
+            <button type="button">Ver ubicación</button>
+          </section>
+          <section class="preview-content"><p>Cuenta regresiva</p><h3>Nos encantará celebrar contigo.</h3><div class="preview-rsvp"><b>Confirma tu asistencia</b><span>RSVP + pase QR</span></div></section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <p class="designer-error" data-error hidden></p>
+</body>
+</html>

@@ -3,7 +3,7 @@ import { api, ApiError } from "./supabase.js";
 const state = {
   user: null,
   profile: null,
-  events: [], clients: [], requests: [], templates: [], members: [], rsvps: [], checkins: []
+  events: [], clients: [], requests: [], templates: [], members: [], guestGroups: [], rsvps: [], checkins: []
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -101,17 +101,21 @@ async function openPortal() {
     $("[data-role]").textContent = globalRoleLabel(state.profile.global_role);
     const owner = isOwner();
     document.body.classList.toggle("not-owner", !owner);
+    $("[data-brand-subtitle]").textContent = owner ? "Control central" : "Mi evento";
+    $("[data-nav-events]").textContent = owner ? "Eventos" : "Mis eventos";
     $("[data-welcome-role]").textContent = owner ? "Cuenta propietaria" : "Panel de evento";
     $("[data-welcome-copy]").textContent = owner
-      ? "Administra clientes, eventos, accesos, cotizaciones y plantillas sin editar código."
-      : "Consulta y administra únicamente los eventos que LN Studio asignó a tu correo.";
+      ? "Administra clientes, eventos, accesos, cotizaciones y plantillas desde un panel claro."
+      : "Consulta únicamente los eventos que LN Studio asignó a tu correo.";
+    $("[data-owner-home]").hidden = !owner;
+    $("[data-client-home]").hidden = owner;
     await load();
     const params = new URLSearchParams(location.search);
     const requestedReturn = params.get("return");
     if (requestedReturn) {
       try {
         const target = new URL(requestedReturn, location.origin);
-        const allowedPath = /\/(scanner|evento-admin)(?:\.html)?$/.test(target.pathname);
+        const allowedPath = /\/(scanner|evento-admin|disenador)(?:\.html)?$/.test(target.pathname);
         if (target.origin === location.origin && allowedPath) return navigateTo(`${target.pathname.replace(/^\//, "")}${target.search}`);
       } catch { /* Ignorar retornos inválidos. */ }
     }
@@ -134,15 +138,17 @@ async function load() {
       api.select("clients", { order: "business_name.asc" }),
       api.select("templates", { order: "name.asc" }),
       api.select("event_members", { order: "created_at.desc" }),
+      api.select("guest_groups", { order: "created_at.desc" }),
       api.select("rsvp_responses", { order: "created_at.desc" }),
       api.select("checkins", { order: "created_at.desc" })
     ];
     if (owner) tasks.push(api.select("quote_requests", { order: "created_at.desc" }));
-    const [events, clients, templates, members, rsvps, checkins, requests = []] = await Promise.all(tasks);
+    const [events, clients, templates, members, guestGroups, rsvps, checkins, requests = []] = await Promise.all(tasks);
     state.events = events || [];
     state.clients = clients || [];
     state.templates = templates || [];
     state.members = members || [];
+    state.guestGroups = guestGroups || [];
     state.rsvps = rsvps || [];
     state.checkins = checkins || [];
     state.requests = requests || [];
@@ -155,8 +161,12 @@ async function load() {
 
 function renderAll() {
   renderMetrics(); renderEvents(); renderClients(); renderRequests(); renderTemplates(); renderMembers(); populateSelects();
-  $("[data-home-events]").innerHTML = eventCards(state.events.slice(0, 3));
-  bindDynamicActions($("[data-home-events]"));
+  if (isOwner()) {
+    $("[data-home-events]").innerHTML = eventCards(state.events.slice(0, 3));
+    bindDynamicActions($("[data-home-events]"));
+  } else {
+    renderClientHome();
+  }
 }
 
 function renderMetrics() {
@@ -187,21 +197,113 @@ function renderEvents() {
 function eventCards(rows) {
   const clientMap = new Map(state.clients.map((client) => [client.id, client]));
   return rows.map((event) => {
-    const confirmed = state.rsvps.filter((item) => item.event_id === event.id && item.attendance === "confirmed").reduce((sum, item) => sum + Number(item.party_size || 0), 0);
-    const checkins = state.checkins.filter((item) => item.event_id === event.id && item.decision === "approved").reduce((sum, item) => sum + Number(item.entries || 0), 0);
-    const canScan = isOwner() || state.members.some((member) => member.event_id === event.id && member.active && ["client_admin", "event_staff"].includes(member.role));
-    return `<article class="event-card">
-      <div class="event-card-top"><span class="status-pill status-${esc(event.status)}">${statusLabel(event.status)}</span>${isOwner() ? `<div class="event-owner-actions"><button type="button" class="dots" data-edit-event="${event.id}" aria-label="Editar evento">Editar</button><button type="button" class="danger-link" data-delete-event="${event.id}" aria-label="Eliminar evento">Eliminar</button></div>` : ""}</div>
-      <p class="admin-eyebrow">${esc(clientMap.get(event.client_id)?.business_name || "Sin cliente")}</p>
-      <h2>${esc(event.name)}</h2><p>${formatDate(event.event_date)}</p>
-      <div class="event-card-stats"><span><b>${confirmed}</b> confirmados</span><span><b>${checkins}</b> accesos</span></div>
+    const confirmed = eventConfirmed(event.id);
+    const checkins = eventChecked(event.id);
+    const canScan = canScanEvent(event.id);
+    const typeClass = `event-type-${esc(event.event_type || "other")}`;
+    return `<article class="event-card ${typeClass}">
+      <div class="event-card-top"><div class="event-card-badges"><span class="status-pill status-${esc(event.status)}">${statusLabel(event.status)}</span><span class="event-type-chip">${eventTypeLabel(event.event_type)}</span></div>${isOwner() ? `<div class="event-owner-actions"><button type="button" class="dots" data-edit-event="${event.id}" aria-label="Editar evento">Editar</button><button type="button" class="danger-link" data-delete-event="${event.id}" aria-label="Eliminar evento">Eliminar</button></div>` : ""}</div>
+      <p class="admin-eyebrow">${esc(clientMap.get(event.client_id)?.business_name || (isOwner() ? "Sin cliente" : "Tu celebración"))}</p>
+      <h2>${esc(event.name)}</h2><p class="event-date-line">${formatDate(event.event_date)}</p>
+      <div class="event-card-stats"><span><b>${confirmed}</b> confirmados</span><span><b>${checkins}</b> ingresaron</span></div>
       <div class="event-card-actions">
-        <a href="evento-admin.html?id=${encodeURIComponent(event.id)}">Administrar</a>
+        <a class="event-action-main" href="evento-admin.html?id=${encodeURIComponent(event.id)}">${isOwner() ? "Administrar" : "Abrir mi evento"}</a>
+        ${canDesignEvent(event.id) ? `<a href="disenador.html?id=${encodeURIComponent(event.id)}">Diseñar</a>` : ""}
         ${event.private_token ? `<a href="evento.html?token=${encodeURIComponent(event.private_token)}" target="_blank" rel="noopener">Invitación</a>` : ""}
         ${canScan ? `<a href="scanner.html?event=${encodeURIComponent(event.id)}">Escáner</a>` : ""}
       </div>
     </article>`;
   }).join("");
+}
+
+function renderClientHome() {
+  const shell = $("[data-client-home]");
+  if (!shell) return;
+  const upcoming = state.events
+    .filter((item) => !["finished", "archived"].includes(item.status))
+    .sort((a, b) => new Date(a.event_date || "2999-01-01") - new Date(b.event_date || "2999-01-01"));
+  const event = upcoming[0] || state.events[0];
+  const noEvent = $("[data-client-no-event]");
+  const eventCard = $("[data-client-event-card]");
+  if (!event) {
+    eventCard.hidden = true;
+    noEvent.hidden = false;
+    $(".client-metrics").hidden = true;
+    $(".client-dashboard-grid").hidden = true;
+    return;
+  }
+  eventCard.hidden = false;
+  noEvent.hidden = true;
+  $(".client-metrics").hidden = false;
+  $(".client-dashboard-grid").hidden = false;
+
+  const confirmed = eventConfirmed(event.id);
+  const declined = state.rsvps.filter((item) => item.event_id === event.id && item.attendance === "declined").length;
+  const checked = eventChecked(event.id);
+  const remaining = Math.max(confirmed - checked, 0);
+  const membership = memberForEvent(event.id);
+
+  const statusNode = $("[data-client-event-status]");
+  statusNode.textContent = statusLabel(event.status);
+  statusNode.className = `status-pill status-${event.status}`;
+  setText("[data-client-event-type]", eventTypeLabel(event.event_type));
+  setText("[data-client-event-name]", event.name);
+  setText("[data-client-event-date]", formatDate(event.event_date));
+  setText("[data-client-event-venue]", event.venue_name || event.venue_address || "Lugar por confirmar");
+  setText("[data-client-confirmed]", confirmed);
+  setText("[data-client-declined]", declined);
+  setText("[data-client-checked]", checked);
+  setText("[data-client-remaining]", remaining);
+
+  const manageUrl = `evento-admin.html?id=${encodeURIComponent(event.id)}`;
+  const scanUrl = `scanner.html?event=${encodeURIComponent(event.id)}`;
+  setLink("[data-client-manage]", manageUrl);
+  setLink("[data-client-guests]", `${manageUrl}&tab=rsvp`);
+  setLink("[data-client-passes]", `${manageUrl}&tab=rsvp`);
+  setLink("[data-client-access]", scanUrl);
+  setLink("[data-client-scanner]", scanUrl, !(membership?.active && ["client_admin", "event_staff"].includes(membership.role)));
+  if (event.private_token) setLink("[data-client-invitation]", `evento.html?token=${encodeURIComponent(event.private_token)}`);
+  else $("[data-client-invitation]").hidden = true;
+
+  const activity = [];
+  state.rsvps.filter((item) => item.event_id === event.id).slice(0, 6).forEach((item) => activity.push({
+    date: item.created_at,
+    icon: item.attendance === "confirmed" ? "✅" : "💬",
+    title: item.attendance === "confirmed" ? `${item.respondent_name || "Un invitado"} confirmó ${Number(item.party_size || 1)} persona(s)` : `${item.respondent_name || "Un invitado"} indicó que no asistirá`,
+    meta: item.phone || "Respuesta RSVP"
+  }));
+  state.checkins.filter((item) => item.event_id === event.id).slice(0, 6).forEach((item) => activity.push({
+    date: item.created_at,
+    icon: item.decision === "approved" ? "📲" : "⚠️",
+    title: item.decision === "approved" ? `Se registró el ingreso de ${Number(item.entries || 0)} persona(s)` : "Se rechazó un intento de acceso",
+    meta: "Control de acceso"
+  }));
+  activity.sort((a, b) => new Date(b.date) - new Date(a.date));
+  $("[data-client-activity]").innerHTML = activity.slice(0, 7).map((item) => `<article class="activity-item"><span>${item.icon}</span><div><strong>${esc(item.title)}</strong><small>${esc(item.meta)} · ${formatRelative(item.date)}</small></div></article>`).join("") || '<div class="empty-state compact-empty">Todavía no hay actividad. Las confirmaciones aparecerán aquí.</div>';
+}
+
+function eventConfirmed(eventId) {
+  return state.rsvps.filter((item) => item.event_id === eventId && item.attendance === "confirmed").reduce((sum, item) => sum + Number(item.party_size || 0), 0);
+}
+function eventChecked(eventId) {
+  return state.checkins.filter((item) => item.event_id === eventId && item.decision === "approved").reduce((sum, item) => sum + Number(item.entries || 0), 0);
+}
+function memberForEvent(eventId) {
+  return state.members.find((member) => member.event_id === eventId && (member.user_id === state.user?.id || member.email?.toLowerCase() === state.user?.email?.toLowerCase()));
+}
+function canScanEvent(eventId) {
+  if (isOwner()) return true;
+  const membership = memberForEvent(eventId);
+  return Boolean(membership?.active && ["client_admin", "event_staff"].includes(membership.role));
+}
+function canDesignEvent(eventId) {
+  if (isOwner()) return true;
+  const membership = memberForEvent(eventId);
+  return Boolean(membership?.active && membership.role === "client_admin");
+}
+function setLink(selector, href, hide = false) {
+  const node = $(selector); if (!node) return;
+  node.href = href; node.hidden = hide;
 }
 
 function renderClients() {
@@ -542,8 +644,10 @@ function switchView(view) {
   if (!allowed) view = "inicio";
   $$('.owner-view').forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === view));
   $$('.nav-item').forEach((button) => button.classList.toggle("active", button.dataset.view === view));
-  const names = { inicio: ["Panel general", "Resumen"], eventos: ["Administración", "Eventos"], clientes: ["Administración", "Clientes"], solicitudes: ["Ventas", "Solicitudes"], plantillas: ["Diseño", "Plantillas"], usuarios: ["Seguridad", "Usuarios y accesos"] };
-  $("[data-section-kicker]").textContent = names[view][0]; $("[data-section-title]").textContent = names[view][1]; document.body.classList.remove("sidebar-open");
+  const ownerNames = { inicio: ["Panel general", "Resumen"], eventos: ["Administración", "Eventos"], clientes: ["Administración", "Clientes"], solicitudes: ["Ventas", "Solicitudes"], plantillas: ["Diseño", "Plantillas"], usuarios: ["Seguridad", "Usuarios y accesos"] };
+  const clientNames = { inicio: ["Centro de control", "Mi evento"], eventos: ["Mis celebraciones", "Eventos asignados"], usuarios: ["Accesos", "Equipo autorizado"] };
+  const names = isOwner() ? ownerNames : clientNames;
+  $("[data-section-kicker]").textContent = names[view]?.[0] || "LN Studio"; $("[data-section-title]").textContent = names[view]?.[1] || "Panel"; document.body.classList.remove("sidebar-open");
 }
 
 async function logout() { await api.signOut(); navigateTo("admin.html"); }
@@ -556,6 +660,8 @@ function setBusy(form, busy) { $$('button', form).forEach((field) => field.disab
 function slugify(value) { return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70); }
 function toLocalInput(value) { const date = new Date(value); return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
 function formatDate(value) { if (!value) return "Fecha pendiente"; try { return new Intl.DateTimeFormat("es-MX", { dateStyle: "long", timeStyle: "short" }).format(new Date(value)); } catch { return value; } }
+function formatRelative(value) { if (!value) return "Ahora"; const diff = Date.now() - new Date(value).getTime(); const minutes = Math.max(0, Math.floor(diff / 60000)); if (minutes < 1) return "Ahora"; if (minutes < 60) return `Hace ${minutes} min`; const hours = Math.floor(minutes / 60); if (hours < 24) return `Hace ${hours} h`; const days = Math.floor(hours / 24); return `Hace ${days} día${days === 1 ? "" : "s"}`; }
+function eventTypeLabel(value) { return ({ anniversary: "Aniversario", wedding: "Boda", xv: "XV años", birthday: "Cumpleaños", kids: "Infantil", baptism: "Bautizo", baby_shower: "Baby shower", corporate: "Empresarial", other: "Celebración" })[value] || "Celebración"; }
 function statusLabel(value) { return ({ draft: "Borrador", published: "Publicado", paused: "Pausado", finished: "Finalizado", archived: "Archivado" })[value] || value; }
 function requestStatus(value) { return ({ new: "Nueva", contacted: "Contactada", converted: "Convertida", archived: "Archivada" })[value] || value; }
 function invitationStatusLabel(member) {

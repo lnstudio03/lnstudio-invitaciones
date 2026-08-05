@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css">
   <script type="module" src="portal.js"></script>
 </head>
@@ -16,8 +16,8 @@
   <section class="admin-login" data-login>
     <div class="login-brand"><img src="logo.png" alt="LN Studio"><span>LN Studio</span></div>
     <p class="admin-eyebrow">Plataforma privada</p>
-    <h1>Administración de invitaciones</h1>
-    <p>Accede con la cuenta creada por LN Studio y asignada a tu evento.</p>
+    <h1>Tu evento, organizado y listo.</h1>
+    <p>Entra para revisar invitados, confirmaciones, pases QR y accesos desde cualquier dispositivo.</p>
 
     <form id="login-form" class="login-form" action="#" method="post" onsubmit="return false;" novalidate>
       <label>Correo
@@ -36,14 +36,14 @@
 
   <section class="owner-app" data-app hidden>
     <aside class="owner-sidebar">
-      <a class="owner-logo" href="index.html"><img src="logo.png" alt=""><span>LN Studio<small>Control central</small></span></a>
+      <a class="owner-logo" href="index.html"><img src="logo.png" alt=""><span>LN Studio<small data-brand-subtitle>Control central</small></span></a>
       <nav>
         <button class="nav-item active" data-view="inicio">Resumen</button>
-        <button class="nav-item" data-view="eventos">Eventos</button>
+        <button class="nav-item" data-view="eventos"><span data-nav-events>Eventos</span></button>
         <button class="nav-item owner-only" data-view="clientes">Clientes</button>
         <button class="nav-item owner-only" data-view="solicitudes">Solicitudes <b data-request-badge>0</b></button>
         <button class="nav-item owner-only" data-view="plantillas">Plantillas</button>
-        <button class="nav-item" data-view="usuarios">Usuarios y accesos</button>
+        <button class="nav-item owner-only" data-view="usuarios">Usuarios y accesos</button>
       </nav>
       <div class="sidebar-bottom">
         <span data-user-email></span><small data-role></small><button type="button" data-logout>Salir</button>
@@ -59,18 +59,61 @@
       <div class="global-status" data-global-status hidden></div>
 
       <section class="owner-view active" data-panel="inicio">
-        <div class="welcome-card">
-          <div><p class="admin-eyebrow" data-welcome-role>Cuenta propietaria</p><h2>Todo tu evento en un solo lugar.</h2><p data-welcome-copy>Administra clientes, eventos, accesos, cotizaciones y plantillas sin editar código.</p></div>
-          <div class="quick-grid owner-only"><button type="button" data-new-client><b>+</b> Cliente</button><button type="button" data-new-event><b>+</b> Evento</button><button type="button" data-new-member><b>+</b> Usuario</button><button type="button" data-open-requests><b>↗</b> Solicitudes</button></div>
+        <div data-owner-home>
+          <div class="welcome-card">
+            <div><p class="admin-eyebrow" data-welcome-role>Cuenta propietaria</p><h2>Organiza cada celebración sin perder el control.</h2><p data-welcome-copy>Administra clientes, eventos, accesos, cotizaciones y plantillas desde un panel claro.</p></div>
+            <div class="quick-grid owner-only"><button type="button" data-new-client><b>+</b> Cliente</button><button type="button" data-new-event><b>+</b> Evento</button><button type="button" data-new-member><b>+</b> Usuario</button><button type="button" data-open-requests><b>↗</b> Solicitudes</button></div>
+          </div>
+          <div class="metrics-grid owner-metrics">
+            <article class="metric-violet"><span>Eventos activos</span><strong data-metric-events>0</strong><small>Publicados o en preparación</small></article>
+            <article class="metric-coral"><span>Clientes</span><strong data-metric-clients>0</strong><small data-client-metric-label>Registrados en LN Studio</small></article>
+            <article class="metric-cyan"><span>Confirmados</span><strong data-metric-confirmed>0</strong><small>Personas previstas</small></article>
+            <article class="metric-yellow"><span>Check-in</span><strong data-metric-checkins>0</strong><small>Entradas aprobadas</small></article>
+          </div>
+          <div class="section-heading"><div><p class="admin-eyebrow">Actividad</p><h2>Eventos recientes</h2></div><button type="button" class="text-button" data-go-events>Ver todos</button></div>
+          <div class="event-grid" data-home-events></div>
         </div>
-        <div class="metrics-grid">
-          <article><span>Eventos activos</span><strong data-metric-events>0</strong><small>Publicados o en preparación</small></article>
-          <article><span>Clientes</span><strong data-metric-clients>0</strong><small data-client-metric-label>Registrados en LN Studio</small></article>
-          <article><span>Confirmados</span><strong data-metric-confirmed>0</strong><small>Personas previstas</small></article>
-          <article><span>Check-in</span><strong data-metric-checkins>0</strong><small>Entradas aprobadas</small></article>
+
+        <div class="client-home" data-client-home hidden>
+          <section class="client-event-hero" data-client-event-card>
+            <div class="client-event-copy">
+              <div class="client-event-heading"><span class="status-pill" data-client-event-status>Evento</span><span class="event-type-chip" data-client-event-type>Celebración</span></div>
+              <p class="admin-eyebrow">Mi evento</p>
+              <h2 data-client-event-name>Tu evento</h2>
+              <p class="client-event-meta"><span data-client-event-date>Fecha pendiente</span><span data-client-event-venue>Lugar pendiente</span></p>
+              <div class="client-event-actions">
+                <a class="primary-button" data-client-manage href="#">Administrar invitados</a>
+                <a class="ghost-button" data-client-invitation href="#" target="_blank" rel="noopener">Ver invitación</a>
+                <a class="ghost-button" data-client-scanner href="#">Abrir escáner</a>
+              </div>
+            </div>
+            <div class="client-event-visual" aria-hidden="true"><span>🎉</span><i></i><b></b></div>
+          </section>
+
+          <div class="metrics-grid client-metrics">
+            <article class="metric-cyan"><span>Confirmados</span><strong data-client-confirmed>0</strong><small>Personas que asistirán</small></article>
+            <article class="metric-coral"><span>No asistirán</span><strong data-client-declined>0</strong><small>Respuestas negativas</small></article>
+            <article class="metric-violet"><span>Ya ingresaron</span><strong data-client-checked>0</strong><small>Check-in aprobado</small></article>
+            <article class="metric-yellow"><span>Por ingresar</span><strong data-client-remaining>0</strong><small>Confirmados pendientes</small></article>
+          </div>
+
+          <div class="client-dashboard-grid">
+            <section class="client-panel-card">
+              <div class="section-heading compact"><div><p class="admin-eyebrow">Actividad reciente</p><h2>Lo último de tu evento</h2></div></div>
+              <div class="activity-list" data-client-activity></div>
+            </section>
+            <section class="client-panel-card client-help-card">
+              <p class="admin-eyebrow">Accesos rápidos</p>
+              <h2>Lo importante, a la mano.</h2>
+              <div class="client-shortcuts">
+                <a data-client-guests href="#"><span>👥</span><b>Invitados y RSVP</b><small>Consulta respuestas y folios</small></a>
+                <a data-client-passes href="#"><span>🎟️</span><b>Pases y QR</b><small>Revisa accesos autorizados</small></a>
+                <a data-client-access href="#"><span>📲</span><b>Control de acceso</b><small>Escanea y registra entradas</small></a>
+              </div>
+            </section>
+          </div>
+          <div class="empty-state client-no-event" data-client-no-event hidden><strong>Aún no tienes un evento asignado.</strong><p>LN Studio debe vincular tu correo a un evento antes de mostrar la información.</p></div>
         </div>
-        <div class="section-heading"><div><p class="admin-eyebrow">Actividad</p><h2>Eventos recientes</h2></div><button type="button" class="text-button" data-go-events>Ver todos</button></div>
-        <div class="event-grid" data-home-events></div>
       </section>
 
       <section class="owner-view" data-panel="eventos">

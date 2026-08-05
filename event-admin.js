@@ -67,6 +67,7 @@ function render() {
   $("[data-client]").textContent = state.client?.business_name || "Evento privado";
   $("[data-title]").textContent = state.event.name;
   $("[data-meta]").textContent = formatDate(state.event.event_date);
+  $("[data-design]").href = `disenador.html?id=${encodeURIComponent(state.eventId)}`;
   $("[data-open]").href = `evento.html?token=${encodeURIComponent(state.event.private_token)}`;
   $("[data-scan]").href = `scanner.html?event=${encodeURIComponent(state.eventId)}`;
   $("[data-delete-zone]").hidden = !state.isOwner;
