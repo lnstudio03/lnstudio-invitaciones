@@ -457,3 +457,31 @@ dialog{
   .dialog-title{top:-14px;margin:-14px -14px 8px;padding:15px 14px 12px}
   .dialog-actions{bottom:-14px;margin:8px -14px -14px;padding:12px 14px 14px}
 }
+
+/* =========================================================
+   LN Studio v4.4.1 · contraste y botones definitivos
+   ========================================================= */
+html{color-scheme:dark!important}
+body,.admin-shell,.admin-app,.owner-app{background:linear-gradient(180deg,#080c13 0%,#0e1522 100%)!important;color:#eef3ff!important}
+.admin-header,.owner-topbar{background:rgba(8,12,19,.92)!important;border-color:rgba(255,255,255,.08)!important;backdrop-filter:blur(16px)}
+.admin-brand span,.admin-intro h1,.scanner-card h1,.scanner-card h2,.section-heading h2,.settings-form h2{color:#fff!important}
+.admin-intro p:not(.admin-eyebrow),.scanner-event-summary p,.danger-zone p:not(.admin-eyebrow){color:#aab5ca!important}
+.intro-actions a,.intro-actions button,.tabbar button,.panel-actions button,.settings-form>button[type="submit"],.dialog-actions button[type="submit"],.scanner-card .primary-button{
+  min-height:44px!important;border-radius:11px!important;border:1px solid rgba(255,255,255,.11)!important;background:rgba(255,255,255,.04)!important;color:#eef3ff!important;font-weight:800!important;box-shadow:none!important
+}
+.intro-actions a:hover,.intro-actions button:hover,.tabbar button:hover,.panel-actions button:hover{background:rgba(143,125,255,.14)!important;border-color:rgba(143,125,255,.42)!important;color:#fff!important}
+.tabbar button.active,.settings-form>button[type="submit"],.dialog-actions button[type="submit"],.scanner-card .primary-button{background:linear-gradient(135deg,#8f7dff,#6f9dff)!important;border-color:transparent!important;color:#fff!important;box-shadow:0 12px 26px rgba(89,105,255,.22)!important}
+button:disabled,.primary-button:disabled,.dialog-actions button:disabled,.settings-form button:disabled,.panel-actions button:disabled{
+  opacity:1!important;background:#263146!important;border:1px solid rgba(255,255,255,.08)!important;color:#9da9bf!important;box-shadow:none!important;cursor:not-allowed!important
+}
+.dialog-actions{background:linear-gradient(0deg,#101724 82%,rgba(16,23,36,.96))!important;border-color:rgba(255,255,255,.08)!important}
+.dialog-title{background:linear-gradient(180deg,#101724 82%,rgba(16,23,36,.96))!important;border-color:rgba(255,255,255,.08)!important}
+dialog,.dialog-card{background:#101724!important;color:#eef3ff!important}
+.dialog-card label,.settings-form label{color:#c3baff!important}.dialog-card input,.dialog-card textarea,.dialog-card select,.settings-form input,.settings-form textarea,.settings-form select{background:#182235!important;color:#fff!important;border-color:rgba(255,255,255,.11)!important}
+.dialog-card input::placeholder,.dialog-card textarea::placeholder,.settings-form input::placeholder,.settings-form textarea::placeholder{color:#8794ad!important}
+.dialog-card select option,.settings-form select option{background:#111827!important;color:#fff!important}
+.ghost-button{background:rgba(255,255,255,.035)!important;color:#dfe6f7!important;border-color:rgba(255,255,255,.11)!important}
+.form-status{color:#ff98a7!important}.form-status:empty{min-height:0!important}
+.guest-table-wrap{background:#111827!important}.guest-table{background:#111827!important}.guest-table th{background:#151e2e!important;color:#9facc2!important}.guest-table td{color:#eef3ff!important}
+.panel-actions button{background:linear-gradient(135deg,#8f7dff,#6f9dff)!important;border-color:transparent!important;color:#fff!important}
+@media(max-width:700px){.admin-header{background:#080c13!important}.dialog-actions{background:#101724!important}.dialog-title{background:#101724!important}}

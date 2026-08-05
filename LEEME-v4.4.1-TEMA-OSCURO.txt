@@ -1,0 +1,19 @@
+LN Studio v4.4.1 · corrección completa del tema oscuro
+
+SUBIR A GITHUB:
+- Descomprime este ZIP.
+- Selecciona todos los archivos.
+- Súbelos directamente a la raíz del repositorio.
+- Reemplaza los archivos existentes.
+- No crees carpetas.
+
+Esta versión corrige:
+- Sitio público completamente oscuro.
+- Catálogo completamente oscuro.
+- Paneles y formularios oscuros.
+- Diseñador oscuro.
+- Botones activos, inactivos y deshabilitados legibles.
+- Selectores, campos y diálogos con contraste correcto.
+- Versión de recursos actualizada a v4.4.1 para evitar caché.
+
+No requiere SQL nuevo.
