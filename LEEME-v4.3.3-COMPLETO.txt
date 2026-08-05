@@ -1,0 +1,17 @@
+LN Studio v4.3.3 · versión completa y estable
+
+SUBIR A GITHUB:
+- Sube TODOS los archivos del ZIP directamente a la RAÍZ.
+- Reemplaza los archivos anteriores.
+- No crees carpetas.
+- Son menos de 100 archivos.
+
+CORRECCIONES:
+1. Dashboard oscuro con carga forzada para evitar estilos guardados en caché.
+2. Formularios y modales centrados.
+3. El formulario de crear/editar evento ya no se corta ni genera desplazamiento horizontal.
+4. En celular los formularios pasan a una sola columna.
+5. Encabezado y botones del modal permanecen visibles al desplazarse.
+6. Solicitudes con datos visibles y mejor contraste.
+
+NO REQUIERE SQL NUEVO.
