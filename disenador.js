@@ -103,6 +103,10 @@ function fitPreviewToVisibleArea() {
     if (device) {
       device.style.removeProperty("width");
       device.style.removeProperty("height");
+      device.style.removeProperty("position");
+      device.style.removeProperty("left");
+      device.style.removeProperty("top");
+      device.style.removeProperty("margin");
       device.style.removeProperty("transform");
     }
     return;
@@ -120,7 +124,11 @@ function fitPreviewToVisibleArea() {
 
   device.style.width = `${natural.width}px`;
   device.style.height = `${natural.height}px`;
-  device.style.transform = `scale(${Math.max(.2, scale)})`;
+  device.style.position = "absolute";
+  device.style.left = "50%";
+  device.style.top = "50%";
+  device.style.margin = "0";
+  device.style.transform = `translate(-50%, -50%) scale(${Math.max(.2, scale)})`;
   device.style.transformOrigin = "center center";
   device.dataset.fitScale = scale.toFixed(3);
 }

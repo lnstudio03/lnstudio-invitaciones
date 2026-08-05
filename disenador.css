@@ -349,3 +349,26 @@ body{
     transform:none!important;
   }
 }
+
+/* =========================================================
+   LN Studio v4.4.7 · preview centrado en el área visible real
+   ========================================================= */
+@media (min-width:981px){
+  .preview-area{
+    position:relative!important;
+    overflow:hidden!important;
+    min-width:0!important;
+    min-height:0!important;
+  }
+
+  .preview-device,
+  .preview-device.mobile,
+  .preview-device.desktop{
+    position:absolute!important;
+    left:50%!important;
+    top:50%!important;
+    margin:0!important;
+    inset:auto!important;
+    transform-origin:center center!important;
+  }
+}

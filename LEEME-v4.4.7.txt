@@ -1,0 +1,14 @@
+LN Studio v4.4.7
+
+SUBE LOS 3 ARCHIVOS PRINCIPALES A LA RAÍZ DE GITHUB Y REEMPLAZA LOS ANTERIORES:
+- disenador.html
+- disenador.css
+- disenador.js
+
+El archivo LEEME no es necesario subirlo.
+
+Corrección:
+- Solo se desplaza el panel lateral izquierdo.
+- La vista previa queda fija.
+- La vista previa se centra usando el área visible real del navegador.
+- Se ajusta automáticamente al cambiar entre Celular y Escritorio.
