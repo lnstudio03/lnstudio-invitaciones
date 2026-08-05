@@ -1,0 +1,12 @@
+LN STUDIO v4.4 · ARCHIVOS PARA GITHUB
+
+1. Ejecuta primero la migración del ZIP de Supabase.
+2. Después descomprime este ZIP.
+3. Selecciona TODOS los archivos.
+4. Súbelos directamente a la RAÍZ del repositorio GitHub.
+5. Reemplaza los archivos existentes.
+6. No crees carpetas.
+7. Espera el despliegue de Cloudflare y recarga con Ctrl + Shift + R.
+
+El diseñador es exclusivo para owner/staff de LN Studio.
+El cliente conserva su panel de invitados, confirmaciones, pases y escáner, pero no puede modificar la invitación.

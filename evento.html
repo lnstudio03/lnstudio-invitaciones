@@ -3,27 +3,43 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>Invitación privada | LN Studio</title><link rel="icon" href="favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="invitacion.css?v=4.3.3">
-  <script src="qr-local.js?v=4.3.3"></script><script type="module" src="rsvp.js?v=4.3.3"></script>
+  <title>Invitación privada | LN Studio</title>
+  <link rel="icon" href="favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Bebas+Neue&family=Cinzel:wght@500;600;700&family=Fredoka:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="invitacion.css?v=4.4">
+  <script src="qr-local.js?v=4.4"></script><script type="module" src="rsvp.js?v=4.4"></script>
 </head>
 <body class="private-event">
+<div class="event-ambient" data-ambient aria-hidden="true"></div>
+<button class="music-control" type="button" data-music-button hidden aria-label="Reproducir música"><span>♪</span><b>Reproducir música</b></button>
+<audio data-music preload="metadata"></audio>
+
 <main class="official-event" data-event-shell>
-  <section class="official-hero">
-    <div class="official-glow blue"></div><div class="official-glow pink"></div>
-    <p class="invite-kicker">Invitación digital privada · LN Studio</p>
+  <section class="official-hero invite-animated" data-section="hero">
+    <div class="official-overlay"></div><div class="official-glow blue"></div><div class="official-glow pink"></div>
+    <p class="invite-kicker" data-kicker>Invitación digital privada · LN Studio</p>
     <img class="shop-logo" data-logo alt="Identidad del evento" hidden>
+    <img class="official-hero-image" data-hero-image alt="Fotografía principal" hidden>
     <h1 data-name>Cargando invitación…</h1><p class="official-subtitle" data-description></p>
     <div class="official-brand-row" data-brand-row hidden><img data-secondary-logo alt="Logo secundario"></div>
     <div class="event-facts"><div><span>Fecha</span><strong data-date>—</strong></div><div><span>Lugar</span><strong data-venue>—</strong></div></div>
     <div class="success-actions"><a class="primary-button" data-map target="_blank" rel="noopener">Ver ubicación</a><button type="button" class="ghost-button" data-calendar>Agregar al calendario</button></div>
   </section>
 
-  <section class="official-message">
-    <p class="invite-kicker">Cuenta regresiva</p><h2 data-countdown>Estamos por comenzar.</h2><p data-dress-code></p>
+  <section class="official-message invite-animated" data-section="countdown">
+    <p class="invite-kicker">Cuenta regresiva</p><h2 data-countdown>Estamos por comenzar.</h2>
   </section>
 
-  <section class="rsvp-section" data-form-section>
-    <p class="invite-kicker">Confirmación de asistencia</p><h2>¿Nos acompañas?</h2>
+  <section class="official-details invite-animated" data-section="details">
+    <p class="invite-kicker">Detalles del evento</p><h2 data-detail-title>Una celebración hecha para recordar.</h2><p data-dress-code></p>
+  </section>
+
+  <section class="official-gallery invite-animated" data-section="gallery" hidden>
+    <p class="invite-kicker">Galería</p><h2>Momentos que cuentan nuestra historia.</h2><div class="event-gallery-grid" data-gallery></div>
+  </section>
+
+  <section class="rsvp-section invite-animated" data-section="rsvp" data-form-section>
+    <p class="invite-kicker">Confirmación de asistencia</p><h2 data-rsvp-title>¿Nos acompañas?</h2><p class="rsvp-copy" data-rsvp-copy></p>
     <form id="rsvp-form" class="rsvp-form" action="#" onsubmit="return false;" novalidate>
       <label>Nombre completo<input name="name" required autocomplete="name" maxlength="120"></label>
       <div class="form-pair"><label>WhatsApp<input name="phone" required autocomplete="tel" maxlength="30"></label><label>Correo opcional<input name="email" type="email" autocomplete="email" maxlength="160"></label></div>

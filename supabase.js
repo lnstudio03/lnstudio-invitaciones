@@ -259,6 +259,40 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body)
     }, session);
+  },
+
+  async uploadFile(bucket, path, file, { upsert = true, cacheControl = "3600" } = {}) {
+    const session = await getValidSession();
+    if (!session) throw new ApiError("Debes iniciar sesión para subir archivos.", 401);
+    if (!(file instanceof Blob)) throw new ApiError("El archivo seleccionado no es válido.");
+    const cleanBucket = encodeURIComponent(String(bucket || "").trim());
+    const cleanPath = String(path || "").split("/").map((part) => encodeURIComponent(part)).join("/");
+    const response = await fetch(`${baseUrl}/storage/v1/object/${cleanBucket}/${cleanPath}`, {
+      method: "POST",
+      headers: apiHeaders(session, {
+        "Content-Type": file.type || "application/octet-stream",
+        "cache-control": cacheControl,
+        "x-upsert": String(Boolean(upsert))
+      }),
+      body: file
+    });
+    return parseResponse(response);
+  },
+
+  async removeFile(bucket, paths = []) {
+    const session = await getValidSession();
+    if (!session) throw new ApiError("Debes iniciar sesión para eliminar archivos.", 401);
+    const list = Array.isArray(paths) ? paths : [paths];
+    return rawFetch(`/storage/v1/object/${encodeURIComponent(bucket)}`, {
+      method: "DELETE",
+      body: JSON.stringify({ prefixes: list.filter(Boolean) })
+    }, session);
+  },
+
+  getPublicFileUrl(bucket, path) {
+    const cleanBucket = encodeURIComponent(String(bucket || "").trim());
+    const cleanPath = String(path || "").split("/").map((part) => encodeURIComponent(part)).join("/");
+    return `${SUPABASE_CONFIG.url}/storage/v1/object/public/${cleanBucket}/${cleanPath}`;
   }
 };
 

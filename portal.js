@@ -296,10 +296,8 @@ function canScanEvent(eventId) {
   const membership = memberForEvent(eventId);
   return Boolean(membership?.active && ["client_admin", "event_staff"].includes(membership.role));
 }
-function canDesignEvent(eventId) {
-  if (isOwner()) return true;
-  const membership = memberForEvent(eventId);
-  return Boolean(membership?.active && membership.role === "client_admin");
+function canDesignEvent() {
+  return isOwner();
 }
 function setLink(selector, href, hide = false) {
   const node = $(selector); if (!node) return;
