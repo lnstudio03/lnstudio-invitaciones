@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css?v=4.4.4">
-  <script type="module" src="portal.js?v=4.4.4"></script>
+  <script type="module" src="portal.js?v=4.4.10"></script>
 </head>
 <body>
   <section class="admin-login" data-login>
@@ -163,7 +163,7 @@
         <label>Cliente<select name="client_id"><option value="">Sin cliente por ahora</option></select></label>
         <label>Tipo<select name="event_type"><option value="anniversary">Aniversario</option><option value="wedding">Boda</option><option value="xv">XV años</option><option value="birthday">Cumpleaños</option><option value="corporate">Empresarial</option><option value="other">Otro</option></select></label>
         <label class="span-2">Nombre del evento<input name="name" required placeholder="XV años de Fernanda"></label>
-        <label>Fecha y hora<input name="event_date" type="datetime-local"></label>
+        <label>Fecha y hora <span aria-hidden="true">*</span><input name="event_date" type="datetime-local" required></label>
         <label>Estado<select name="status"><option value="draft">Borrador</option><option value="published">Publicado</option><option value="paused">Pausado</option><option value="finished">Finalizado</option></select></label>
         <label>Plantilla<select name="template_key"></select></label>
         <label>Slug interno<input name="slug" required placeholder="xv-fernanda-2026"></label>

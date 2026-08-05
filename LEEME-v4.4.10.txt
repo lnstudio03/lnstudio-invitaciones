@@ -1,0 +1,13 @@
+LN Studio v4.4.10 · mensajes claros al crear eventos
+
+Sube a la raíz de GitHub y reemplaza únicamente:
+- admin.html
+- portal.js
+
+No necesitas ejecutar SQL ni modificar Supabase.
+
+Corrección:
+- Si falta la fecha, el sistema dice “Falta completar: Fecha y hora”.
+- También identifica nombre, plantilla y slug interno faltantes.
+- Enfoca automáticamente el primer campo pendiente.
+- Traduce errores comunes de la base de datos a mensajes entendibles.

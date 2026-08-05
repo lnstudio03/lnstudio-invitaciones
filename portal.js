@@ -209,7 +209,7 @@ function eventCards(rows) {
       <div class="event-card-actions">
         <a class="event-action-main" href="evento-admin.html?id=${encodeURIComponent(event.id)}">${isOwner() ? "Administrar" : "Abrir mi evento"}</a>
         ${canDesignEvent(event.id) ? `<a href="disenador.html?id=${encodeURIComponent(event.id)}">Diseñar</a>` : ""}
-        ${event.private_token ? `<a href="${isOwner() ? `evento.html?id=${encodeURIComponent(event.id)}&preview=1` : `evento.html?token=${encodeURIComponent(event.private_token)}`}" target="_blank" rel="noopener">Invitación</a>` : ""}
+        ${event.private_token ? `<a href="evento.html?token=${encodeURIComponent(event.private_token)}" target="_blank" rel="noopener">Invitación</a>` : ""}
         ${canScan ? `<a href="scanner.html?event=${encodeURIComponent(event.id)}">Escáner</a>` : ""}
       </div>
     </article>`;
@@ -425,16 +425,32 @@ function openEvent(options = {}) {
 }
 
 async function saveEvent(event) {
-  event.preventDefault(); const form = event.currentTarget;
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = $("[data-event-status-message]");
+
+  const missing = validateEventRequiredFields(form);
+  if (missing.length) {
+    status.textContent = `Falta completar: ${missing.map((item) => item.label).join(", ")}.`;
+    status.dataset.type = "error";
+    const firstField = missing[0].field;
+    firstField.setAttribute("aria-invalid", "true");
+    firstField.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => firstField.focus(), 250);
+    return;
+  }
+
   if (!form.reportValidity()) return;
-  const status = $("[data-event-status-message]"); status.textContent = "Guardando…"; setBusy(form, true);
+  status.textContent = "Guardando…";
+  status.dataset.type = "loading";
+  setBusy(form, true);
   try {
     const id = form.elements.id.value;
     const values = formObject(form, ["id"]);
     values.client_id = values.client_id || null;
     values.max_companions = Number(values.max_companions || 0);
     values.qr_enabled = values.qr_enabled === "true";
-    values.event_date = values.event_date ? new Date(values.event_date).toISOString() : null;
+    values.event_date = new Date(values.event_date).toISOString();
     values.slug = slugify(values.slug || values.name);
     if (!id) values.created_by = state.user.id;
     let saved;
@@ -444,8 +460,52 @@ async function saveEvent(event) {
     $("#event-dialog").close();
     await load();
     if (eventId) navigateTo(`evento-admin.html?id=${encodeURIComponent(eventId)}`);
-  } catch (error) { status.textContent = errorMessage(error); }
-  finally { setBusy(form, false); }
+  } catch (error) {
+    status.textContent = friendlyEventError(error);
+    status.dataset.type = "error";
+  } finally {
+    setBusy(form, false);
+  }
+}
+
+function validateEventRequiredFields(form) {
+  const required = [
+    ["name", "Nombre del evento"],
+    ["event_date", "Fecha y hora"],
+    ["template_key", "Plantilla"],
+    ["slug", "Slug interno"]
+  ];
+
+  return required.flatMap(([name, label]) => {
+    const field = form.elements[name];
+    if (!field) return [];
+    field.removeAttribute("aria-invalid");
+    return String(field.value || "").trim() ? [] : [{ field, label }];
+  });
+}
+
+function friendlyEventError(error) {
+  const message = errorMessage(error);
+  const columnMatch = message.match(/null value in column ["']([^"']+)["']/i);
+  if (columnMatch) {
+    const labels = {
+      event_date: "Fecha y hora",
+      name: "Nombre del evento",
+      template_key: "Plantilla",
+      slug: "Slug interno",
+      event_type: "Tipo de evento",
+      status: "Estado"
+    };
+    const label = labels[columnMatch[1]] || columnMatch[1];
+    return `Falta completar: ${label}.`;
+  }
+  if (/duplicate key|unique constraint|events_slug/i.test(message)) {
+    return "El slug interno ya está siendo usado por otro evento. Escribe uno diferente.";
+  }
+  if (/invalid input syntax.*timestamp|date\/time field value out of range/i.test(message)) {
+    return "La fecha y hora no son válidas. Revísalas e intenta nuevamente.";
+  }
+  return `No fue posible guardar el evento. ${message}`;
 }
 
 async function deleteEvent(id) {
