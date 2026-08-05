@@ -604,3 +604,239 @@ dialog,.dialog-card{background:#101724!important;color:#eef3ff!important}
   .event-scanner-shell .scan-result .intro-actions{display:grid!important;grid-template-columns:1fr!important}
   .event-scanner-shell .scan-result .intro-actions button{width:100%!important}
 }
+
+
+/* ===== LN Studio v4.4.11 · ajustes móviles y contraste ===== */
+.client-event-hero,
+.client-panel-card,
+.guest-table-wrap,
+.settings-form,
+.danger-zone,
+.dialog-card,
+.scanner-card,
+.scanner-activity-card,
+.metrics-grid article,
+.guest-table,
+.tabbar {
+  background: linear-gradient(180deg,#0f1628 0%,#0b1120 100%) !important;
+  color: #f7f9ff !important;
+  border-color: rgba(164,178,214,.16) !important;
+}
+
+.client-event-hero,
+.client-panel-card,
+.scanner-card,
+.scanner-activity-card,
+.settings-form,
+.danger-zone,
+.guest-table-wrap {
+  box-shadow: 0 18px 36px rgba(0,0,0,.18) !important;
+}
+
+.client-event-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.08) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  color: #f7f9ff !important;
+  font-weight: 800 !important;
+}
+
+.client-event-meta,
+.client-panel-card small,
+.client-shortcuts small,
+.activity-item small,
+.metrics-grid small,
+.guest-name small,
+.guest-contact small,
+.guest-companions small,
+.muted,
+.form-status,
+.scanner-card p,
+.scanner-activity-card p,
+.danger-zone p,
+.settings-form p {
+  color: #b8c3dc !important;
+}
+
+.metrics-grid span,
+.client-panel-card .admin-eyebrow,
+.section-heading .admin-eyebrow,
+.guest-table th,
+.settings-form label,
+.dialog-card label,
+.scanner-card .admin-eyebrow,
+.scanner-activity-card .admin-eyebrow,
+.danger-zone .admin-eyebrow {
+  color: #cfd8ef !important;
+}
+
+.metrics-grid strong,
+.client-panel-card h2,
+.client-event-hero h2,
+.event-card h2,
+.admin-intro h1,
+.scanner-card h2,
+.scanner-event-summary h1,
+.danger-zone h2,
+.settings-form h2,
+.guest-name strong,
+.member-row strong {
+  color: #ffffff !important;
+}
+
+.client-shortcuts a,
+.activity-item,
+.guest-table th,
+.guest-table td,
+.scan-result,
+.scan-result dl div,
+.dialog-card input,
+.dialog-card textarea,
+.dialog-card select,
+.settings-form input,
+.settings-form textarea,
+.settings-form select,
+.scanner-card input,
+.scanner-card select {
+  background: rgba(255,255,255,.05) !important;
+  color: #f7f9ff !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+
+.dialog-card input::placeholder,
+.dialog-card textarea::placeholder,
+.settings-form input::placeholder,
+.settings-form textarea::placeholder,
+.scanner-card input::placeholder {
+  color: #aab6d1 !important;
+}
+
+.client-event-actions .ghost-button,
+.intro-actions a,
+.intro-actions button,
+.event-card-actions a,
+.panel-actions button,
+.scanner-manage-link,
+.ghost-button {
+  background: rgba(255,255,255,.06) !important;
+  color: #f7f9ff !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+
+.client-event-actions .primary-button,
+.intro-actions button,
+.event-action-main,
+.tabbar button.active,
+.settings-form button,
+.scanner-manage-link:hover {
+  color: #ffffff !important;
+}
+
+.tabbar {
+  padding: 10px !important;
+  border-radius: 18px !important;
+  backdrop-filter: blur(14px);
+  overflow: visible !important;
+}
+
+.tabbar button {
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  color: #d5def1 !important;
+  font-weight: 800 !important;
+  white-space: normal !important;
+  line-height: 1.2;
+}
+
+.tabbar button.active {
+  background: linear-gradient(135deg,var(--violet),var(--violet-soft)) !important;
+  box-shadow: 0 10px 24px rgba(115,87,231,.26);
+}
+
+.guest-table th {
+  background: rgba(255,255,255,.04) !important;
+}
+
+.inline-check,
+.privacy-note {
+  color: #d5def1 !important;
+}
+
+@media (max-width: 760px) {
+  .admin-intro,
+  .event-card-actions,
+  .client-event-actions,
+  .intro-actions {
+    gap: 12px !important;
+  }
+
+  .client-event-meta {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .client-event-actions,
+  .intro-actions,
+  .event-card-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    width: 100%;
+  }
+
+  .client-event-actions .primary-button,
+  .event-card-actions a:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .tabbar {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    position: static;
+  }
+
+  .tabbar button {
+    min-width: 0;
+  }
+
+  .metrics-grid,
+  .client-metrics,
+  .owner-metrics,
+  .scanner-metrics {
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-app,
+  .scanner-shell {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .client-event-hero,
+  .client-panel-card,
+  .scanner-card,
+  .scanner-activity-card,
+  .settings-form,
+  .danger-zone,
+  .guest-table-wrap {
+    border-radius: 20px !important;
+  }
+
+  .tabbar {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .tabbar button {
+    font-size: .9rem;
+  }
+}

@@ -293,3 +293,101 @@ body[data-animation-intensity="high"] .event-ambient{opacity:1}
   .official-message,.official-details,.official-gallery,.rsvp-section,.invite-success,.invite-close{padding-left:16px!important;padding-right:16px!important}
   .official-message h2,.official-details h2,.official-gallery h2,.rsvp-section h2,.invite-success h2{font-size:clamp(2.2rem,12vw,3.8rem)!important;overflow-wrap:anywhere}
 }
+
+
+/* ===== LN Studio v4.4.11 · RSVP móvil y pase visual ===== */
+.rsvp-section {
+  overflow: hidden;
+}
+
+.rsvp-form {
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.rsvp-form label {
+  color: var(--invite-text) !important;
+}
+
+.rsvp-form input,
+.rsvp-form textarea,
+.rsvp-form select {
+  background: rgba(255,255,255,.05) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  color: var(--invite-text) !important;
+}
+
+.rsvp-form input::placeholder,
+.rsvp-form textarea::placeholder {
+  color: color-mix(in srgb, var(--invite-muted) 72%, transparent);
+}
+
+.attendance-choice legend {
+  margin-bottom: 2px;
+}
+
+.privacy-check {
+  margin-top: 4px;
+}
+
+.success-actions button {
+  min-height: 56px;
+}
+
+.success-reference {
+  width: min(100%, 460px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 650px) {
+  .rsvp-section {
+    width: calc(100% - 16px) !important;
+    margin: 10px auto !important;
+    padding: 28px 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .rsvp-section > h2 {
+    margin-bottom: 18px !important;
+    font-size: clamp(2.25rem, 12vw, 3.35rem) !important;
+  }
+
+  .rsvp-copy {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .form-pair,
+  .attendance-choice {
+    grid-template-columns: 1fr !important;
+  }
+
+  .attendance-choice {
+    gap: 12px !important;
+  }
+
+  .attendance-choice span {
+    min-height: 60px !important;
+  }
+
+  .invite-success {
+    padding: 52px 16px 70px !important;
+  }
+
+  .invite-success h2 {
+    font-size: clamp(2.4rem, 13vw, 4rem) !important;
+  }
+
+  .success-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100%;
+  }
+
+  .success-actions button {
+    width: 100%;
+  }
+}

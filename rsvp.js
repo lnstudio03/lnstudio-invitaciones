@@ -6,6 +6,7 @@ const DEFAULT_ORDER = ["hero","countdown","details","gallery","rsvp"];
 let eventData = null;
 let token = null;
 let passUrl = "";
+let currentPass = null;
 let previewMode = false;
 let previewEventId = null;
 
@@ -198,9 +199,228 @@ function renderPass(pass) {
   passUrl=`${origin}/scanner.html?event=${encodeURIComponent(eventData.id)}&token=${encodeURIComponent(pass.token)}`;
   const canvas=$("#qr"); window.LNQRCode.toCanvas(canvas,passUrl,{width:300,margin:4,level:"M"});
   canvas.hidden=false; $("[data-folio]").textContent=pass.folio; $("[data-capacity]").textContent=`Accesos autorizados: ${pass.allowed_entries}`;
-  $("[data-download-qr]").hidden=false; $("[data-copy-pass]").hidden=false;
+  $("[data-download-qr]").hidden=false; $("[data-download-qr]").textContent="Guardar pase"; $("[data-copy-pass]").hidden=false; currentPass = pass;
 }
-function downloadQr(){const canvas=$("#qr");if(canvas.hidden)return;const link=document.createElement("a");link.download=`pase-${$("[data-folio]").textContent||"ln-studio"}.png`;link.href=canvas.toDataURL("image/png");link.click()}
+
+async function downloadQr(){
+  const qrCanvas = $("#qr");
+  if(qrCanvas.hidden) return;
+  try {
+    const card = await buildPassCard(qrCanvas);
+    const link = document.createElement("a");
+    link.download = `pase-${$("[data-folio]").textContent || "ln-studio"}.png`;
+    link.href = card.toDataURL("image/png");
+    link.click();
+  } catch (error) {
+    const fallback = document.createElement("a");
+    fallback.download = `pase-${$("[data-folio]").textContent || "ln-studio"}.png`;
+    fallback.href = qrCanvas.toDataURL("image/png");
+    fallback.click();
+  }
+}
+
+async function buildPassCard(qrCanvas) {
+  if (document.fonts?.ready) { try { await document.fonts.ready; } catch {} }
+  const canvas = document.createElement("canvas");
+  canvas.width = 1400;
+  canvas.height = 2000;
+  const ctx = canvas.getContext("2d");
+
+  const accent = getCssVariable("--invite-accent", "#8f7dff");
+  const accentTwo = getCssVariable("--invite-accent-two", "#ff7f91");
+  const bg = getCssVariable("--invite-bg", "#0d1420");
+  const bgTwo = getCssVariable("--invite-bg-two", "#1b2537");
+  const text = getCssVariable("--invite-text", "#ffffff");
+  const muted = getCssVariable("--invite-muted", "#b7c1d5");
+
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, bg);
+  gradient.addColorStop(.62, bgTwo);
+  gradient.addColorStop(1, accentTwo);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Fondo decorativo suave
+  ctx.globalAlpha = 0.14;
+  drawGlow(ctx, 220, 260, 300, accent);
+  drawGlow(ctx, 1180, 360, 260, accentTwo);
+  drawGlow(ctx, 1080, 1720, 340, accent);
+  ctx.globalAlpha = 1;
+
+  const hero = await loadImageSafe(eventData?.hero_image_url);
+  if (hero) {
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    drawCoverImage(ctx, hero, 70, 70, 1260, 540, 34);
+    ctx.restore();
+  }
+
+  roundRect(ctx, 86, 86, 1228, 1828, 42);
+  ctx.fillStyle = "rgba(7,10,18,.72)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,.09)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  const logo = await loadImageSafe(eventData?.logo_url);
+  if (logo) {
+    drawContainImage(ctx, logo, 135, 126, 200, 120);
+  }
+
+  ctx.fillStyle = accent;
+  ctx.font = '700 34px Manrope, Inter, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('PASE DIGITAL · LN STUDIO', canvas.width / 2, 180);
+
+  let y = 300;
+  ctx.fillStyle = text;
+  ctx.font = '700 94px Fraunces, Cormorant Garamond, Georgia, serif';
+  y = drawWrappedText(ctx, eventData?.name || 'Tu evento', 150, y, 1100, 96, 4);
+
+  y += 36;
+  ctx.fillStyle = muted;
+  ctx.font = '600 34px Manrope, Inter, Arial, sans-serif';
+  y = drawWrappedText(ctx, formatDate(eventData?.event_date), 170, y, 1060, 46, 2);
+
+  const venueText = [eventData?.venue_name, eventData?.venue_address].filter(Boolean).join(' · ');
+  if (venueText) {
+    y += 14;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '600 32px Manrope, Inter, Arial, sans-serif';
+    y = drawWrappedText(ctx, venueText, 170, y, 1060, 42, 3);
+  }
+
+  const qrBoxSize = 560;
+  const qrBoxX = (canvas.width - qrBoxSize) / 2;
+  const qrBoxY = y + 70;
+  roundRect(ctx, qrBoxX, qrBoxY, qrBoxSize, qrBoxSize, 34);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.shadowColor = 'rgba(0,0,0,.22)';
+  ctx.shadowBlur = 28;
+  ctx.drawImage(qrCanvas, qrBoxX + 38, qrBoxY + 38, qrBoxSize - 76, qrBoxSize - 76);
+  ctx.shadowBlur = 0;
+
+  y = qrBoxY + qrBoxSize + 72;
+  roundRect(ctx, 240, y, 920, 116, 24);
+  ctx.fillStyle = 'rgba(255,255,255,.08)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,.12)';
+  ctx.stroke();
+  ctx.fillStyle = '#e7ecfb';
+  ctx.font = '600 38px Manrope, Inter, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Folio: ${$("[data-folio]").textContent || ''}`, canvas.width / 2, y + 72);
+
+  y += 180;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '700 40px Manrope, Inter, Arial, sans-serif';
+  ctx.fillText(`Accesos autorizados: ${currentPass?.allowed_entries || 1}`, canvas.width / 2, y);
+
+  y += 70;
+  ctx.fillStyle = muted;
+  ctx.font = '500 30px Manrope, Inter, Arial, sans-serif';
+  ctx.fillText('Presenta este pase al llegar al evento.', canvas.width / 2, y);
+
+  y += 110;
+  ctx.strokeStyle = 'rgba(255,255,255,.14)';
+  ctx.beginPath();
+  ctx.moveTo(230, y);
+  ctx.lineTo(1170, y);
+  ctx.stroke();
+
+  y += 76;
+  ctx.fillStyle = accent;
+  ctx.font = '700 28px Manrope, Inter, Arial, sans-serif';
+  ctx.fillText('Invitación personalizada', canvas.width / 2, y);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '700 34px Manrope, Inter, Arial, sans-serif';
+  ctx.fillText('Creada con LN Studio', canvas.width / 2, y + 52);
+
+  return canvas;
+}
+
+function getCssVariable(name, fallback = '') {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+  ctx.closePath();
+}
+
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 4) {
+  const words = String(text || '').split(/\s+/).filter(Boolean);
+  if (!words.length) return y;
+  let line = '';
+  let lines = [];
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width <= maxWidth || !line) line = test;
+    else { lines.push(line); line = word; }
+    if (lines.length >= maxLines) break;
+  }
+  if (line && lines.length < maxLines) lines.push(line);
+  if (words.length && lines.length === maxLines) {
+    const original = lines[maxLines - 1];
+    let trimmed = original;
+    while (trimmed && ctx.measureText(`${trimmed}…`).width > maxWidth) trimmed = trimmed.slice(0, -1).trim();
+    lines[maxLines - 1] = `${trimmed}…`;
+  }
+  ctx.textAlign = 'left';
+  lines.forEach((value, index) => ctx.fillText(value, x, y + index * lineHeight));
+  ctx.textAlign = 'center';
+  return y + (lines.length - 1) * lineHeight;
+}
+
+async function loadImageSafe(src) {
+  const url = safeAsset(src);
+  if (!url) return null;
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => resolve(image);
+    image.onerror = () => resolve(null);
+    image.src = url;
+  });
+}
+
+function drawContainImage(ctx, image, x, y, width, height) {
+  const ratio = Math.min(width / image.width, height / image.height);
+  const drawWidth = image.width * ratio;
+  const drawHeight = image.height * ratio;
+  const drawX = x + (width - drawWidth) / 2;
+  const drawY = y + (height - drawHeight) / 2;
+  ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+}
+
+function drawCoverImage(ctx, image, x, y, width, height, radius = 0) {
+  const ratio = Math.max(width / image.width, height / image.height);
+  const drawWidth = image.width * ratio;
+  const drawHeight = image.height * ratio;
+  const drawX = x + (width - drawWidth) / 2;
+  const drawY = y + (height - drawHeight) / 2;
+  ctx.save();
+  if (radius) { roundRect(ctx, x, y, width, height, radius); ctx.clip(); }
+  ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+  ctx.restore();
+}
+
+function drawGlow(ctx, x, y, radius, color) {
+  const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+  gradient.addColorStop(0, color);
+  gradient.addColorStop(1, 'transparent');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fill();
+}
 async function copyPass(){try{await navigator.clipboard.writeText(passUrl);$("[data-copy-pass]").textContent="Pase copiado"}catch{alert(passUrl)}}
 function downloadCalendar(){if(!eventData?.event_date)return alert("La fecha todavía no está definida.");const start=new Date(eventData.event_date),end=new Date(start.getTime()+3*60*60*1000);const stamp=(date)=>date.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");const content=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//LN Studio//Invitacion//ES","BEGIN:VEVENT",`UID:${eventData.id}@lnstudio`,`DTSTART:${stamp(start)}`,`DTEND:${stamp(end)}`,`SUMMARY:${ics(eventData.name)}`,`LOCATION:${ics([eventData.venue_name,eventData.venue_address].filter(Boolean).join(", "))}`,`DESCRIPTION:${ics(eventData.description||"")}`,"END:VEVENT","END:VCALENDAR"].join("\r\n");const blob=new Blob([content],{type:"text/calendar;charset=utf-8"}),link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download=`${eventData.name}.ics`;link.click();URL.revokeObjectURL(link.href)}
 function startCountdown(){const node=$("[data-countdown]");if(!eventData.event_date){node.textContent="Fecha por confirmar.";return}const target=new Date(eventData.event_date).getTime();if(!Number.isFinite(target)){node.textContent="Fecha por confirmar.";return}const update=()=>{const diff=target-Date.now();if(diff<=0){node.textContent="El gran momento ha llegado.";return}const days=Math.floor(diff/86400000),hours=Math.floor(diff%86400000/3600000),minutes=Math.floor(diff%3600000/60000);node.textContent=`${days} días · ${hours} horas · ${minutes} minutos`};update();setInterval(update,60000)}

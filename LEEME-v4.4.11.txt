@@ -1,0 +1,21 @@
+LN Studio v4.4.11 — parche móvil y pase visual
+
+Sube y reemplaza en la RAÍZ de GitHub solo estos archivos:
+- admin.html
+- evento-admin.html
+- scanner.html
+- dashboard.css
+- evento.html
+- invitacion.css
+- rsvp.js
+
+Qué corrige:
+1) Mejor contraste en panel del cliente y administración móvil.
+2) Menú de pestañas visible en celular (ya no queda solo “Resumen”).
+3) Configuración del evento en tema oscuro y más legible.
+4) Formulario RSVP móvil más limpio, sin doble recuadro pesado.
+5) El botón “Guardar pase” ahora descarga un pase visual personalizado con QR al centro, en lugar del QR solo.
+
+Después de subir:
+- Espera a que Cloudflare termine.
+- En tu celular, abre la página y recarga fuerte o en incógnito para evitar caché.
