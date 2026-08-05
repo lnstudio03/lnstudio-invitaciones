@@ -1,0 +1,24 @@
+LN STUDIO v4.1.1 — ACCESO DE CLIENTES
+
+Este parche elimina el registro público desde el navegador.
+La configuración "Allow new users to sign up" puede permanecer desactivada.
+
+FLUJO RECOMENDADO PARA CADA CLIENTE
+
+1. En LN Studio, crea o conserva al cliente.
+2. Asigna su correo al evento como client_admin.
+3. En Supabase abre Authentication > Users > Add user.
+4. Crea el usuario con exactamente el mismo correo.
+5. Elige una de estas opciones:
+   A) Define una contraseña temporal y confirma el usuario.
+   B) Envía una invitación para que el cliente establezca su contraseña.
+6. El cliente abre /admin e inicia sesión.
+7. El cliente solo verá los eventos que tenga asignados.
+8. El escáner se abre desde su evento y queda limitado a ese evento.
+
+Si el usuario ya existe pero no conoce su contraseña, en /admin debe pulsar
+"Establecer o recuperar contraseña".
+
+ARCHIVOS A REEMPLAZAR
+- admin.html
+- portal.js

@@ -39,8 +39,7 @@ function scrubCredentialQuery() {
 function bindEvents() {
   $("#login-form").addEventListener("submit", login);
   $("[data-login-button]").addEventListener("click", () => $("#login-form").requestSubmit());
-  $("[data-recover]").addEventListener("click", () => openAuthDialog("recover"));
-  $("[data-activate]").addEventListener("click", () => openAuthDialog("activate"));
+  $("[data-recover]")?.addEventListener("click", () => openAuthDialog("recover"));
   $("#auth-form").addEventListener("submit", handleAuthDialog);
   $("[data-logout]").addEventListener("click", logout);
   $("[data-refresh]").addEventListener("click", load);
@@ -424,11 +423,11 @@ function openAuthDialog(mode) {
   const loginEmail = $("#login-form [name=email]").value;
   form.elements.email.value = loginEmail;
   const passwordLabel = $("[data-auth-password-label]");
-  if (mode === "recover") {
-    $("[data-auth-title]").textContent = "Recuperar contraseña"; $("[data-auth-copy]").textContent = "Te enviaremos un enlace para crear una contraseña nueva."; $("[data-auth-submit]").textContent = "Enviar enlace"; passwordLabel.hidden = true; form.elements.password.required = false;
-  } else {
-    $("[data-auth-title]").textContent = "Activar acceso"; $("[data-auth-copy]").textContent = "Usa exactamente el correo que LN Studio asignó al evento. Después confirma el mensaje recibido por correo."; $("[data-auth-submit]").textContent = "Crear cuenta"; passwordLabel.hidden = false; form.elements.password.required = true;
-  }
+  $("[data-auth-title]").textContent = "Establecer o recuperar contraseña";
+  $("[data-auth-copy]").textContent = "Usa el correo de la cuenta que LN Studio creó para tu evento. Recibirás un enlace para establecer una contraseña nueva.";
+  $("[data-auth-submit]").textContent = "Enviar enlace";
+  passwordLabel.hidden = true;
+  form.elements.password.required = false;
   $("#auth-dialog").showModal();
 }
 
@@ -438,15 +437,12 @@ async function handleAuthDialog(event) {
   const status = $("[data-auth-status]"); status.textContent = "Procesando…"; setBusy(form, true);
   try {
     const mode = form.elements.mode.value;
-    if (mode === "recover") {
-      await api.sendPasswordRecovery(form.elements.email.value);
-      status.textContent = "Revisa tu correo. El enlace regresará a este panel.";
-    } else if (mode === "update-password") {
+    if (mode === "update-password") {
       await api.updatePassword(form.elements.password.value);
       status.textContent = "Contraseña actualizada. Ya puedes cerrar este cuadro y entrar normalmente.";
     } else {
-      const result = await api.signUp(form.elements.email.value, form.elements.password.value);
-      status.textContent = result?.access_token ? "Cuenta activada. Ya puedes entrar." : "Cuenta creada. Revisa tu correo para confirmarla.";
+      await api.sendPasswordRecovery(form.elements.email.value);
+      status.textContent = "Si la cuenta ya fue creada por LN Studio, recibirás un enlace para establecer o recuperar la contraseña.";
     }
   } catch (error) { status.textContent = translateAuthError(error); }
   finally { setBusy(form, false); }
