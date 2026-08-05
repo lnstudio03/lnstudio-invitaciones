@@ -1,0 +1,17 @@
+LN Studio v4.3.2 · versión completa
+
+Sube TODO el contenido del ZIP a la RAÍZ del repositorio.
+No uses carpetas.
+
+Esta versión corrige:
+1. Panel privado en tonos oscuros reales.
+2. Modal de solicitudes con datos visibles y mejor contraste.
+3. Compatibilidad extra para mostrar solicitudes aunque algunos campos vengan con nombres distintos.
+4. Mejor lectura de tarjetas, diálogos y botones en dashboard.
+
+Archivos clave corregidos:
+- dashboard.css
+- portal.js
+
+Recomendación:
+- Reemplaza todos los archivos de la raíz con esta versión completa para evitar mezclar estilos anteriores.

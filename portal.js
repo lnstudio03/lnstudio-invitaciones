@@ -322,10 +322,21 @@ function renderRequests() {
   if (!isOwner()) return;
   const status = $("[data-request-status]").value;
   const rows = state.requests.filter((request) => status === "all" || request.status === status);
-  $("[data-requests]").innerHTML = rows.map((request) => `<article class="request-card">
-    <div><span class="status-pill status-${esc(request.status)}">${requestStatus(request.status)}</span><h3>${esc(request.name)}</h3><p>${esc(request.event_type)} · ${esc(request.event_date || "Fecha por definir")} · ${Number(request.guest_count || 0)} invitados</p><small>${formatDate(request.created_at)}</small></div>
-    <div><strong>${esc(request.phone || request.email || "Sin contacto")}</strong><button type="button" data-request="${request.id}">Abrir solicitud</button></div>
-  </article>`).join("");
+  $("[data-requests]").innerHTML = rows.map((request) => {
+    const view = requestView(request);
+    return `<article class="request-card">
+      <div>
+        <span class="status-pill status-${esc(request.status)}">${requestStatus(request.status)}</span>
+        <h3>${esc(view.name)}</h3>
+        <p>${esc(view.eventLabel)} · ${esc(view.dateText)} · ${Number(view.guestCount || 0)} invitados</p>
+        <small>${esc(view.folio)} · ${formatDate(request.created_at)}</small>
+      </div>
+      <div>
+        <strong>${esc(view.contact)}</strong>
+        <button type="button" data-request="${request.id}">Abrir solicitud</button>
+      </div>
+    </article>`;
+  }).join("");
   $("[data-requests-empty]").hidden = rows.length > 0;
   bindDynamicActions($("[data-requests]"));
 }
@@ -566,9 +577,21 @@ async function revokeMember(id) {
 
 function openRequest(id) {
   const request = state.requests.find((item) => item.id === id); if (!request) return;
-  $("[data-request-detail]").innerHTML = `<div class="dialog-title"><div><p class="admin-eyebrow">${esc(request.folio)}</p><h2>${esc(request.name)}</h2></div><button type="button" data-request-close>×</button></div>
-    <dl><div><dt>Evento</dt><dd>${esc(request.event_type)}</dd></div><div><dt>Fecha</dt><dd>${esc(request.event_date || "Por definir")}</dd></div><div><dt>Invitados</dt><dd>${Number(request.guest_count || 0)}</dd></div><div><dt>Estilo</dt><dd>${esc(request.style || "—")}</dd></div><div><dt>WhatsApp</dt><dd>${esc(request.phone || "—")}</dd></div><div><dt>Correo</dt><dd>${esc(request.email || "—")}</dd></div></dl>
-    <p>${esc(request.details || "Sin detalles adicionales")}</p><p class="muted">Funciones: ${esc((request.features || []).join(", ") || "No especificadas")}</p>
+  const view = requestView(request);
+  const features = view.features.length ? view.features.map((item) => `<span class="request-feature-chip">${esc(item)}</span>`).join("") : '<span class="request-feature-chip muted-chip">No especificadas</span>';
+  $("[data-request-detail]").innerHTML = `<div class="dialog-title"><div><p class="admin-eyebrow">${esc(view.folio)}</p><h2>${esc(view.name)}</h2><p class="request-subtitle">${esc(view.eventLabel)} · ${esc(view.dateText)} · ${Number(view.guestCount || 0)} invitados</p></div><button type="button" data-request-close aria-label="Cerrar">×</button></div>
+    <dl>
+      <div><dt>Evento</dt><dd>${esc(view.eventLabel)}</dd></div>
+      <div><dt>Fecha</dt><dd>${esc(view.dateText)}</dd></div>
+      <div><dt>Invitados</dt><dd>${Number(view.guestCount || 0)}</dd></div>
+      <div><dt>Estilo</dt><dd>${esc(view.style)}</dd></div>
+      <div><dt>WhatsApp</dt><dd>${esc(view.phone)}</dd></div>
+      <div><dt>Correo</dt><dd>${esc(view.email)}</dd></div>
+      <div><dt>Ciudad</dt><dd>${esc(view.city)}</dd></div>
+      <div><dt>Estatus</dt><dd>${esc(requestStatus(request.status))}</dd></div>
+    </dl>
+    <div class="request-copy-block"><strong>Detalles de la solicitud</strong><p>${esc(view.details)}</p></div>
+    <div class="request-copy-block"><strong>Funciones solicitadas</strong><div class="request-feature-list">${features}</div></div>
     <div class="dialog-actions"><button type="button" class="ghost-button" data-request-contacted>Marcar contactada</button><button type="button" class="ghost-button" data-request-archive>Archivar</button><button type="button" class="primary-button" data-request-convert>Convertir en cliente</button></div>`;
   $("[data-request-close]").addEventListener("click", () => $("#request-dialog").close());
   $("[data-request-contacted]").addEventListener("click", () => updateRequest(request.id, "contacted"));
@@ -664,6 +687,65 @@ function formatRelative(value) { if (!value) return "Ahora"; const diff = Date.n
 function eventTypeLabel(value) { return ({ anniversary: "Aniversario", wedding: "Boda", xv: "XV años", birthday: "Cumpleaños", kids: "Infantil", baptism: "Bautizo", baby_shower: "Baby shower", corporate: "Empresarial", other: "Celebración" })[value] || "Celebración"; }
 function statusLabel(value) { return ({ draft: "Borrador", published: "Publicado", paused: "Pausado", finished: "Finalizado", archived: "Archivado" })[value] || value; }
 function requestStatus(value) { return ({ new: "Nueva", contacted: "Contactada", converted: "Convertida", archived: "Archivada" })[value] || value; }
+function firstFilled(...values) {
+  for (const value of values) {
+    if (value === 0 || value === false) return value;
+    if (Array.isArray(value) && value.length) return value;
+    if (value && String(value).trim() !== "") return value;
+  }
+  return "";
+}
+function asArray(value) {
+  if (Array.isArray(value)) return value.filter(Boolean).map((item) => String(item).trim()).filter(Boolean);
+  if (typeof value === "string") return value.split(",").map((item) => item.trim()).filter(Boolean);
+  return [];
+}
+function requestEventLabel(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "Evento por definir";
+  const normalized = raw.toLowerCase();
+  const labels = {
+    anniversary: "Aniversario",
+    wedding: "Boda",
+    xv: "XV años",
+    birthday: "Cumpleaños",
+    kids: "Fiesta infantil",
+    baptism: "Bautizo",
+    baby_shower: "Baby shower",
+    corporate: "Empresarial",
+    other: "Celebración"
+  };
+  return labels[normalized] || raw;
+}
+function requestView(request = {}) {
+  const name = firstFilled(request.name, request.full_name, request.nombre, request.contact_name, "Solicitud sin nombre");
+  const eventType = firstFilled(request.event_type, request.event_kind, request.event, request.event_name, request.evento, "Evento");
+  const guestCountRaw = firstFilled(request.guest_count, request.invitados, request.guests_total, request.invited_count, 0);
+  const guestCount = Number(guestCountRaw || 0);
+  const phone = firstFilled(request.phone, request.whatsapp, request.telefono, request.celular, "—");
+  const email = firstFilled(request.email, request.correo, "—");
+  const style = firstFilled(request.style, request.estilo, request.theme, "Sin estilo definido");
+  const city = firstFilled(request.city, request.ciudad, request.location_city, "No especificada");
+  const details = firstFilled(request.details, request.descripcion, request.detalles, request.notes, "Sin detalles adicionales");
+  const features = asArray(firstFilled(request.features, request.funciones, request.services, []));
+  const folio = firstFilled(request.folio, `SOL-${String(request.id || "").slice(0, 8).toUpperCase()}`, "SOLICITUD");
+  const eventDate = firstFilled(request.event_date, request.fecha_evento, request.fecha, request.date);
+  const dateText = eventDate ? String(eventDate) : "Fecha por definir";
+  return {
+    name: String(name),
+    eventLabel: requestEventLabel(eventType),
+    dateText: String(dateText),
+    guestCount,
+    phone: String(phone),
+    email: String(email),
+    contact: String(firstFilled(phone, email, "Sin contacto")),
+    style: String(style),
+    city: String(city),
+    details: String(details),
+    features,
+    folio: String(folio)
+  };
+}
 function invitationStatusLabel(member) {
   if (!member.active || member.invitation_status === "revoked") return "Revocado";
   return ({ assigned: "Asignado", sent: "Invitación enviada", active: "Cuenta activa", error: "Error de envío" })[member.invitation_status] || (member.user_id ? "Cuenta vinculada" : "Asignado");
