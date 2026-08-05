@@ -2,16 +2,20 @@
 <html lang="es-MX">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>Escáner del evento | LN Studio</title>
-  <link rel="icon" href="favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css?v=4.4.11">
-  <script type="module" src="scanner.js?v=4.4.8"></script>
+  <link rel="stylesheet" href="scanner.css?v=4.4.13">
+  <script type="module" src="scanner.js?v=4.4.13"></script>
 </head>
-<body>
+<body class="scanner-page">
   <main class="scanner-shell event-scanner-shell">
-    <header class="admin-header">
+    <header class="admin-header scanner-header">
       <div class="admin-brand"><img src="logo.png" alt=""><div><span>LN Studio</span><small>Control de acceso por evento</small></div></div>
       <div class="admin-header-actions">
         <a class="ghost-button" data-event-admin href="admin.html">Administrar evento</a>
@@ -26,7 +30,7 @@
         <h1 data-event-name>Cargando evento…</h1>
         <p data-event-date></p>
       </div>
-      <div class="scanner-event-badge">Escáner exclusivo</div>
+      <div class="scanner-event-badge"><span></span> Escáner exclusivo</div>
     </section>
 
     <p class="global-status" data-page-status hidden></p>
@@ -39,24 +43,35 @@
     </section>
 
     <div class="scanner-workspace">
-      <section class="scanner-card">
-        <p class="admin-eyebrow">Validación segura</p>
-        <h2>Escanear pase QR</h2>
-        <p class="scanner-event-lock">Este lector solo acepta pases del evento mostrado arriba.</p>
-        <div class="camera-box" data-camera-box><video data-video playsinline muted hidden></video><div class="camera-placeholder" data-camera-placeholder>Activa la cámara o escribe el folio del pase.</div></div>
-        <button type="button" class="primary-button" data-start-camera>Activar cámara</button>
-        <form id="manual-form" class="login-form" action="#" onsubmit="return false;">
+      <section class="scanner-card scanner-main-card">
+        <div class="scanner-card-heading">
+          <div><p class="admin-eyebrow">Validación segura</p><h2>Escanear pase QR</h2></div>
+          <span class="camera-state" data-camera-state>En espera</span>
+        </div>
+        <p class="scanner-event-lock">Este lector únicamente acepta pases del evento mostrado arriba.</p>
+
+        <div class="camera-box" data-camera-box>
+          <video data-video playsinline muted hidden></video>
+          <div class="camera-shade" aria-hidden="true"></div>
+          <div class="scan-target" aria-hidden="true">
+            <span class="corner corner-tl"></span><span class="corner corner-tr"></span>
+            <span class="corner corner-bl"></span><span class="corner corner-br"></span>
+            <i class="scan-line"></i>
+          </div>
+          <div class="camera-placeholder" data-camera-placeholder>
+            <strong>Coloca el QR dentro del marco</strong>
+            <span>Activa la cámara para comenzar o consulta un folio manualmente.</span>
+          </div>
+        </div>
+
+        <button type="button" class="primary-button scanner-camera-button" data-start-camera>Activar cámara</button>
+
+        <div class="manual-separator"><span>o ingresar pase manualmente</span></div>
+        <form id="manual-form" class="scanner-manual-form" action="#" onsubmit="return false;">
           <label>Folio, token o enlace<input name="token" placeholder="Ejemplo: LN-B2EE339310" autocomplete="off" autocapitalize="characters"></label>
           <button type="submit">Consultar pase</button>
         </form>
-        <div class="scan-result" data-result hidden>
-          <p class="admin-eyebrow" data-result-state></p><h2 data-result-title></h2><p data-result-message></p>
-          <dl><div><dt>Folio</dt><dd data-folio></dd></div><div><dt>Disponibles</dt><dd data-remaining></dd></div><div><dt>Evento</dt><dd data-result-event></dd></div><div><dt>Teléfono</dt><dd data-phone></dd></div></dl>
-          <label>Personas que ingresan ahora<input data-entries type="number" min="1" value="1"></label>
-          <label>Motivo / nota<input data-reason placeholder="Opcional"></label>
-          <div class="intro-actions"><button type="button" data-approve>Aprobar acceso</button><button type="button" class="ghost-button" data-reject>Rechazar</button></div>
-        </div>
-        <p id="scan-status" class="form-status" role="status"></p>
+        <p id="scan-status" class="form-status scanner-status" role="status"></p>
       </section>
 
       <aside class="scanner-activity-card">
@@ -66,5 +81,46 @@
       </aside>
     </div>
   </main>
+
+  <dialog class="scan-dialog" data-result-dialog aria-labelledby="scan-dialog-title">
+    <div class="scan-dialog-card">
+      <button class="scan-dialog-close" type="button" data-close-result aria-label="Cerrar">×</button>
+
+      <section class="scan-validation" data-validation-view>
+        <div class="scan-validation-header">
+          <div class="validation-icon" data-validation-icon>✓</div>
+          <div><p class="admin-eyebrow" data-result-state>Pase válido</p><h2 id="scan-dialog-title" data-result-title>Pase digital</h2><p data-result-message></p></div>
+        </div>
+
+        <div class="scan-guest-card">
+          <div class="scan-guest-main"><span>Invitado</span><strong data-guest-name>—</strong><small data-email>—</small></div>
+          <div class="scan-capacity"><span>Disponibles</span><strong data-remaining>—</strong></div>
+        </div>
+
+        <dl class="scan-detail-grid">
+          <div><dt>Folio</dt><dd data-folio>—</dd></div>
+          <div><dt>Evento</dt><dd data-result-event>—</dd></div>
+          <div><dt>Teléfono</dt><dd data-phone>—</dd></div>
+          <div><dt>Acompañantes</dt><dd data-companions>—</dd></div>
+        </dl>
+
+        <div class="scan-decision-form">
+          <label>Personas que ingresan ahora<input data-entries type="number" min="1" value="1"></label>
+          <label>Motivo o nota<input data-reason placeholder="Opcional"></label>
+          <div class="scan-decision-actions">
+            <button type="button" class="approve-button" data-approve>Aprobar acceso</button>
+            <button type="button" class="reject-button" data-reject>Rechazar</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="scan-outcome" data-outcome hidden>
+        <div class="outcome-ring"><span data-outcome-icon>✓</span></div>
+        <p class="admin-eyebrow" data-outcome-label>Control de acceso</p>
+        <h2 data-outcome-title>Acceso aprobado</h2>
+        <p data-outcome-message>El ingreso fue registrado correctamente.</p>
+      </section>
+    </div>
+  </dialog>
 </body>
 </html>

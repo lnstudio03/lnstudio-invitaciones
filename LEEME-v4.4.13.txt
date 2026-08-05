@@ -1,0 +1,30 @@
+LN Studio v4.4.13 — diseñador + escáner + logos sin recuadros
+
+SUBE A LA RAÍZ DE GITHUB Y REEMPLAZA SOLO ESTOS ARCHIVOS:
+- disenador.html
+- disenador.css
+- disenador.js
+- scanner.html
+- scanner.css
+- scanner.js
+- evento.html
+- invitacion.css
+- rsvp.js
+
+NO requiere SQL ni cambios en Supabase.
+
+CORRECCIONES:
+1. Diseñador: el panel izquierdo es el que se desplaza y la vista previa se mantiene centrada en el área visible real.
+2. Diseñador: títulos largos se reducen según el espacio disponible para evitar cortes.
+3. Diseñador: modos Celular y Escritorio usan dimensiones y escalado propios.
+4. Escáner: marco visible para colocar el QR, línea de lectura animada y estado de cámara.
+5. Escáner: al leer un pase abre una pantalla con invitado, correo, folio, teléfono, acompañantes y accesos disponibles.
+6. Escáner: Aprobar y Rechazar muestran animaciones verde, roja o amarilla y después regresan al lector.
+7. Escáner: evita leer varias veces el mismo QR en pocos segundos.
+8. Invitaciones: logos principal y secundario ya no llevan fondos blancos, tarjetas, bordes ni recuadros agregados por el sistema.
+9. Vista previa del diseñador: los logos tampoco llevan recuadros artificiales.
+
+DESPUÉS DE SUBIR:
+- Espera el despliegue de Cloudflare.
+- Recarga con Ctrl + Shift + R en computadora.
+- En celular prueba en una pestaña de incógnito para evitar caché.

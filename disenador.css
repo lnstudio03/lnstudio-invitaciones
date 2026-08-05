@@ -372,3 +372,254 @@ body{
     transform-origin:center center!important;
   }
 }
+
+
+/* =========================================================
+   LN Studio v4.4.9 · diseñador owner estable
+   ========================================================= */
+.designer-loading-screen{
+  position:fixed;inset:0;z-index:500;display:grid;place-items:center;padding:24px;
+  background:#070d17;color:#eef3ff;
+}
+.designer-loading-screen[hidden]{display:none!important}
+.designer-loading-card{
+  width:min(390px,100%);padding:28px;display:grid;justify-items:center;gap:10px;text-align:center;
+  border:1px solid rgba(255,255,255,.1);border-radius:22px;background:#101929;
+  box-shadow:0 28px 80px rgba(0,0,0,.4);
+}
+.designer-loading-card strong{font:700 1.55rem/1.1 var(--serif)}
+.designer-loading-card small{color:#aebbd2}
+.designer-loading-spinner{
+  width:36px;height:36px;border:3px solid rgba(255,255,255,.12);border-top-color:#8f7dff;
+  border-radius:50%;animation:designerSpin .75s linear infinite;
+}
+@keyframes designerSpin{to{transform:rotate(360deg)}}
+.designer-is-loading .designer-layout,.designer-is-loading .designer-top-actions{visibility:hidden!important}
+.preview-hero h2{width:100%;max-width:100%;overflow-wrap:anywhere;word-break:normal;hyphens:auto}
+.preview-title-long{line-height:.98!important;letter-spacing:-.035em!important}
+.preview-title-very-long{line-height:1.02!important;letter-spacing:-.025em!important}
+@media(min-width:981px){.preview-area{align-items:center!important;justify-content:center!important}.preview-device{visibility:visible!important}}
+
+
+/* =========================================================
+   LN Studio v4.4.13 · diseñador estable por viewport real
+   ========================================================= */
+:root{
+  --designer-topbar-h:76px;
+  --designer-sidebar-w:470px;
+}
+
+html,
+body{
+  width:100%;
+  min-height:100%;
+}
+
+.preview-screen{
+  scroll-behavior:auto!important;
+  overscroll-behavior:contain;
+}
+
+.preview-hero{
+  width:100%;
+  height:100%;
+  min-height:100%;
+  padding:42px 24px 48px!important;
+  justify-content:center;
+  overflow:hidden!important;
+}
+
+.preview-hero h2{
+  width:100%;
+  max-width:100%;
+  margin:10px 0 12px!important;
+  overflow-wrap:break-word!important;
+  word-break:normal!important;
+  hyphens:auto;
+  text-wrap:balance;
+}
+
+.preview-hero>p{
+  margin:8px auto;
+  line-height:1.45;
+}
+
+.preview-facts{
+  width:100%;
+  margin:14px 0!important;
+}
+
+.preview-facts span{
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
+
+@media (min-width:981px){
+  html,
+  body{
+    height:100dvh!important;
+    min-height:100dvh!important;
+    overflow:hidden!important;
+  }
+
+  body{
+    display:block!important;
+  }
+
+  .designer-topbar{
+    position:fixed!important;
+    inset:0 0 auto 0!important;
+    height:var(--designer-topbar-h)!important;
+    min-height:var(--designer-topbar-h)!important;
+    z-index:100!important;
+  }
+
+  .designer-layout{
+    position:fixed!important;
+    inset:var(--designer-topbar-h) 0 0 0!important;
+    height:auto!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-columns:minmax(360px,var(--designer-sidebar-w)) minmax(0,1fr)!important;
+    overflow:hidden!important;
+  }
+
+  .designer-controls{
+    height:100%!important;
+    min-height:0!important;
+    padding:24px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+
+  .preview-area{
+    position:relative!important;
+    width:100%!important;
+    height:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    padding:18px!important;
+    display:block!important;
+    overflow:hidden!important;
+  }
+
+  .preview-device,
+  .preview-device.mobile,
+  .preview-device.desktop{
+    position:absolute!important;
+    left:50%!important;
+    top:50%!important;
+    right:auto!important;
+    bottom:auto!important;
+    margin:0!important;
+    max-width:none!important;
+    max-height:none!important;
+    transform-origin:center center!important;
+    will-change:transform;
+  }
+
+  .preview-device.mobile{
+    width:390px!important;
+    height:844px!important;
+    padding:10px!important;
+    border-radius:36px!important;
+  }
+
+  .preview-device.desktop{
+    width:1180px!important;
+    height:760px!important;
+    padding:10px!important;
+    border-radius:24px!important;
+  }
+
+  .preview-device.mobile .preview-screen{
+    border-radius:26px!important;
+  }
+
+  .preview-device.desktop .preview-screen{
+    border-radius:16px!important;
+  }
+}
+
+@media (max-width:980px){
+  html,
+  body{
+    height:auto!important;
+    min-height:100%!important;
+    overflow:auto!important;
+  }
+
+  .designer-topbar{
+    position:sticky!important;
+    top:0!important;
+  }
+
+  .designer-layout{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    overflow:visible!important;
+  }
+
+  .designer-controls{
+    height:auto!important;
+    overflow:visible!important;
+  }
+
+  .preview-area{
+    min-height:760px!important;
+    padding:20px 12px!important;
+    display:grid!important;
+    place-items:center!important;
+    overflow:hidden!important;
+  }
+
+  .preview-device.mobile,
+  .preview-device.desktop{
+    position:relative!important;
+    inset:auto!important;
+    width:min(390px,100%)!important;
+    height:720px!important;
+    transform:none!important;
+  }
+}
+
+@media (max-width:560px){
+  .designer-topbar{
+    gap:10px!important;
+  }
+
+  .designer-top-actions{
+    width:100%;
+    overflow-x:auto;
+    flex-wrap:nowrap;
+  }
+
+  .designer-controls{
+    padding:16px 12px!important;
+  }
+
+  .preview-area{
+    min-height:650px!important;
+  }
+
+  .preview-device.mobile,
+  .preview-device.desktop{
+    height:620px!important;
+  }
+
+  .preview-hero{
+    padding:34px 18px 40px!important;
+  }
+}
+
+
+/* LN Studio v4.4.13 · logos sin recuadros artificiales */
+.preview-logo,
+.preview-secondary-logo{
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 10px 22px rgba(0,0,0,.28))!important;
+}

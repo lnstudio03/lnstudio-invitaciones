@@ -391,3 +391,23 @@ body[data-animation-intensity="high"] .event-ambient{opacity:1}
     width: 100%;
   }
 }
+
+
+/* LN Studio v4.4.13 · logos libres, sin tarjetas ni recuadros extras */
+.shop-logo,
+.official-brand-row img{
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 12px 28px rgba(0,0,0,.28))!important;
+}
+
+.official-brand-row{
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}

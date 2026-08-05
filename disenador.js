@@ -49,6 +49,11 @@ async function init() {
     renderGalleryManager();
     render();
     setupPreviewFitting();
+    finishLoading();
+    resetPreviewToTop();
+    window.setTimeout(resetPreviewToTop, 80);
+    window.setTimeout(resetPreviewToTop, 280);
+    window.setTimeout(() => { fitPreviewTitle(); fitPreviewToVisibleArea(); }, 420);
   } catch (error) { fail(errorMessage(error)); }
 }
 
@@ -63,6 +68,7 @@ function bind() {
     $("[data-preview-device]").className = `preview-device ${previewMode}`;
     $$(`[data-preview-size]`).forEach((item) => item.classList.toggle("active", item === button));
     resetPreviewToTop();
+    fitPreviewTitle();
     requestAnimationFrame(fitPreviewToVisibleArea);
   }));
   $$(`[data-preset]`).forEach((button) => button.addEventListener("click", () => applyPreset(button.dataset.preset)));
@@ -113,8 +119,8 @@ function fitPreviewToVisibleArea() {
   }
 
   const natural = previewMode === "desktop"
-    ? { width:1040, height:720 }
-    : { width:390, height:760 };
+    ? { width:1180, height:760 }
+    : { width:390, height:844 };
   const styles = getComputedStyle(area);
   const horizontalPadding = parseFloat(styles.paddingLeft || 0) + parseFloat(styles.paddingRight || 0);
   const verticalPadding = parseFloat(styles.paddingTop || 0) + parseFloat(styles.paddingBottom || 0);
@@ -325,8 +331,51 @@ function assetLabel(fieldName) {
 }
 function resetPreviewToTop() {
   const screen = $(`[data-preview-screen]`);
-  if (screen) screen.scrollTo({ top:0, behavior:"smooth" });
+  if (!screen) return;
+  screen.scrollTop = 0;
+  screen.scrollLeft = 0;
+  requestAnimationFrame(() => {
+    screen.scrollTop = 0;
+    screen.scrollLeft = 0;
+  });
 }
+function fitPreviewTitle() {
+  const title = $("[data-preview-name]");
+  const hero = $("[data-preview-section=hero]");
+  const sizeField = $("#designer-form")?.elements?.heading_size;
+  if (!title || !hero) return;
+
+  const configured = Math.max(28, Number(sizeField?.value || 64));
+  const mobileMaximum = Math.min(configured, 58);
+  const desktopMaximum = Math.min(configured, 104);
+  let size = previewMode === "desktop" ? desktopMaximum : mobileMaximum;
+
+  title.style.fontSize = `${size}px`;
+  title.style.lineHeight = previewMode === "desktop" ? ".94" : ".98";
+  title.classList.toggle("preview-title-long", title.textContent.trim().length > 58);
+  title.classList.toggle("preview-title-very-long", title.textContent.trim().length > 90);
+
+  // Ajusta por el espacio real, no solo por el número de caracteres.
+  // La portada conserva fecha, lugar y botón visibles dentro de la primera pantalla.
+  const minimum = previewMode === "desktop" ? 38 : 26;
+  let attempts = 0;
+  while (size > minimum && hero.scrollHeight > hero.clientHeight + 2 && attempts < 45) {
+    size -= 2;
+    title.style.fontSize = `${size}px`;
+    attempts += 1;
+  }
+
+  // Segundo límite para títulos muy largos aunque el navegador tarde en medir fuentes.
+  const textLength = String(title.textContent || "").trim().length;
+  const characterCap = previewMode === "desktop"
+    ? (textLength > 110 ? 52 : textLength > 82 ? 62 : textLength > 58 ? 74 : desktopMaximum)
+    : (textLength > 110 ? 28 : textLength > 82 ? 32 : textLength > 58 ? 38 : mobileMaximum);
+  if (size > characterCap) {
+    size = characterCap;
+    title.style.fontSize = `${size}px`;
+  }
+}
+
 function revokeLocalAsset(fieldName) {
   const value = state.localAssets[fieldName];
   if (value) URL.revokeObjectURL(value);
@@ -419,6 +468,7 @@ function render() {
   else hero.style.backgroundImage = `linear-gradient(145deg,${config.colors.background},${config.colors.background2})`;
   $("[data-preview-kicker]").textContent = config.content.kicker;
   $("[data-preview-name]").textContent = data.name || "Tu evento";
+  fitPreviewTitle();
   $("[data-preview-description]").textContent = data.description || "Una celebración especial está por comenzar.";
   $("[data-preview-date]").textContent = data.event_date ? formatDate(data.event_date) : "Fecha pendiente";
   $("[data-preview-venue]").textContent = data.venue_name || data.venue_address || "Lugar pendiente";
@@ -433,6 +483,10 @@ function render() {
   Object.entries(state.enabled).forEach(([key, enabled]) => { const node = $(`[data-preview-section="${key}"]`); if (node) node.hidden = !enabled; });
   $("[data-overlay-output]").textContent = `${config.colors.overlay}%`; $("[data-heading-size-output]").textContent = `${config.typography.headingSize} px`; $("[data-body-size-output]").textContent = `${config.typography.bodySize} px`;
   renderContrast(config.colors.text, config.colors.background);
+  requestAnimationFrame(() => {
+    fitPreviewTitle();
+    fitPreviewToVisibleArea();
+  });
 }
 
 function setPreviewImage(image, value, fieldName) {
@@ -440,7 +494,7 @@ function setPreviewImage(image, value, fieldName) {
   if (!url) { image.hidden = true; image.removeAttribute("src"); return; }
   image.hidden = false;
   image.classList.add("asset-loading");
-  image.onload = () => { image.classList.remove("asset-loading","asset-error"); };
+  image.onload = () => { image.classList.remove("asset-loading","asset-error"); requestAnimationFrame(fitPreviewTitle); };
   image.onerror = () => {
     image.classList.remove("asset-loading"); image.classList.add("asset-error");
     syncAssetFeedback(fieldName, value, "error", "La URL existe, pero la imagen no pudo mostrarse. Revisa Storage y vuelve a subirla.");
@@ -493,7 +547,19 @@ function contrastRatio(a,b) { const l1=luminance(a),l2=luminance(b); return (Mat
 function luminance(hex) { const rgb=[1,3,5].map((i)=>parseInt(hex.slice(i,i+2),16)/255).map((c)=>c<=.03928?c/12.92:((c+.055)/1.055)**2.4); return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2]; }
 function setBusy(busy) { $("[data-save]").disabled = busy; $("#designer-form").setAttribute("aria-busy", String(busy)); }
 function setStatus(message, success=false) { const node=$("[data-status]"); node.textContent=message; node.dataset.success=String(success); }
-function fail(message) { const node=$("[data-error]"); node.hidden=false; node.textContent=message; $(".designer-layout").hidden=true; }
+function finishLoading() {
+  const loading = $("[data-designer-loading]");
+  const layout = $("[data-designer-layout]");
+  if (loading) loading.hidden = true;
+  document.body.classList.remove("designer-is-loading");
+  if (layout) layout.setAttribute("aria-busy", "false");
+  document.fonts?.ready?.then(() => {
+    fitPreviewTitle();
+    fitPreviewToVisibleArea();
+    resetPreviewToTop();
+  }).catch(() => {});
+}
+function fail(message) { const loading=$("[data-designer-loading]"); if(loading) loading.hidden=true; document.body.classList.remove("designer-is-loading"); const node=$("[data-error]"); node.hidden=false; node.textContent=message; $(".designer-layout").hidden=true; }
 function safeColor(value,fallback) { return /^#[0-9a-f]{6}$/i.test(String(value||"")) ? value : fallback; }
 function safeAsset(value) { const text=String(value||"").trim(); if (/^(https?:|data:|blob:)/i.test(text)) return text; return text.replace(/^\/+/,""); }
 function cssUrl(value) { return String(value||"").replace(/["'()\\]/g, ""); }
