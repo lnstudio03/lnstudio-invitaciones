@@ -1,0 +1,16 @@
+LN Studio v4.4.16 — corrección de tipografías publicadas
+
+Sube y reemplaza en la raíz de GitHub únicamente:
+- evento.html
+- invitacion.css
+- rsvp.js
+
+No requiere SQL ni cambios en Supabase.
+
+Corrige:
+- La invitación pública aplica la misma fuente de títulos, textos y cuenta regresiva seleccionada en el diseñador.
+- Carga dinámicamente las fuentes seleccionadas.
+- Tolera configuraciones guardadas como JSON o texto JSON.
+- Evita que reglas antiguas de la plantilla reemplacen la tipografía.
+
+Después del despliegue abre la invitación en incógnito o recarga con Ctrl+Shift+R.

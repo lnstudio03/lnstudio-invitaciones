@@ -635,3 +635,41 @@ body.private-event .official-event>*{max-width:100%}
 .official-countdown.countdown-no-seconds .countdown-display{grid-template-columns:repeat(3,minmax(0,1fr))}
 .official-countdown.countdown-no-seconds.countdown-style-inline .countdown-display{display:flex}
 @media(max-width:650px){.official-countdown.countdown-no-seconds.countdown-style-inline .countdown-display{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+
+/* ===== LN Studio v4.4.16 · tipografías publicadas fieles al diseñador ===== */
+.official-event,
+.official-event button,
+.official-event input,
+.official-event textarea,
+.official-event select,
+.official-event a,
+.official-subtitle,
+.event-facts,
+.rsvp-copy,
+.rsvp-form {
+  font-family: var(--invite-body-font), "Manrope", sans-serif !important;
+}
+
+.official-hero h1,
+.official-message h2,
+.official-details h2,
+.official-gallery h2,
+.rsvp-section > h2,
+.invite-success h2,
+.invite-close p {
+  font-family: var(--invite-heading-font), "Fraunces", serif !important;
+}
+
+.countdown-display,
+.countdown-display strong {
+  font-family: var(--invite-countdown-font), "Manrope", sans-serif !important;
+}
+
+/* Evita que reglas antiguas de las plantillas sustituyan la fuente elegida. */
+.official-hero h1,
+.official-message h2,
+.rsvp-section > h2,
+.invite-success h2 {
+  font-style: normal;
+}

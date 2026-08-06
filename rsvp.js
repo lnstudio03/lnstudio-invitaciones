@@ -62,6 +62,8 @@ function renderEvent() {
   document.body.dataset.eventStatus = eventData.status || "draft";
   document.title = `${eventData.name} | Invitación`;
   applyVariables(config);
+  applyTypographyDirectly(config);
+  ensureSelectedFonts(config).then(() => applyTypographyDirectly(config)).catch(() => {});
   applyLayout(config);
   $("[data-name]").textContent = eventData.name;
   $("[data-description]").textContent = eventData.description || "";
@@ -90,7 +92,11 @@ function renderEvent() {
 }
 
 function mergeConfig(value) {
-  const source = value && typeof value === "object" ? value : {};
+  let source = value;
+  if (typeof source === "string") {
+    try { source = JSON.parse(source); } catch { source = {}; }
+  }
+  source = source && typeof source === "object" ? source : {};
   return {
     ...DEFAULT_CONFIG,
     ...source,
@@ -561,7 +567,86 @@ function startCountdown(config){
 function fail(message){$("[data-name]").textContent=message;$("[data-description]").textContent="Verifica que el enlace esté completo o consulta a los anfitriones.";$("[data-form-section]").hidden=true}
 function safeAsset(value){const text=String(value||"").trim();if(/^(https?:|data:|blob:)/i.test(text))return text;return text.replace(/^\/+/,"")}
 function safeColor(value,fallback){return /^#[0-9a-f]{6}$/i.test(String(value||""))?value:fallback}
-function safeFont(value,fallback){const allowed=["Fraunces","Playfair Display","DM Serif Display","Cormorant Garamond","Cinzel","Abril Fatface","Merriweather","Fredoka","Baloo 2","Lilita One","Luckiest Guy","Bangers","Lobster","Pacifico","Montserrat","Poppins","Raleway","Rubik","Oswald","Anton","Bebas Neue","Dancing Script","Great Vibes","Satisfy","Permanent Marker","Manrope","Nunito","Quicksand"];return allowed.includes(value)?value:fallback}
+const FONT_SPECS = {
+  "Fraunces":"Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800",
+  "Playfair Display":"Playfair+Display:wght@500;600;700;800",
+  "DM Serif Display":"DM+Serif+Display",
+  "Cormorant Garamond":"Cormorant+Garamond:wght@500;600;700",
+  "Cinzel":"Cinzel:wght@500;600;700;800",
+  "Abril Fatface":"Abril+Fatface",
+  "Merriweather":"Merriweather:wght@400;700",
+  "Fredoka":"Fredoka:wght@400;500;600;700",
+  "Baloo 2":"Baloo+2:wght@500;600;700;800",
+  "Lilita One":"Lilita+One",
+  "Luckiest Guy":"Luckiest+Guy",
+  "Bangers":"Bangers",
+  "Lobster":"Lobster",
+  "Pacifico":"Pacifico",
+  "Montserrat":"Montserrat:wght@400;500;600;700;800",
+  "Poppins":"Poppins:wght@400;500;600;700;800",
+  "Raleway":"Raleway:wght@400;500;600;700;800",
+  "Rubik":"Rubik:wght@400;500;600;700;800",
+  "Oswald":"Oswald:wght@400;500;600;700",
+  "Anton":"Anton",
+  "Bebas Neue":"Bebas+Neue",
+  "Dancing Script":"Dancing+Script:wght@500;600;700",
+  "Great Vibes":"Great+Vibes",
+  "Satisfy":"Satisfy",
+  "Permanent Marker":"Permanent+Marker",
+  "Manrope":"Manrope:wght@400;500;600;700;800",
+  "Nunito":"Nunito:wght@400;600;700;800",
+  "Quicksand":"Quicksand:wght@400;500;600;700"
+};
+
+function safeFont(value,fallback){
+  const normalized=String(value||"").trim().replace(/^['"]|['"]$/g,"");
+  const match=Object.keys(FONT_SPECS).find((font)=>font.toLowerCase()===normalized.toLowerCase());
+  return match||fallback;
+}
+
+function applyTypographyDirectly(config){
+  const heading=safeFont(config?.typography?.heading,"Fraunces");
+  const body=safeFont(config?.typography?.body,"Manrope");
+  const countdown=safeFont(config?.countdown?.font,"Manrope");
+  document.documentElement.dataset.headingFont=heading;
+  document.documentElement.dataset.bodyFont=body;
+  document.documentElement.dataset.countdownFont=countdown;
+
+  document.querySelectorAll(".official-hero h1,.official-message h2,.official-details h2,.official-gallery h2,.rsvp-section>h2,.invite-success h2,.invite-close p").forEach((node)=>{
+    node.style.setProperty("font-family",`'${heading}', serif`,"important");
+  });
+  document.querySelectorAll(".official-event,.official-event button,.official-event input,.official-event textarea,.official-event select,.official-event a,.official-subtitle,.event-facts,.rsvp-copy,.rsvp-form").forEach((node)=>{
+    node.style.setProperty("font-family",`'${body}', sans-serif`,"important");
+  });
+  document.querySelectorAll(".countdown-display,.countdown-display strong").forEach((node)=>{
+    node.style.setProperty("font-family",`'${countdown}', sans-serif`,"important");
+  });
+}
+
+async function ensureSelectedFonts(config){
+  const fonts=[
+    safeFont(config?.typography?.heading,"Fraunces"),
+    safeFont(config?.typography?.body,"Manrope"),
+    safeFont(config?.countdown?.font,"Manrope")
+  ].filter((font,index,array)=>array.indexOf(font)===index);
+  const specs=fonts.map((font)=>FONT_SPECS[font]).filter(Boolean);
+  if(specs.length){
+    const id="ln-selected-fonts";
+    let link=document.getElementById(id);
+    const href=`https://fonts.googleapis.com/css2?${specs.map((spec)=>`family=${spec}`).join("&")}&display=swap`;
+    if(!link){
+      link=document.createElement("link"); link.id=id; link.rel="stylesheet"; document.head.appendChild(link);
+    }
+    if(link.href!==href) link.href=href;
+  }
+  if(!document.fonts) return;
+  await Promise.all(fonts.map((font)=>Promise.allSettled([
+    document.fonts.load(`500 32px "${font}"`),
+    document.fonts.load(`700 32px "${font}"`),
+    document.fonts.load(`800 32px "${font}"`)
+  ])));
+  await document.fonts.ready;
+}
 function safeCountdownStyle(value){return ["cards","minimal","circles","inline","neon","flip"].includes(value)?value:"cards"}
 function safeAnimation(value){return ["fade-up","fade","zoom","slide-left","float","none"].includes(value)?value:"fade-up"}
 function safeAmbient(value){return ["none","sparkles","bubbles","confetti","neon","stars"].includes(value)?value:"none"}
