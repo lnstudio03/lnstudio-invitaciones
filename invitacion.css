@@ -486,3 +486,152 @@ body[data-animation-intensity="high"] .event-ambient{opacity:1}
     max-height:92px!important;
   }
 }
+
+/* =========================================================
+   LN Studio v4.4.15 · horizontal estable y cuentas regresivas
+   ========================================================= */
+html,
+body.private-event{
+  width:100%;
+  min-width:0;
+  max-width:none;
+  margin:0;
+  overflow-x:clip!important;
+}
+body.private-event .official-event{
+  width:100dvw!important;
+  min-width:0!important;
+  max-width:100dvw!important;
+  margin:0!important;
+  overflow-x:clip!important;
+}
+body.private-event .official-event>*{max-width:100%}
+
+.official-countdown{
+  width:min(1180px,calc(100% - 32px));
+  margin:28px auto;
+  border-radius:32px;
+  overflow:hidden;
+}
+.countdown-display{
+  width:min(100%,980px);
+  margin:38px auto 0;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  font-family:var(--invite-countdown-font,var(--invite-body-font));
+}
+.countdown-display>div{
+  min-width:0;
+  padding:28px 12px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:18px;
+  background:rgba(255,255,255,.05);
+}
+.countdown-display strong{
+  display:block;
+  color:var(--invite-text);
+  font-size:clamp(2.6rem,7vw,6.2rem);
+  line-height:.9;
+  letter-spacing:-.05em;
+  font-variant-numeric:tabular-nums;
+}
+.countdown-display span{
+  display:block;
+  margin-top:12px;
+  color:var(--invite-muted);
+  font-size:.68rem;
+  font-weight:800;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.countdown-message{margin-top:28px!important}
+.countdown-style-minimal .countdown-display{gap:0;border-block:1px solid rgba(255,255,255,.14)}
+.countdown-style-minimal .countdown-display>div{border:0;border-radius:0;background:transparent;border-right:1px solid rgba(255,255,255,.14)}
+.countdown-style-minimal .countdown-display>div:last-child{border-right:0}
+.countdown-style-circles .countdown-display{max-width:1000px}
+.countdown-style-circles .countdown-display>div{aspect-ratio:1;display:grid;place-content:center;border-radius:50%;padding:16px;background:color-mix(in srgb,var(--invite-accent) 12%,transparent);border-color:color-mix(in srgb,var(--invite-accent) 50%,transparent)}
+.countdown-style-inline .countdown-display{display:flex;justify-content:center;gap:8px}
+.countdown-style-inline .countdown-display>div{position:relative;flex:0 1 180px;padding:20px 10px;border:0;background:transparent}
+.countdown-style-inline .countdown-display>div:not(:last-child)::after{content:":";position:absolute;right:-9px;top:18px;color:var(--invite-accent);font-size:clamp(2rem,5vw,4.8rem);font-weight:700}
+.countdown-style-neon .countdown-display>div{background:rgba(3,6,12,.76);border-color:var(--invite-accent);box-shadow:0 0 30px color-mix(in srgb,var(--invite-accent) 34%,transparent),inset 0 0 18px color-mix(in srgb,var(--invite-accent-two) 15%,transparent)}
+.countdown-style-neon .countdown-display strong{text-shadow:0 0 20px var(--invite-accent)}
+.countdown-style-flip .countdown-display>div{position:relative;background:linear-gradient(180deg,#292f3c 0 49%,#111620 50% 100%);border-color:rgba(255,255,255,.17);box-shadow:0 18px 38px rgba(0,0,0,.3)}
+.countdown-style-flip .countdown-display>div::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.14)}
+
+@media(max-width:650px){
+  .official-countdown{width:calc(100% - 20px);margin:10px auto;border-radius:22px}
+  .countdown-display{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:26px}
+  .countdown-display>div{padding:22px 10px}
+  .countdown-display strong{font-size:clamp(2.4rem,15vw,4.6rem)}
+  .countdown-style-inline .countdown-display{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .countdown-style-inline .countdown-display>div:not(:last-child)::after{display:none}
+  .countdown-style-circles .countdown-display>div{padding:10px}
+}
+
+/* Teléfonos y tabletas en horizontal: utiliza el ancho y el alto visibles,
+   sin dejar una página sobrante ni permitir que el título invada el resto. */
+@media(orientation:landscape) and (max-height:760px){
+  body.private-event .official-event{width:100dvw!important;max-width:100dvw!important}
+  .official-hero{
+    width:100dvw!important;
+    min-height:100dvh!important;
+    padding:18px max(3vw,18px) 22px!important;
+    border-radius:0 0 24px 24px!important;
+    justify-content:center!important;
+  }
+  .is-preview .official-hero{padding-top:88px!important}
+  .official-hero::before{inset:8px!important;border-radius:18px!important}
+  .event-logo-cluster{
+    width:min(620px,72vw)!important;
+    min-height:0!important;
+    margin:0 auto 6px!important;
+    gap:14px!important;
+  }
+  .event-logo-cluster img{
+    max-width:34%!important;
+    max-height:min(82px,15vh)!important;
+  }
+  .event-logo-cluster.logo-count-1 img{
+    max-width:46%!important;
+    max-height:min(100px,18vh)!important;
+  }
+  .event-logo-cluster.logo-layout-stacked{flex-direction:row!important}
+  .official-hero .invite-kicker{margin:3px 0!important;font-size:.58rem!important}
+  .official-hero h1{
+    width:min(1120px,94vw)!important;
+    max-width:94vw!important;
+    margin:5px auto!important;
+    font-size:clamp(2rem,min(5.2vw,9.4vh),4.5rem)!important;
+    line-height:.9!important;
+    letter-spacing:-.045em!important;
+    overflow-wrap:anywhere!important;
+  }
+  .official-subtitle{
+    max-width:min(760px,82vw)!important;
+    margin:5px auto 8px!important;
+    font-size:clamp(.72rem,1.35vw,.98rem)!important;
+    line-height:1.35!important;
+  }
+  .official-hero-image{
+    width:min(360px,30vw)!important;
+    max-height:18vh!important;
+    margin:5px auto 8px!important;
+    border-radius:12px!important;
+  }
+  .event-facts{
+    width:min(760px,80vw)!important;
+    margin:7px auto!important;
+    gap:8px!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .event-facts>div{padding:8px 12px!important;border-radius:10px!important}
+  .event-facts span{font-size:.52rem!important}
+  .event-facts strong{margin-top:2px!important;font-size:.72rem!important;line-height:1.25!important}
+  .official-hero .success-actions{margin-top:6px!important;gap:8px!important}
+  .official-hero .primary-button,.official-hero .ghost-button{min-height:38px!important;padding:0 14px!important;font-size:.72rem!important}
+  .music-control{right:10px!important;bottom:10px!important;min-height:40px!important}
+}
+.official-countdown.countdown-no-seconds .countdown-display{grid-template-columns:repeat(3,minmax(0,1fr))}
+.official-countdown.countdown-no-seconds.countdown-style-inline .countdown-display{display:flex}
+@media(max-width:650px){.official-countdown.countdown-no-seconds.countdown-style-inline .countdown-display{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}}

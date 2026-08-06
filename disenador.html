@@ -8,9 +8,9 @@
   <link rel="icon" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Bebas+Neue&family=Cinzel:wght@500;600;700&family=Fredoka:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="disenador.css?v=4.4.14">
-  <script type="module" src="disenador.js?v=4.4.14"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Baloo+2:wght@500;600;700;800&family=Bangers&family=Bebas+Neue&family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Dancing+Script:wght@500;600;700&family=DM+Serif+Display&family=Fredoka:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Great+Vibes&family=Lilita+One&family=Lobster&family=Luckiest+Guy&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Oswald:wght@400;500;600;700&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&family=Raleway:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&family=Satisfy&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="disenador.css?v=4.4.15">
+  <script type="module" src="disenador.js?v=4.4.15"></script>
 </head>
 <body class="designer-is-loading">
   <div class="designer-loading-screen" data-designer-loading role="status" aria-live="polite">
@@ -25,6 +25,7 @@
     <div class="designer-top-actions">
       <span class="save-state" data-status>Sin cambios</span>
       <button type="button" class="soft-button active" data-preview-size="mobile">Celular</button>
+      <button type="button" class="soft-button" data-preview-size="landscape">Horizontal</button>
       <button type="button" class="soft-button" data-preview-size="desktop">Escritorio</button>
       <a class="soft-button" data-open-invitation target="_blank" rel="noopener">Abrir invitación</a>
       <button type="button" class="primary-button" data-save>Guardar diseño</button>
@@ -73,15 +74,18 @@
         <details open>
           <summary>3. Tipografías y tamaños</summary>
           <label>Fuente de títulos<select name="heading_font">
-            <option>Fraunces</option><option>Playfair Display</option><option>Cinzel</option><option>Bebas Neue</option><option>Fredoka</option><option>Baloo 2</option><option>Montserrat</option><option>Poppins</option><option>Merriweather</option>
+            <optgroup label="Editorial y elegante"><option>Fraunces</option><option>Playfair Display</option><option>DM Serif Display</option><option>Cormorant Garamond</option><option>Cinzel</option><option>Abril Fatface</option><option>Merriweather</option></optgroup>
+            <optgroup label="Fiesta e infantil"><option>Fredoka</option><option>Baloo 2</option><option>Lilita One</option><option>Luckiest Guy</option><option>Bangers</option><option>Lobster</option><option>Pacifico</option></optgroup>
+            <optgroup label="Moderna y empresarial"><option>Montserrat</option><option>Poppins</option><option>Raleway</option><option>Rubik</option><option>Oswald</option><option>Anton</option><option>Bebas Neue</option></optgroup>
+            <optgroup label="Manuscrita"><option>Dancing Script</option><option>Great Vibes</option><option>Satisfy</option><option>Permanent Marker</option></optgroup>
           </select></label>
           <label>Fuente de texto<select name="body_font">
-            <option>Manrope</option><option>Nunito</option><option>Poppins</option><option>Montserrat</option><option>Fredoka</option><option>Merriweather</option>
+            <option>Manrope</option><option>Nunito</option><option>Poppins</option><option>Montserrat</option><option>Quicksand</option><option>Raleway</option><option>Rubik</option><option>Fredoka</option><option>Merriweather</option><option>Cormorant Garamond</option>
           </select></label>
           <label>Tamaño del título <output data-heading-size-output>64 px</output><input name="heading_size" type="range" min="36" max="120" step="2"></label>
           <label>Tamaño del texto <output data-body-size-output>18 px</output><input name="body_size" type="range" min="14" max="28" step="1"></label>
           <label>Grosor del título<select name="heading_weight"><option value="500">Medio</option><option value="600">Semibold</option><option value="700">Bold</option><option value="800">Extra bold</option></select></label>
-          <label>Alineación<select name="text_align"><option value="scale-down">Centrada sin recorte</option><option value="left">Izquierda</option><option value="right">Derecha</option></select></label>
+          <label>Alineación<select name="text_align"><option value="center">Centrada</option><option value="left">Izquierda</option><option value="right">Derecha</option></select></label>
           <label>Transformación del título<select name="heading_transform"><option value="none">Normal</option><option value="uppercase">Mayúsculas</option><option value="capitalize">Capitalizado</option></select></label>
         </details>
 
@@ -93,7 +97,7 @@
           <div class="upload-field"><div><strong>Imagen de fondo</strong><small>Se combina con el nivel de oscurecimiento</small></div><label class="upload-button">Subir fondo<input type="file" data-upload="background" accept="image/png,image/jpeg,image/webp,image/gif"></label><input name="background_image_url" type="url" placeholder="URL generada" readonly><div class="asset-feedback" data-asset-feedback="background_image_url"><div class="asset-thumb" data-asset-thumb="background_image_url" hidden></div><p data-asset-message="background_image_url">Sin archivo seleccionado.</p></div><button type="button" class="remove-asset" data-remove-asset="background_image_url">Quitar</button></div>
           <div class="upload-field"><div><strong>Música</strong><small>MP3, WAV u OGG · máximo 15 MB. El invitado debe iniciar la reproducción.</small></div><label class="upload-button">Subir música<input type="file" data-upload="music" accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg"></label><input name="music_url" type="url" placeholder="URL generada" readonly><div class="asset-feedback" data-asset-feedback="music_url"><div class="asset-thumb audio-thumb" data-asset-thumb="music_url" hidden>♪</div><p data-asset-message="music_url">Sin archivo seleccionado.</p></div><button type="button" class="remove-asset" data-remove-asset="music_url">Quitar</button></div>
           <label class="toggle-line"><input name="show_music_button" type="checkbox"> Mostrar botón de música</label>
-          <label>Ajuste de imagen principal<select name="hero_fit"><option value="cover">Cubrir</option><option value="contain">Completa</option><option value="scale-down">Centrada sin recorte</option></select></label>
+          <label>Ajuste de imagen principal<select name="hero_fit"><option value="cover">Cubrir</option><option value="contain">Completa</option><option value="center">Centrada</option></select></label>
         </details>
 
         <details open>
@@ -103,7 +107,24 @@
         </details>
 
         <details open>
-          <summary>6. Animaciones</summary>
+          <summary>6. Cuenta regresiva</summary>
+          <label>Estilo<select name="countdown_style">
+            <option value="cards">Tarjetas</option>
+            <option value="minimal">Minimalista</option>
+            <option value="circles">Círculos</option>
+            <option value="inline">En una línea</option>
+            <option value="neon">Neón</option>
+            <option value="flip">Marcador digital</option>
+          </select></label>
+          <label>Fuente de números<select name="countdown_font">
+            <option>Manrope</option><option>Montserrat</option><option>Rubik</option><option>Oswald</option><option>Anton</option><option>Bebas Neue</option><option>Fredoka</option><option>Luckiest Guy</option><option>DM Serif Display</option><option>Fraunces</option>
+          </select></label>
+          <label class="toggle-line"><input name="countdown_seconds" type="checkbox" checked> Mostrar segundos</label>
+          <p class="form-help">El diseño se adapta automáticamente a celular, horizontal y escritorio.</p>
+        </details>
+
+        <details open>
+          <summary>7. Animaciones</summary>
           <label>Animación de entrada<select name="animation_preset"><option value="fade-up">Aparecer y subir</option><option value="fade">Aparecer</option><option value="zoom">Zoom suave</option><option value="slide-left">Deslizar desde la izquierda</option><option value="float">Flotar</option><option value="none">Sin animación</option></select></label>
           <label>Ambiente animado<select name="ambient_animation"><option value="none">Ninguno</option><option value="sparkles">Destellos</option><option value="bubbles">Burbujas</option><option value="confetti">Confeti sutil</option><option value="neon">Resplandor neón</option><option value="stars">Estrellas</option></select></label>
           <label>Intensidad<select name="animation_intensity"><option value="low">Baja</option><option value="medium">Media</option><option value="high">Alta</option></select></label>
@@ -111,7 +132,7 @@
         </details>
 
         <details open>
-          <summary>7. Secciones y orden</summary>
+          <summary>8. Secciones y orden</summary>
           <p class="form-help">Activa, oculta y ordena los bloques. Usa las flechas para cambiar su posición.</p>
           <div class="section-manager" data-section-manager></div>
         </details>
@@ -135,7 +156,16 @@
             <div class="preview-facts"><span data-preview-date>Fecha pendiente</span><span data-preview-venue>Lugar pendiente</span></div>
             <button type="button">Ver ubicación</button>
           </section>
-          <section class="preview-block preview-countdown" data-preview-section="countdown"><p>Cuenta regresiva</p><h3>Falta muy poco</h3></section>
+          <section class="preview-block preview-countdown countdown-style-cards" data-preview-section="countdown">
+            <p>Cuenta regresiva</p>
+            <div class="preview-countdown-display" data-preview-countdown-display>
+              <div><strong data-preview-countdown-days>12</strong><span>Días</span></div>
+              <div><strong data-preview-countdown-hours>08</strong><span>Horas</span></div>
+              <div><strong data-preview-countdown-minutes>24</strong><span>Minutos</span></div>
+              <div data-preview-countdown-seconds-wrap><strong data-preview-countdown-seconds>36</strong><span>Segundos</span></div>
+            </div>
+            <h3 class="preview-countdown-message" data-preview-countdown-message>Falta muy poco</h3>
+          </section>
           <section class="preview-block preview-details" data-preview-section="details"><p>Detalles</p><h3 data-preview-detail-title>Nos encantará celebrar contigo.</h3><span data-preview-dress-code></span></section>
           <section class="preview-block preview-gallery" data-preview-section="gallery"><p>Galería</p><div data-preview-gallery></div></section>
           <section class="preview-block preview-rsvp" data-preview-section="rsvp"><p>Confirmación</p><h3 data-preview-rsvp-title>¿Nos acompañas?</h3><span data-preview-rsvp-copy>RSVP + pase QR</span></section>

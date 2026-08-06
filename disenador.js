@@ -10,6 +10,7 @@ const DEFAULTS = {
   preset:"celebration",
   colors:{ background:"#0d1420", background2:"#1b2537", text:"#ffffff", muted:"#b7c1d5", primary:"#8f7dff", secondary:"#ff7f91", overlay:45, mode:"gradient" },
   typography:{ heading:"Fraunces", body:"Manrope", headingSize:64, bodySize:18, headingWeight:700, align:"center", transform:"none" },
+  countdown:{ style:"cards", font:"Manrope", showSeconds:true },
   media:{ backgroundImage:"", gallery:[], heroFit:"cover", showMusicButton:true },
   animation:{ preset:"fade-up", ambient:"none", intensity:"medium", respectReducedMotion:true },
   content:{ kicker:"Invitación digital", rsvpTitle:"¿Nos acompañas?", rsvpCopy:"Confirma tu asistencia y recibe tu pase digital." },
@@ -26,6 +27,7 @@ const PRESETS = {
 let state = { user:null, profile:null, event:null, gallery:[], sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0, localAssets:{} };
 let previewMode = "mobile";
 let previewResizeObserver = null;
+let previewCountdownTimer = null;
 
 window.addEventListener("DOMContentLoaded", init);
 
@@ -64,7 +66,7 @@ function bind() {
     render(); setStatus("Cambios sin guardar");
   });
   $$(`[data-preview-size]`).forEach((button) => button.addEventListener("click", () => {
-    previewMode = button.dataset.previewSize === "desktop" ? "desktop" : "mobile";
+    previewMode = ["desktop","landscape"].includes(button.dataset.previewSize) ? button.dataset.previewSize : "mobile";
     $("[data-preview-device]").className = `preview-device ${previewMode}`;
     $$(`[data-preview-size]`).forEach((item) => item.classList.toggle("active", item === button));
     resetPreviewToTop();
@@ -120,7 +122,9 @@ function fitPreviewToVisibleArea() {
 
   const natural = previewMode === "desktop"
     ? { width:1180, height:760 }
-    : { width:390, height:844 };
+    : previewMode === "landscape"
+      ? { width:844, height:390 }
+      : { width:390, height:844 };
   const styles = getComputedStyle(area);
   const horizontalPadding = parseFloat(styles.paddingLeft || 0) + parseFloat(styles.paddingRight || 0);
   const verticalPadding = parseFloat(styles.paddingTop || 0) + parseFloat(styles.paddingBottom || 0);
@@ -161,8 +165,11 @@ function fill() {
   form.elements.heading_size.value = Number(config.typography.headingSize || 64);
   form.elements.body_size.value = Number(config.typography.bodySize || 18);
   form.elements.heading_weight.value = String(config.typography.headingWeight || 700);
-  form.elements.text_align.value = config.typography.align || "center";
+  form.elements.text_align.value = ["left","center","right"].includes(config.typography.align) ? config.typography.align : "center";
   form.elements.heading_transform.value = config.typography.transform || "none";
+  form.elements.countdown_style.value = config.countdown.style || "cards";
+  form.elements.countdown_font.value = config.countdown.font || "Manrope";
+  form.elements.countdown_seconds.checked = config.countdown.showSeconds !== false;
   form.elements.background_image_url.value = config.media.backgroundImage || "";
   form.elements.hero_fit.value = config.media.heroFit || "cover";
   form.elements.show_music_button.checked = config.media.showMusicButton !== false;
@@ -186,6 +193,7 @@ function mergeConfig(value) {
     ...source,
     colors:{ ...DEFAULTS.colors, ...(source.colors || {}) },
     typography:{ ...DEFAULTS.typography, ...(source.typography || {}) },
+    countdown:{ ...DEFAULTS.countdown, ...(source.countdown || {}) },
     media:{ ...DEFAULTS.media, ...(source.media || {}) },
     animation:{ ...DEFAULTS.animation, ...(source.animation || {}) },
     content:{ ...DEFAULTS.content, ...(source.content || {}) },
@@ -347,17 +355,18 @@ function fitPreviewTitle() {
 
   const configured = Math.max(28, Number(sizeField?.value || 64));
   const mobileMaximum = Math.min(configured, 58);
+  const landscapeMaximum = Math.min(configured, 48);
   const desktopMaximum = Math.min(configured, 104);
-  let size = previewMode === "desktop" ? desktopMaximum : mobileMaximum;
+  let size = previewMode === "desktop" ? desktopMaximum : previewMode === "landscape" ? landscapeMaximum : mobileMaximum;
 
   title.style.fontSize = `${size}px`;
-  title.style.lineHeight = previewMode === "desktop" ? ".94" : ".98";
+  title.style.lineHeight = previewMode === "desktop" ? ".94" : previewMode === "landscape" ? ".92" : ".98";
   title.classList.toggle("preview-title-long", title.textContent.trim().length > 58);
   title.classList.toggle("preview-title-very-long", title.textContent.trim().length > 90);
 
   // Ajusta por el espacio real, no solo por el número de caracteres.
   // La portada conserva fecha, lugar y botón visibles dentro de la primera pantalla.
-  const minimum = previewMode === "desktop" ? 38 : 26;
+  const minimum = previewMode === "desktop" ? 38 : previewMode === "landscape" ? 22 : 26;
   let attempts = 0;
   while (size > minimum && hero.scrollHeight > hero.clientHeight + 2 && attempts < 45) {
     size -= 2;
@@ -369,7 +378,9 @@ function fitPreviewTitle() {
   const textLength = String(title.textContent || "").trim().length;
   const characterCap = previewMode === "desktop"
     ? (textLength > 110 ? 52 : textLength > 82 ? 62 : textLength > 58 ? 74 : desktopMaximum)
-    : (textLength > 110 ? 28 : textLength > 82 ? 32 : textLength > 58 ? 38 : mobileMaximum);
+    : previewMode === "landscape"
+      ? (textLength > 110 ? 22 : textLength > 82 ? 26 : textLength > 58 ? 31 : landscapeMaximum)
+      : (textLength > 110 ? 28 : textLength > 82 ? 32 : textLength > 58 ? 38 : mobileMaximum);
   if (size > characterCap) {
     size = characterCap;
     title.style.fontSize = `${size}px`;
@@ -443,6 +454,7 @@ function buildConfig(data) {
       overlay:Number(data.overlay_opacity || 45), mode:data.background_mode || "gradient"
     },
     typography:{ heading:data.heading_font || "Fraunces", body:data.body_font || "Manrope", headingSize:Number(data.heading_size || 64), bodySize:Number(data.body_size || 18), headingWeight:Number(data.heading_weight || 700), align:data.text_align || "center", transform:data.heading_transform || "none" },
+    countdown:{ style:data.countdown_style || "cards", font:data.countdown_font || "Manrope", showSeconds:$("#designer-form").elements.countdown_seconds.checked },
     media:{ backgroundImage:data.background_image_url || "", gallery:[...state.gallery], heroFit:data.hero_fit || "cover", showMusicButton:$("#designer-form").elements.show_music_button.checked },
     animation:{ preset:data.animation_preset || "fade-up", ambient:data.ambient_animation || "none", intensity:data.animation_intensity || "medium", respectReducedMotion:$("#designer-form").elements.respect_reduced_motion.checked },
     content:{ kicker:data.kicker || "Invitación digital", rsvpTitle:data.rsvp_title || "¿Nos acompañas?", rsvpCopy:data.rsvp_copy || "Confirma tu asistencia y recibe tu pase digital." },
@@ -459,6 +471,7 @@ function render() {
   screen.style.setProperty("--body-font", `'${config.typography.body}'`); screen.style.setProperty("--heading-size", `${config.typography.headingSize}px`);
   screen.style.setProperty("--body-size", `${config.typography.bodySize}px`); screen.style.setProperty("--heading-weight", config.typography.headingWeight);
   screen.style.setProperty("--text-align", config.typography.align); screen.style.setProperty("--preview-align", config.typography.align === "left" ? "flex-start" : config.typography.align === "right" ? "flex-end" : "center"); screen.style.setProperty("--heading-transform", config.typography.transform); screen.style.setProperty("--hero-fit", config.media.heroFit);
+  screen.style.setProperty("--countdown-font", `'${config.countdown.font}'`);
   screen.className = `preview-screen animation-${config.animation.preset}`;
   screen.dataset.intensity = config.animation.intensity;
   const ambient = $("[data-preview-ambient]"); ambient.className = `preview-ambient ${config.animation.ambient}`;
@@ -479,6 +492,7 @@ function render() {
   setPreviewImage($("[data-preview-secondary-logo]"), data.secondary_logo_url, "secondary_logo_url");
   updatePreviewLogoCluster();
   setPreviewImage($("[data-preview-hero-image]"), data.hero_image_url, "hero_image_url");
+  renderPreviewCountdown(config, data.event_date);
   const gallery = $("[data-preview-gallery]"); gallery.innerHTML = state.gallery.length ? state.gallery.slice(0,6).map((url) => `<img src="${escapeAttr(url)}" alt="">`).join("") : '<div class="gallery-placeholder">Las fotografías aparecerán aquí.</div>';
   state.sections.forEach((key) => { const node = $(`[data-preview-section="${key}"]`); if (node) screen.appendChild(node); });
   Object.entries(state.enabled).forEach(([key, enabled]) => { const node = $(`[data-preview-section="${key}"]`); if (node) node.hidden = !enabled; });
@@ -488,6 +502,39 @@ function render() {
     fitPreviewTitle();
     fitPreviewToVisibleArea();
   });
+}
+
+function renderPreviewCountdown(config, value) {
+  const section = $("[data-preview-section=countdown]");
+  const display = $("[data-preview-countdown-display]");
+  const secondsWrap = $("[data-preview-countdown-seconds-wrap]");
+  const message = $("[data-preview-countdown-message]");
+  if (!section || !display) return;
+  section.className = `preview-block preview-countdown countdown-style-${config.countdown.style || "cards"}`;
+  section.classList.toggle("countdown-no-seconds", config.countdown.showSeconds === false);
+  display.style.fontFamily = `'${config.countdown.font || "Manrope"}'`;
+  secondsWrap.hidden = config.countdown.showSeconds === false;
+  window.clearInterval(previewCountdownTimer);
+  const update = () => {
+    const target = value ? new Date(value).getTime() : NaN;
+    let days = 12, hours = 8, minutes = 24, seconds = 36;
+    if (Number.isFinite(target)) {
+      const diff = Math.max(0, target - Date.now());
+      days = Math.floor(diff / 86400000);
+      hours = Math.floor(diff % 86400000 / 3600000);
+      minutes = Math.floor(diff % 3600000 / 60000);
+      seconds = Math.floor(diff % 60000 / 1000);
+      message.textContent = diff <= 0 ? "El gran momento ha llegado" : "Falta muy poco";
+    } else {
+      message.textContent = "Falta muy poco";
+    }
+    $("[data-preview-countdown-days]").textContent = String(days).padStart(2,"0");
+    $("[data-preview-countdown-hours]").textContent = String(hours).padStart(2,"0");
+    $("[data-preview-countdown-minutes]").textContent = String(minutes).padStart(2,"0");
+    $("[data-preview-countdown-seconds]").textContent = String(seconds).padStart(2,"0");
+  };
+  update();
+  if (config.countdown.showSeconds !== false) previewCountdownTimer = window.setInterval(update,1000);
 }
 
 function setPreviewImage(image, value, fieldName) {

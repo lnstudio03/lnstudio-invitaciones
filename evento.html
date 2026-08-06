@@ -5,9 +5,9 @@
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Invitación privada | LN Studio</title>
   <link rel="icon" href="favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Bebas+Neue&family=Cinzel:wght@500;600;700&family=Fredoka:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="invitacion.css?v=4.4.14">
-  <script src="qr-local.js?v=4.4.6"></script><script type="module" src="rsvp.js?v=4.4.14"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Baloo+2:wght@500;600;700;800&family=Bangers&family=Bebas+Neue&family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Dancing+Script:wght@500;600;700&family=DM+Serif+Display&family=Fredoka:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Great+Vibes&family=Lilita+One&family=Lobster&family=Luckiest+Guy&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Oswald:wght@400;500;600;700&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&family=Raleway:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&family=Satisfy&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="invitacion.css?v=4.4.15">
+  <script src="qr-local.js?v=4.4.6"></script><script type="module" src="rsvp.js?v=4.4.15"></script>
 </head>
 <body class="private-event">
 <div class="event-preview-banner" data-preview-banner hidden>
@@ -32,8 +32,15 @@
     <div class="success-actions"><a class="primary-button" data-map target="_blank" rel="noopener">Ver ubicación</a><button type="button" class="ghost-button" data-calendar>Agregar al calendario</button></div>
   </section>
 
-  <section class="official-message invite-animated" data-section="countdown">
-    <p class="invite-kicker">Cuenta regresiva</p><h2 data-countdown>Estamos por comenzar.</h2>
+  <section class="official-message official-countdown countdown-style-cards invite-animated" data-section="countdown">
+    <p class="invite-kicker">Cuenta regresiva</p>
+    <div class="countdown-display" data-countdown-display>
+      <div><strong data-countdown-days>00</strong><span>Días</span></div>
+      <div><strong data-countdown-hours>00</strong><span>Horas</span></div>
+      <div><strong data-countdown-minutes>00</strong><span>Minutos</span></div>
+      <div data-countdown-seconds-wrap><strong data-countdown-seconds>00</strong><span>Segundos</span></div>
+    </div>
+    <h2 class="countdown-message" data-countdown-message>Estamos por comenzar.</h2>
   </section>
 
   <section class="official-details invite-animated" data-section="details">

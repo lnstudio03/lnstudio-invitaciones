@@ -1,0 +1,34 @@
+LN Studio v4.4.15 — horizontal + diseñador ampliado
+
+SUBIR A LA RAÍZ DE GITHUB Y REEMPLAZAR:
+- disenador.html
+- disenador.css
+- disenador.js
+- evento.html
+- invitacion.css
+- rsvp.js
+
+NO requiere SQL ni cambios en Supabase.
+
+CAMBIOS:
+1. Se agregó la vista Horizontal al diseñador.
+2. Se corrigió la portada en teléfonos y tabletas en orientación horizontal:
+   - utiliza todo el ancho visible;
+   - evita página sobrante a la derecha;
+   - reduce automáticamente logos, título, datos y botones según la altura disponible.
+3. Se agregaron más familias tipográficas agrupadas por estilo.
+4. Se agregaron seis cuentas regresivas configurables:
+   - Tarjetas
+   - Minimalista
+   - Círculos
+   - En una línea
+   - Neón
+   - Marcador digital
+5. La cuenta regresiva permite elegir su propia fuente y mostrar u ocultar segundos.
+6. Los cambios se guardan en design_config; no se necesita crear una plantilla nueva.
+
+DESPUÉS DE SUBIR:
+- Espera el despliegue de Cloudflare.
+- Recarga con Ctrl + Shift + R.
+- En celular, usa una pestaña de incógnito si conserva estilos anteriores.
+- Prueba Celular, Horizontal y Escritorio desde el diseñador.

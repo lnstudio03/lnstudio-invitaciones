@@ -14,6 +14,7 @@ let previewEventId = null;
 const DEFAULT_CONFIG = {
   colors:{ background:"#0d1420",background2:"#1b2537",text:"#ffffff",muted:"#b7c1d5",primary:"#8f7dff",secondary:"#ff7f91",overlay:45,mode:"gradient" },
   typography:{ heading:"Fraunces",body:"Manrope",headingSize:72,bodySize:18,headingWeight:700,align:"center",transform:"none" },
+  countdown:{ style:"cards",font:"Manrope",showSeconds:true },
   media:{ backgroundImage:"",gallery:[],heroFit:"cover",showMusicButton:true },
   animation:{ preset:"fade-up",ambient:"none",intensity:"medium",respectReducedMotion:true },
   content:{ kicker:"Invitación digital privada · LN Studio",rsvpTitle:"¿Nos acompañas?",rsvpCopy:"Confirma tu asistencia y recibe tu pase digital." },
@@ -85,7 +86,7 @@ function renderEvent() {
   if (!eventData.allow_general_rsvp) {
     $("[data-form-section]").innerHTML = '<p class="invite-kicker">Acceso individual</p><h2>Esta invitación requiere un enlace personal.</h2><p>Solicita tu enlace a los anfitriones.</p>';
   }
-  startCountdown(); initializeReveal(config);
+  startCountdown(config); initializeReveal(config);
 }
 
 function mergeConfig(value) {
@@ -95,6 +96,7 @@ function mergeConfig(value) {
     ...source,
     colors:{...DEFAULT_CONFIG.colors,...(source.colors||{})},
     typography:{...DEFAULT_CONFIG.typography,...(source.typography||{})},
+    countdown:{...DEFAULT_CONFIG.countdown,...(source.countdown||{})},
     media:{...DEFAULT_CONFIG.media,...(source.media||{})},
     animation:{...DEFAULT_CONFIG.animation,...(source.animation||{})},
     content:{...DEFAULT_CONFIG.content,...(source.content||{})},
@@ -114,6 +116,7 @@ function applyVariables(config) {
   root.setProperty("--invite-overlay", String(Math.min(90,Math.max(0,Number(config.colors.overlay||45)))/100));
   root.setProperty("--invite-heading-font", `'${safeFont(config.typography.heading,"Fraunces")}'`);
   root.setProperty("--invite-body-font", `'${safeFont(config.typography.body,"Manrope")}'`);
+  root.setProperty("--invite-countdown-font", `'${safeFont(config.countdown.font,"Manrope")}'`);
   root.setProperty("--invite-heading-size", `${Math.min(120,Math.max(36,Number(config.typography.headingSize||72)))}px`);
   root.setProperty("--invite-body-size", `${Math.min(28,Math.max(14,Number(config.typography.bodySize||18)))}px`);
   root.setProperty("--invite-heading-weight", String(config.typography.headingWeight||700));
@@ -518,11 +521,48 @@ function drawGlow(ctx, x, y, radius, color) {
 }
 async function copyPass(){try{await navigator.clipboard.writeText(passUrl);$("[data-copy-pass]").textContent="Pase copiado"}catch{alert(passUrl)}}
 function downloadCalendar(){if(!eventData?.event_date)return alert("La fecha todavía no está definida.");const start=new Date(eventData.event_date),end=new Date(start.getTime()+3*60*60*1000);const stamp=(date)=>date.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");const content=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//LN Studio//Invitacion//ES","BEGIN:VEVENT",`UID:${eventData.id}@lnstudio`,`DTSTART:${stamp(start)}`,`DTEND:${stamp(end)}`,`SUMMARY:${ics(eventData.name)}`,`LOCATION:${ics([eventData.venue_name,eventData.venue_address].filter(Boolean).join(", "))}`,`DESCRIPTION:${ics(eventData.description||"")}`,"END:VEVENT","END:VCALENDAR"].join("\r\n");const blob=new Blob([content],{type:"text/calendar;charset=utf-8"}),link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download=`${eventData.name}.ics`;link.click();URL.revokeObjectURL(link.href)}
-function startCountdown(){const node=$("[data-countdown]");if(!eventData.event_date){node.textContent="Fecha por confirmar.";return}const target=new Date(eventData.event_date).getTime();if(!Number.isFinite(target)){node.textContent="Fecha por confirmar.";return}const update=()=>{const diff=target-Date.now();if(diff<=0){node.textContent="El gran momento ha llegado.";return}const days=Math.floor(diff/86400000),hours=Math.floor(diff%86400000/3600000),minutes=Math.floor(diff%3600000/60000);node.textContent=`${days} días · ${hours} horas · ${minutes} minutos`};update();setInterval(update,60000)}
+function startCountdown(config){
+  const section=$("[data-section=countdown]");
+  const display=$("[data-countdown-display]");
+  const message=$("[data-countdown-message]");
+  const secondsWrap=$("[data-countdown-seconds-wrap]");
+  if(!section||!display||!message)return;
+  ["cards","minimal","circles","inline","neon","flip"].forEach((style)=>section.classList.remove(`countdown-style-${style}`));
+  section.classList.add(`countdown-style-${safeCountdownStyle(config.countdown.style)}`);
+  section.classList.toggle("countdown-no-seconds",config.countdown.showSeconds===false);
+  display.style.fontFamily=`'${safeFont(config.countdown.font,"Manrope")}'`;
+  secondsWrap.hidden=config.countdown.showSeconds===false;
+  const target=eventData.event_date?new Date(eventData.event_date).getTime():NaN;
+  const setValue=(selector,value)=>{const node=$(selector);if(node)node.textContent=String(value).padStart(2,"0")};
+  const update=()=>{
+    if(!Number.isFinite(target)){
+      display.hidden=true;
+      message.hidden=false;
+      message.textContent="Fecha por confirmar.";
+      return;
+    }
+    const diff=target-Date.now();
+    if(diff<=0){
+      display.hidden=true;
+      message.hidden=false;
+      message.textContent="El gran momento ha llegado.";
+      return;
+    }
+    display.hidden=false;
+    message.hidden=true;
+    setValue("[data-countdown-days]",Math.floor(diff/86400000));
+    setValue("[data-countdown-hours]",Math.floor(diff%86400000/3600000));
+    setValue("[data-countdown-minutes]",Math.floor(diff%3600000/60000));
+    setValue("[data-countdown-seconds]",Math.floor(diff%60000/1000));
+  };
+  update();
+  window.setInterval(update,config.countdown.showSeconds===false?60000:1000);
+}
 function fail(message){$("[data-name]").textContent=message;$("[data-description]").textContent="Verifica que el enlace esté completo o consulta a los anfitriones.";$("[data-form-section]").hidden=true}
 function safeAsset(value){const text=String(value||"").trim();if(/^(https?:|data:|blob:)/i.test(text))return text;return text.replace(/^\/+/,"")}
 function safeColor(value,fallback){return /^#[0-9a-f]{6}$/i.test(String(value||""))?value:fallback}
-function safeFont(value,fallback){const allowed=["Fraunces","Playfair Display","Cinzel","Bebas Neue","Fredoka","Baloo 2","Montserrat","Poppins","Merriweather","Manrope","Nunito"];return allowed.includes(value)?value:fallback}
+function safeFont(value,fallback){const allowed=["Fraunces","Playfair Display","DM Serif Display","Cormorant Garamond","Cinzel","Abril Fatface","Merriweather","Fredoka","Baloo 2","Lilita One","Luckiest Guy","Bangers","Lobster","Pacifico","Montserrat","Poppins","Raleway","Rubik","Oswald","Anton","Bebas Neue","Dancing Script","Great Vibes","Satisfy","Permanent Marker","Manrope","Nunito","Quicksand"];return allowed.includes(value)?value:fallback}
+function safeCountdownStyle(value){return ["cards","minimal","circles","inline","neon","flip"].includes(value)?value:"cards"}
 function safeAnimation(value){return ["fade-up","fade","zoom","slide-left","float","none"].includes(value)?value:"fade-up"}
 function safeAmbient(value){return ["none","sparkles","bubbles","confetti","neon","stars"].includes(value)?value:"none"}
 function cssUrl(value){return String(value||"").replace(/["'()\\]/g,"")}
