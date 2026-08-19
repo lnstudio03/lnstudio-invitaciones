@@ -147,7 +147,7 @@ function applyLayout(config) {
   const shell = $("[data-event-shell]");
   config.sections.order.forEach((key) => { const node=$(`[data-section="${key}"]`); if(node)shell.insertBefore(node,$("[data-pass]")); });
   Object.entries(config.sections.enabled).forEach(([key,enabled])=>{const node=$(`[data-section="${key}"]`);if(node)node.hidden=!enabled});
-  if (!config.media.gallery?.length) $("[data-section=gallery]").hidden = true;
+  if (!config.media.gallery?.length && !config.layers.some((layer)=>layer.section==="gallery")) $("[data-section=gallery]").hidden = true;
 }
 
 function renderGallery(gallery) {
@@ -159,7 +159,7 @@ function renderGallery(gallery) {
 function normalizeFreeLayers(value) {
   if (!Array.isArray(value)) return [];
   return value.slice(0,30).map((item,index)=>({
-    id:String(item?.id||`layer-${index}`).slice(0,80),
+    id:String(item?.id||`layer-${index}`).slice(0,80),section:DEFAULT_ORDER.includes(item?.section)?item.section:"hero",
     type:["text","image","emoji"].includes(item?.type)?item.type:"text",
     text:String(item?.text||"").slice(0,240),src:String(item?.src||"").slice(0,1500),
     x:clampLayer(item?.x,0,100,50),y:clampLayer(item?.y,0,100,30),width:clampLayer(item?.width,5,100,35),
@@ -170,8 +170,9 @@ function normalizeFreeLayers(value) {
 }
 function clampLayer(value,min,max,fallback){const number=Number(value);return Number.isFinite(number)?Math.min(max,Math.max(min,number)):fallback}
 function renderFreeLayers(layers){
-  const root=$("[data-free-layers]");if(!root)return;root.innerHTML="";
-  normalizeFreeLayers(layers).forEach((layer,index)=>{const node=document.createElement("div");node.className=`event-free-layer event-free-layer-${layer.type}`;node.style.left=`${layer.x}%`;node.style.top=`${layer.y}%`;node.style.width=`${layer.width}%`;node.style.opacity=String(layer.opacity/100);node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation}deg)`;node.style.zIndex=String(20+index);
+  $$("[data-free-layers]").forEach((root)=>root.remove());const roots={};
+  DEFAULT_ORDER.forEach((section)=>{const block=$(`[data-section="${section}"]`);if(!block)return;const root=document.createElement("div");root.className="event-free-layers";root.dataset.freeLayers=section;root.setAttribute("aria-hidden","true");block.appendChild(root);roots[section]=root});
+  normalizeFreeLayers(layers).forEach((layer,index)=>{const root=roots[layer.section]||roots.hero;if(!root)return;const node=document.createElement("div");node.className=`event-free-layer event-free-layer-${layer.type}`;node.style.left=`${layer.x}%`;node.style.top=`${layer.y}%`;node.style.width=`${layer.width}%`;node.style.opacity=String(layer.opacity/100);node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation}deg)`;node.style.zIndex=String(20+index);
     if(layer.type==="image"){const image=document.createElement("img");image.src=safeAsset(layer.src);image.alt="";image.loading="eager";node.appendChild(image)}else{node.textContent=layer.text;node.style.fontSize=`clamp(12px,${layer.fontSize/7}vw,${layer.fontSize}px)`;node.style.color=layer.color;node.style.fontFamily=`'${layer.fontFamily}'`;node.style.fontWeight=String(layer.fontWeight)}root.appendChild(node)});
 }
 

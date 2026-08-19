@@ -86,8 +86,8 @@ function bind() {
     render(); resetPreviewToTop(); setStatus("Archivo quitado · cambios sin guardar");
   }));
   $("[data-fix-contrast]").addEventListener("click", fixContrast);
-  $("[data-add-text-layer]")?.addEventListener("click", () => addLayer({ type:"text", text:"Nuevo texto", x:50, y:28, width:48, rotation:0, opacity:100, fontSize:34, color:"#ffffff", fontFamily:"Montserrat", fontWeight:700 }));
-  $$("[data-add-emoji]").forEach((button) => button.addEventListener("click", () => addLayer({ type:"emoji", text:button.dataset.addEmoji, x:50, y:24, width:18, rotation:0, opacity:100, fontSize:64, color:"#ffffff", fontFamily:"Manrope", fontWeight:700 })));
+  $("[data-add-text-layer]")?.addEventListener("click", () => addLayer({ section:"hero", type:"text", text:"Nuevo texto", x:50, y:28, width:48, rotation:0, opacity:100, fontSize:34, color:"#ffffff", fontFamily:"Montserrat", fontWeight:700 }));
+  $$("[data-add-emoji]").forEach((button) => button.addEventListener("click", () => addLayer({ section:"hero", type:"emoji", text:button.dataset.addEmoji, x:50, y:24, width:18, rotation:0, opacity:100, fontSize:64, color:"#ffffff", fontFamily:"Manrope", fontWeight:700 })));
   $("[data-layer-upload]")?.addEventListener("change", (event) => handleLayerUpload(event.currentTarget));
   $("[data-layer-list]")?.addEventListener("click", handleLayerListClick);
   $("[data-layer-inspector]")?.addEventListener("input", handleLayerInspectorInput);
@@ -295,7 +295,7 @@ async function handleLayerUpload(input) {
     validateFile(file, "layer");
     const url = await uploadOne(file, "layer");
     await verifyPublicAsset(url, "layer");
-    addLayer({ type:"image", src:url, name:file.name, x:50, y:25, width:34, rotation:0, opacity:100, fontSize:32, color:"#ffffff", fontFamily:"Manrope", fontWeight:700 });
+    addLayer({ section:"hero", type:"image", src:url, name:file.name, x:50, y:25, width:34, rotation:0, opacity:100, fontSize:32, color:"#ffffff", fontFamily:"Manrope", fontWeight:700 });
     setStatus("Foto o sticker agregado · falta guardar el diseño");
   } catch (error) {
     setStatus(`No se pudo agregar la capa: ${errorMessage(error)}`);
@@ -618,6 +618,7 @@ function normalizeLayers(value) {
     const type = ["text","image","emoji"].includes(item?.type) ? item.type : "text";
     return {
       id:String(item?.id || `layer-${Date.now()}-${index}`).slice(0,80), type,
+      section:DEFAULT_ORDER.includes(item?.section) ? item.section : "hero",
       text:String(item?.text || (type === "text" ? "Texto" : "")).slice(0,240),
       src:type === "image" ? String(item?.src || "").slice(0,1500) : "",
       name:String(item?.name || "").slice(0,120),
@@ -650,17 +651,18 @@ function renderLayerManager() {
   if (!state.layers.length) list.innerHTML = '<div class="layer-empty">Agrega texto, una fotografía o un sticker.</div>';
   else list.innerHTML = [...state.layers].reverse().map((layer,index) => {
     const label = layer.type === "image" ? (layer.name || "Imagen") : (layer.text || "Texto");
-    return `<button type="button" class="layer-list-item${layer.id===state.selectedLayerId?" selected":""}" data-select-layer="${escapeAttr(layer.id)}"><span>${layer.type === "image" ? "▣" : layer.type === "emoji" ? "★" : "T"}</span><strong>${escapeAttr(label.slice(0,32))}</strong><small>${state.layers.length-index}</small></button>`;
+    return `<button type="button" class="layer-list-item${layer.id===state.selectedLayerId?" selected":""}" data-select-layer="${escapeAttr(layer.id)}"><span>${layer.type === "image" ? "▣" : layer.type === "emoji" ? "★" : "T"}</span><strong>${escapeAttr(label.slice(0,32))}<em>${escapeAttr(SECTION_LABELS[layer.section] || "Portada")}</em></strong><small>${state.layers.length-index}</small></button>`;
   }).join("");
   const layer = selectedLayer(); inspector.hidden = !layer;
   if (!layer) { inspector.innerHTML=""; return; }
   const textControl = layer.type === "image" ? "" : `<label>Contenido<textarea data-layer-prop="text" rows="2" maxlength="240">${escapeAttr(layer.text)}</textarea></label>`;
-  inspector.innerHTML = `<strong>Editar capa seleccionada</strong>${textControl}
+  inspector.innerHTML = `<strong>Editar capa seleccionada</strong><label>Sección<select data-layer-prop="section"><option value="hero">Portada</option><option value="countdown">Cuenta regresiva</option><option value="details">Detalles</option><option value="gallery">Galería</option><option value="rsvp">Confirmación RSVP</option></select></label>${textControl}
     <div class="form-pair"><label>Posición X<input data-layer-prop="x" type="range" min="0" max="100" value="${layer.x}"></label><label>Posición Y<input data-layer-prop="y" type="range" min="0" max="100" value="${layer.y}"></label></div>
     <label>Ancho<input data-layer-prop="width" type="range" min="5" max="100" value="${layer.width}"></label>
     <div class="form-pair"><label>Rotación<input data-layer-prop="rotation" type="range" min="-180" max="180" value="${layer.rotation}"></label><label>Opacidad<input data-layer-prop="opacity" type="range" min="10" max="100" value="${layer.opacity}"></label></div>
     ${layer.type === "image" ? "" : `<div class="form-pair"><label>Tamaño<input data-layer-prop="fontSize" type="range" min="12" max="180" value="${layer.fontSize}"></label><label>Color<input data-layer-prop="color" type="color" value="${layer.color}"></label></div><label>Tipografía<select data-layer-prop="fontFamily"><option>Montserrat</option><option>Fraunces</option><option>Playfair Display</option><option>Great Vibes</option><option>Fredoka</option><option>Bebas Neue</option><option>Cinzel</option><option>Manrope</option></select></label>`}
     <div class="layer-actions"><button type="button" data-layer-action="back">Enviar atrás</button><button type="button" data-layer-action="front">Traer al frente</button><button type="button" data-layer-action="duplicate">Duplicar</button><button type="button" data-layer-action="delete" class="danger">Eliminar</button></div>`;
+  const section = inspector.querySelector('[data-layer-prop="section"]'); if (section) section.value = layer.section;
   const font = inspector.querySelector('[data-layer-prop="fontFamily"]'); if (font) font.value = layer.fontFamily;
 }
 
@@ -672,6 +674,11 @@ function handleLayerInspectorInput(event) {
   const key = event.target.dataset.layerProp; const layer = selectedLayer(); if (!key || !layer) return;
   const numeric = ["x","y","width","rotation","opacity","fontSize"].includes(key);
   layer[key] = numeric ? Number(event.target.value) : event.target.value;
+  if (key === "section") {
+    state.enabled[layer.section] = true;
+    renderSectionManager();
+    renderLayerManager();
+  }
   renderPreviewLayers(state.layers); setStatus("Cambios sin guardar");
 }
 function handleLayerInspectorClick(event) {
@@ -685,11 +692,16 @@ function handleLayerInspectorClick(event) {
 }
 
 function renderPreviewLayers(layers) {
-  const stage = $("[data-preview-layer-stage]"); if (!stage) return;
-  stage.innerHTML="";
+  $$("[data-preview-layer-stage]").forEach((stage) => stage.remove());
+  const stages = {};
+  DEFAULT_ORDER.forEach((section) => {
+    const block = $(`[data-preview-section="${section}"]`); if (!block) return;
+    const stage = document.createElement("div"); stage.className="free-layer-stage"; stage.dataset.previewLayerStage=section; block.appendChild(stage); stages[section]=stage;
+  });
   normalizeLayers(layers).forEach((layer,index) => {
+    const stage = stages[layer.section] || stages.hero; if (!stage) return;
     const node=document.createElement("div"); node.className=`free-layer free-layer-${layer.type}${layer.id===state.selectedLayerId?" selected":""}`;
-    node.dataset.layerId=layer.id; node.style.left=`${layer.x}%`; node.style.top=`${layer.y}%`; node.style.width=`${layer.width}%`; node.style.opacity=String(layer.opacity/100); node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation}deg)`; node.style.zIndex=String(20+index);
+    node.dataset.layerId=layer.id; node.dataset.sectionLabel=SECTION_LABELS[layer.section] || "Portada"; node.style.left=`${layer.x}%`; node.style.top=`${layer.y}%`; node.style.width=`${layer.width}%`; node.style.opacity=String(layer.opacity/100); node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation}deg)`; node.style.zIndex=String(20+index);
     if (layer.type === "image") { const image=document.createElement("img"); image.src=layer.src; image.alt=""; node.appendChild(image); }
     else { node.textContent=layer.text; node.style.fontSize=`${layer.fontSize}px`; node.style.color=layer.color; node.style.fontFamily=`'${layer.fontFamily}'`; node.style.fontWeight=String(layer.fontWeight); }
     node.addEventListener("pointerdown", beginLayerDrag); stage.appendChild(node);

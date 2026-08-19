@@ -1,0 +1,21 @@
+LN STUDIO v4.5.2 — CAPAS EN TODAS LAS SECCIONES
+
+ARCHIVOS PARA REEMPLAZAR EN LA RAÍZ DE GITHUB
+- disenador.html
+- disenador.js
+- disenador.css
+- evento.html
+- rsvp.js
+
+No borres los demás archivos y no crees carpetas.
+
+CORRECCIÓN
+- Las capas ya no están limitadas a la portada.
+- Cada capa permite elegir: Portada, Cuenta regresiva, Detalles, Galería o RSVP.
+- Las capas anteriores siguen funcionando y se asignan automáticamente a Portada.
+- Cambiar una capa de sección activa el bloque correspondiente.
+- La lista de capas muestra en qué sección está cada elemento.
+- Fotografías, stickers y textos pueden arrastrarse dentro de su propia sección.
+- Las capas aparecen en la misma sección dentro de la invitación publicada.
+
+No requiere SQL y no modifica autenticación, confirmaciones, QR o escáner.
