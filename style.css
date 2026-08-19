@@ -322,3 +322,28 @@ input:focus,select:focus,textarea:focus{border-color:#8f7dff!important;box-shado
 .error-page{background:#080b12!important}
 @media(max-width:920px){.main-navigation{background:#0b1019!important;color:#fff!important}.hero{padding-top:112px!important;justify-items:center!important}.hero-copy{text-align:center!important;margin-inline:auto!important}.hero-description{margin-inline:auto!important}.hero-actions{justify-content:center!important}.hero-mark{justify-self:center!important}.manifesto,.services,.events,.feature-showcase,.process,.final-cta,.page-hero,.contact-layout,.quote-shell{text-align:center!important}.contact-details{align-items:center!important}}
 @media(max-width:600px){.hero-copy h1{font-size:clamp(2.6rem,12.5vw,4.3rem)!important}.hero-actions{display:grid!important}.hero-actions .button{width:100%!important}.section{padding-left:18px!important;padding-right:18px!important}}
+
+/* =========================================================
+   LN Studio v4.5 · oferta comercial
+   ========================================================= */
+.pricing{position:relative;overflow:hidden;background:radial-gradient(circle at 15% 20%,rgba(143,125,255,.13),transparent 27%),radial-gradient(circle at 88% 75%,rgba(79,216,228,.09),transparent 28%),#090e17!important}
+.pricing::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:56px 56px;mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 80%,transparent);pointer-events:none}
+.pricing>.section-heading,.pricing-grid,.pricing-footnote{position:relative;z-index:1}
+.pricing-intro{max-width:720px;margin-top:20px;color:#aeb9cf;font-size:1.05rem;line-height:1.75}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
+.price-card{position:relative;display:flex;min-width:0;flex-direction:column;padding:34px;border:1px solid rgba(255,255,255,.1);border-radius:26px;background:linear-gradient(155deg,rgba(255,255,255,.065),rgba(255,255,255,.025));box-shadow:0 24px 65px rgba(0,0,0,.25);backdrop-filter:blur(14px)}
+.price-card-featured{border-color:rgba(143,125,255,.55);background:linear-gradient(155deg,rgba(143,125,255,.18),rgba(79,216,228,.055));box-shadow:0 28px 85px rgba(79,65,177,.23);transform:translateY(-12px)}
+.popular-badge{position:absolute;top:18px;right:18px;padding:7px 10px;border-radius:999px;background:#f7f1ff;color:#5f46cb;font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.price-label{margin:0 0 30px;color:#c7beff;font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.price-card h3{margin:0;color:#fff;font-family:var(--serif);font-size:clamp(2.8rem,4.5vw,4.6rem);line-height:1;letter-spacing:-.05em}
+.price-card h3 span{display:block;margin-bottom:7px;color:#8f9bb2;font-family:var(--sans);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase}
+.price-card h3 small{font-family:var(--sans);font-size:.7rem;letter-spacing:.08em}
+.price-note{min-height:72px;margin:20px 0;color:#aeb9cf;line-height:1.65}
+.price-card ul{display:grid;gap:13px;margin:8px 0 30px;padding:22px 0 0;border-top:1px solid rgba(255,255,255,.08);list-style:none}
+.price-card li{position:relative;padding-left:24px;color:#dbe2f2;font-size:.9rem;line-height:1.5}
+.price-card li::before{content:"✓";position:absolute;left:0;color:#78dce6;font-weight:800}
+.price-card .button{width:100%;margin-top:auto}
+.pricing-footnote{display:flex;max-width:940px;margin:38px auto 0;padding:18px 22px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.035);align-items:center;justify-content:center;gap:14px;text-align:center}
+.pricing-footnote strong{color:#fff}.pricing-footnote span{color:#9eabc1;font-size:.82rem}
+@media(max-width:980px){.pricing-grid{grid-template-columns:1fr;max-width:680px;margin:auto}.price-card-featured{transform:none}.price-note{min-height:0}.pricing-intro{margin-inline:auto}.pricing-footnote{flex-direction:column}}
+@media(max-width:600px){.price-card{padding:26px 20px;border-radius:21px}.popular-badge{position:static;width:max-content;margin:-4px 0 18px}.pricing-footnote{padding:17px}}

@@ -1,0 +1,28 @@
+LN STUDIO v4.5.0 — PULIDO VISUAL Y PAQUETES
+
+Archivos que debes reemplazar en la raíz de GitHub:
+- index.html
+- style.css
+- evento.html
+- invitacion.css
+- contacto.html
+- catalogo.html
+- cotizar.html
+- 404.html
+
+IMPORTANTE
+- No borres los demás archivos del proyecto.
+- Sube estos archivos directamente a la raíz, sin crear carpetas.
+- El WhatsApp configurado es 56 4613 1484.
+
+CAMBIOS
+- Nueva sección comercial con tres paquetes y precios de lanzamiento.
+- Botones directos de WhatsApp con mensaje según el paquete.
+- Contacto actualizado en páginas públicas.
+- Invitación con composición más premium y menos espacios vacíos.
+- Títulos largos controlados y mejor contraste sobre imágenes.
+- Tarjetas visuales para fecha, lugar, cuenta regresiva y RSVP.
+- Mejoras responsive para móvil y horizontal.
+
+Esta actualización no modifica Supabase, tablas, autenticación, RSVP,
+generación de QR ni funciones del panel.
