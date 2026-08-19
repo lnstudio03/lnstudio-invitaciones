@@ -16,6 +16,7 @@ const DEFAULT_CONFIG = {
   typography:{ heading:"Fraunces",body:"Manrope",headingSize:72,bodySize:18,headingWeight:700,align:"center",transform:"none" },
   countdown:{ style:"cards",font:"Manrope",showSeconds:true },
   media:{ backgroundImage:"",gallery:[],heroFit:"cover",showMusicButton:true },
+  layers:[],
   animation:{ preset:"fade-up",ambient:"none",intensity:"medium",respectReducedMotion:true },
   content:{ kicker:"Invitación digital privada · LN Studio",rsvpTitle:"¿Nos acompañas?",rsvpCopy:"Confirma tu asistencia y recibe tu pase digital." },
   sections:{ order:[...DEFAULT_ORDER],enabled:{hero:true,countdown:true,details:true,gallery:true,rsvp:true} }
@@ -81,6 +82,7 @@ function renderEvent() {
   setEventImage($("[data-secondary-logo]"), eventData.secondary_logo_url, refreshLogoCluster, refreshLogoCluster);
   updateEventLogoCluster();
   setEventImage($("[data-hero-image]"), eventData.hero_image_url);
+  renderFreeLayers(config.layers);
   renderGallery(config.media.gallery);
   configureMusic(config);
   const party = $("#rsvp-form [name=party_size]"); party.max = Number(eventData.max_companions || 0) + 1;
@@ -104,6 +106,7 @@ function mergeConfig(value) {
     typography:{...DEFAULT_CONFIG.typography,...(source.typography||{})},
     countdown:{...DEFAULT_CONFIG.countdown,...(source.countdown||{})},
     media:{...DEFAULT_CONFIG.media,...(source.media||{})},
+    layers:normalizeFreeLayers(source.layers),
     animation:{...DEFAULT_CONFIG.animation,...(source.animation||{})},
     content:{...DEFAULT_CONFIG.content,...(source.content||{})},
     sections:{order:normalizeOrder(source.sections?.order),enabled:{...DEFAULT_CONFIG.sections.enabled,...(source.sections?.enabled||{})}}
@@ -151,6 +154,25 @@ function renderGallery(gallery) {
   const list = Array.isArray(gallery)?gallery.filter(Boolean).slice(0,8):[];
   const root=$("[data-gallery]"); root.innerHTML=list.map((url,index)=>`<img src="${escapeAttr(safeAsset(url))}" alt="Fotografía ${index+1}" loading="lazy">`).join("");
   $("[data-section=gallery]").hidden = !list.length;
+}
+
+function normalizeFreeLayers(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0,30).map((item,index)=>({
+    id:String(item?.id||`layer-${index}`).slice(0,80),
+    type:["text","image","emoji"].includes(item?.type)?item.type:"text",
+    text:String(item?.text||"").slice(0,240),src:String(item?.src||"").slice(0,1500),
+    x:clampLayer(item?.x,0,100,50),y:clampLayer(item?.y,0,100,30),width:clampLayer(item?.width,5,100,35),
+    rotation:clampLayer(item?.rotation,-180,180,0),opacity:clampLayer(item?.opacity,10,100,100),
+    fontSize:clampLayer(item?.fontSize,12,180,34),color:safeColor(item?.color||"#ffffff","#ffffff"),
+    fontFamily:safeFont(item?.fontFamily||"Montserrat","Montserrat"),fontWeight:[400,500,600,700,800,900].includes(Number(item?.fontWeight))?Number(item.fontWeight):700
+  })).filter((item)=>item.type!=="image"||safeAsset(item.src));
+}
+function clampLayer(value,min,max,fallback){const number=Number(value);return Number.isFinite(number)?Math.min(max,Math.max(min,number)):fallback}
+function renderFreeLayers(layers){
+  const root=$("[data-free-layers]");if(!root)return;root.innerHTML="";
+  normalizeFreeLayers(layers).forEach((layer,index)=>{const node=document.createElement("div");node.className=`event-free-layer event-free-layer-${layer.type}`;node.style.left=`${layer.x}%`;node.style.top=`${layer.y}%`;node.style.width=`${layer.width}%`;node.style.opacity=String(layer.opacity/100);node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation}deg)`;node.style.zIndex=String(20+index);
+    if(layer.type==="image"){const image=document.createElement("img");image.src=safeAsset(layer.src);image.alt="";image.loading="eager";node.appendChild(image)}else{node.textContent=layer.text;node.style.fontSize=`clamp(12px,${layer.fontSize/7}vw,${layer.fontSize}px)`;node.style.color=layer.color;node.style.fontFamily=`'${layer.fontFamily}'`;node.style.fontWeight=String(layer.fontWeight)}root.appendChild(node)});
 }
 
 function setEventImage(image, value, onLoad = null, onError = null) {

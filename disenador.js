@@ -12,6 +12,7 @@ const DEFAULTS = {
   typography:{ heading:"Fraunces", body:"Manrope", headingSize:64, bodySize:18, headingWeight:700, align:"center", transform:"none" },
   countdown:{ style:"cards", font:"Manrope", showSeconds:true },
   media:{ backgroundImage:"", gallery:[], heroFit:"cover", showMusicButton:true },
+  layers:[],
   animation:{ preset:"fade-up", ambient:"none", intensity:"medium", respectReducedMotion:true },
   content:{ kicker:"Invitación digital", rsvpTitle:"¿Nos acompañas?", rsvpCopy:"Confirma tu asistencia y recibe tu pase digital." },
   sections:{ order:[...DEFAULT_ORDER], enabled:{ hero:true,countdown:true,details:true,gallery:true,rsvp:true } }
@@ -24,7 +25,7 @@ const PRESETS = {
   corporate:{ primary:"#2774d8",secondary:"#40b8c4",background:"#0d1724",background2:"#182a3d",text:"#f6fbff",muted:"#b7c7d8",heading:"Montserrat",body:"Manrope",ambient:"none" },
   fantasy:{ primary:"#9b5de5",secondary:"#00d4b8",background:"#120e24",background2:"#25184a",text:"#ffffff",muted:"#d4cae9",heading:"Cinzel",body:"Poppins",ambient:"stars" }
 };
-let state = { user:null, profile:null, event:null, gallery:[], sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0, localAssets:{} };
+let state = { user:null, profile:null, event:null, gallery:[], layers:[], selectedLayerId:null, sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0, localAssets:{} };
 let previewMode = "mobile";
 let previewResizeObserver = null;
 let previewCountdownTimer = null;
@@ -49,6 +50,7 @@ async function init() {
     fill();
     renderSectionManager();
     renderGalleryManager();
+    renderLayerManager();
     render();
     setupPreviewFitting();
     finishLoading();
@@ -84,6 +86,12 @@ function bind() {
     render(); resetPreviewToTop(); setStatus("Archivo quitado · cambios sin guardar");
   }));
   $("[data-fix-contrast]").addEventListener("click", fixContrast);
+  $("[data-add-text-layer]")?.addEventListener("click", () => addLayer({ type:"text", text:"Nuevo texto", x:50, y:28, width:48, rotation:0, opacity:100, fontSize:34, color:"#ffffff", fontFamily:"Montserrat", fontWeight:700 }));
+  $$("[data-add-emoji]").forEach((button) => button.addEventListener("click", () => addLayer({ type:"emoji", text:button.dataset.addEmoji, x:50, y:24, width:18, rotation:0, opacity:100, fontSize:64, color:"#ffffff", fontFamily:"Manrope", fontWeight:700 })));
+  $("[data-layer-upload]")?.addEventListener("change", (event) => handleLayerUpload(event.currentTarget));
+  $("[data-layer-list]")?.addEventListener("click", handleLayerListClick);
+  $("[data-layer-inspector]")?.addEventListener("input", handleLayerInspectorInput);
+  $("[data-layer-inspector]")?.addEventListener("click", handleLayerInspectorClick);
 }
 
 function setupPreviewFitting() {
@@ -178,6 +186,8 @@ function fill() {
   form.elements.animation_intensity.value = config.animation.intensity || "medium";
   form.elements.respect_reduced_motion.checked = config.animation.respectReducedMotion !== false;
   state.gallery = Array.isArray(config.media.gallery) ? config.media.gallery.filter(Boolean).slice(0,8) : [];
+  state.layers = normalizeLayers(config.layers);
+  state.selectedLayerId = state.layers[0]?.id || null;
   state.sections = normalizeOrder(config.sections.order);
   state.enabled = { ...DEFAULTS.sections.enabled, ...(config.sections.enabled || {}) };
   $("[data-event-title]").textContent = state.event.name;
@@ -195,6 +205,7 @@ function mergeConfig(value) {
     typography:{ ...DEFAULTS.typography, ...(source.typography || {}) },
     countdown:{ ...DEFAULTS.countdown, ...(source.countdown || {}) },
     media:{ ...DEFAULTS.media, ...(source.media || {}) },
+    layers:normalizeLayers(source.layers),
     animation:{ ...DEFAULTS.animation, ...(source.animation || {}) },
     content:{ ...DEFAULTS.content, ...(source.content || {}) },
     sections:{ order:normalizeOrder(source.sections?.order), enabled:{ ...DEFAULTS.sections.enabled, ...(source.sections?.enabled || {}) } }
@@ -275,6 +286,21 @@ async function handleUpload(input) {
   } finally {
     input.value = "";
   }
+}
+
+async function handleLayerUpload(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    validateFile(file, "layer");
+    const url = await uploadOne(file, "layer");
+    await verifyPublicAsset(url, "layer");
+    addLayer({ type:"image", src:url, name:file.name, x:50, y:25, width:34, rotation:0, opacity:100, fontSize:32, color:"#ffffff", fontFamily:"Manrope", fontWeight:700 });
+    setStatus("Foto o sticker agregado · falta guardar el diseño");
+  } catch (error) {
+    setStatus(`No se pudo agregar la capa: ${errorMessage(error)}`);
+    alert(errorMessage(error));
+  } finally { input.value = ""; }
 }
 
 async function uploadOne(file, role) {
@@ -445,7 +471,7 @@ function formData() {
 
 function buildConfig(data) {
   return {
-    version:1,
+    version:2,
     preset:"custom",
     colors:{
       primary:safeColor(data.theme_primary, DEFAULTS.colors.primary), secondary:safeColor(data.theme_secondary, DEFAULTS.colors.secondary),
@@ -456,6 +482,7 @@ function buildConfig(data) {
     typography:{ heading:data.heading_font || "Fraunces", body:data.body_font || "Manrope", headingSize:Number(data.heading_size || 64), bodySize:Number(data.body_size || 18), headingWeight:Number(data.heading_weight || 700), align:data.text_align || "center", transform:data.heading_transform || "none" },
     countdown:{ style:data.countdown_style || "cards", font:data.countdown_font || "Manrope", showSeconds:$("#designer-form").elements.countdown_seconds.checked },
     media:{ backgroundImage:data.background_image_url || "", gallery:[...state.gallery], heroFit:data.hero_fit || "cover", showMusicButton:$("#designer-form").elements.show_music_button.checked },
+    layers:normalizeLayers(state.layers),
     animation:{ preset:data.animation_preset || "fade-up", ambient:data.ambient_animation || "none", intensity:data.animation_intensity || "medium", respectReducedMotion:$("#designer-form").elements.respect_reduced_motion.checked },
     content:{ kicker:data.kicker || "Invitación digital", rsvpTitle:data.rsvp_title || "¿Nos acompañas?", rsvpCopy:data.rsvp_copy || "Confirma tu asistencia y recibe tu pase digital." },
     sections:{ order:[...state.sections], enabled:{...state.enabled} }
@@ -492,6 +519,7 @@ function render() {
   setPreviewImage($("[data-preview-secondary-logo]"), data.secondary_logo_url, "secondary_logo_url");
   updatePreviewLogoCluster();
   setPreviewImage($("[data-preview-hero-image]"), data.hero_image_url, "hero_image_url");
+  renderPreviewLayers(config.layers);
   renderPreviewCountdown(config, data.event_date);
   const gallery = $("[data-preview-gallery]"); gallery.innerHTML = state.gallery.length ? state.gallery.slice(0,6).map((url) => `<img src="${escapeAttr(url)}" alt="">`).join("") : '<div class="gallery-placeholder">Las fotografías aparecerán aquí.</div>';
   state.sections.forEach((key) => { const node = $(`[data-preview-section="${key}"]`); if (node) screen.appendChild(node); });
@@ -582,6 +610,99 @@ function updatePreviewLogoCluster() {
   const bothVeryWide = ratios.every((ratio) => ratio > 2.25);
   const combinedWidth = ratios.reduce((sum, ratio) => sum + ratio, 0);
   cluster.classList.add(bothVeryWide || combinedWidth > 6.2 ? "logo-layout-stacked" : "logo-layout-row");
+}
+
+function normalizeLayers(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0,30).map((item, index) => {
+    const type = ["text","image","emoji"].includes(item?.type) ? item.type : "text";
+    return {
+      id:String(item?.id || `layer-${Date.now()}-${index}`).slice(0,80), type,
+      text:String(item?.text || (type === "text" ? "Texto" : "")).slice(0,240),
+      src:type === "image" ? String(item?.src || "").slice(0,1500) : "",
+      name:String(item?.name || "").slice(0,120),
+      x:clampNumber(item?.x,0,100,50), y:clampNumber(item?.y,0,100,30),
+      width:clampNumber(item?.width,5,100,type === "image" ? 34 : 42),
+      rotation:clampNumber(item?.rotation,-180,180,0), opacity:clampNumber(item?.opacity,10,100,100),
+      fontSize:clampNumber(item?.fontSize,12,180,type === "emoji" ? 64 : 34),
+      color:safeColor(item?.color || "#ffffff","#ffffff"),
+      fontFamily:String(item?.fontFamily || "Montserrat").slice(0,60),
+      fontWeight:[400,500,600,700,800,900].includes(Number(item?.fontWeight)) ? Number(item.fontWeight) : 700
+    };
+  }).filter((item) => item.type !== "image" || item.src);
+}
+
+function clampNumber(value,min,max,fallback) { const number=Number(value); return Number.isFinite(number)?Math.min(max,Math.max(min,number)):fallback; }
+function selectedLayer() { return state.layers.find((item) => item.id === state.selectedLayerId) || null; }
+function makeLayerId() { return `layer-${Date.now().toString(36)}-${randomToken()}`; }
+
+function addLayer(layer) {
+  if (state.layers.length >= 30) return alert("La portada admite hasta 30 capas libres.");
+  const normalized = normalizeLayers([{ id:makeLayerId(), ...layer }])[0];
+  if (!normalized) return;
+  state.layers.push(normalized); state.selectedLayerId = normalized.id;
+  renderLayerManager(); render(); setStatus("Capa agregada · cambios sin guardar");
+}
+
+function renderLayerManager() {
+  const list = $("[data-layer-list]"); const inspector = $("[data-layer-inspector]");
+  if (!list || !inspector) return;
+  if (!state.layers.length) list.innerHTML = '<div class="layer-empty">Agrega texto, una fotografía o un sticker.</div>';
+  else list.innerHTML = [...state.layers].reverse().map((layer,index) => {
+    const label = layer.type === "image" ? (layer.name || "Imagen") : (layer.text || "Texto");
+    return `<button type="button" class="layer-list-item${layer.id===state.selectedLayerId?" selected":""}" data-select-layer="${escapeAttr(layer.id)}"><span>${layer.type === "image" ? "▣" : layer.type === "emoji" ? "★" : "T"}</span><strong>${escapeAttr(label.slice(0,32))}</strong><small>${state.layers.length-index}</small></button>`;
+  }).join("");
+  const layer = selectedLayer(); inspector.hidden = !layer;
+  if (!layer) { inspector.innerHTML=""; return; }
+  const textControl = layer.type === "image" ? "" : `<label>Contenido<textarea data-layer-prop="text" rows="2" maxlength="240">${escapeAttr(layer.text)}</textarea></label>`;
+  inspector.innerHTML = `<strong>Editar capa seleccionada</strong>${textControl}
+    <div class="form-pair"><label>Posición X<input data-layer-prop="x" type="range" min="0" max="100" value="${layer.x}"></label><label>Posición Y<input data-layer-prop="y" type="range" min="0" max="100" value="${layer.y}"></label></div>
+    <label>Ancho<input data-layer-prop="width" type="range" min="5" max="100" value="${layer.width}"></label>
+    <div class="form-pair"><label>Rotación<input data-layer-prop="rotation" type="range" min="-180" max="180" value="${layer.rotation}"></label><label>Opacidad<input data-layer-prop="opacity" type="range" min="10" max="100" value="${layer.opacity}"></label></div>
+    ${layer.type === "image" ? "" : `<div class="form-pair"><label>Tamaño<input data-layer-prop="fontSize" type="range" min="12" max="180" value="${layer.fontSize}"></label><label>Color<input data-layer-prop="color" type="color" value="${layer.color}"></label></div><label>Tipografía<select data-layer-prop="fontFamily"><option>Montserrat</option><option>Fraunces</option><option>Playfair Display</option><option>Great Vibes</option><option>Fredoka</option><option>Bebas Neue</option><option>Cinzel</option><option>Manrope</option></select></label>`}
+    <div class="layer-actions"><button type="button" data-layer-action="back">Enviar atrás</button><button type="button" data-layer-action="front">Traer al frente</button><button type="button" data-layer-action="duplicate">Duplicar</button><button type="button" data-layer-action="delete" class="danger">Eliminar</button></div>`;
+  const font = inspector.querySelector('[data-layer-prop="fontFamily"]'); if (font) font.value = layer.fontFamily;
+}
+
+function handleLayerListClick(event) {
+  const button = event.target.closest("[data-select-layer]"); if (!button) return;
+  state.selectedLayerId = button.dataset.selectLayer; renderLayerManager(); renderPreviewLayers(state.layers);
+}
+function handleLayerInspectorInput(event) {
+  const key = event.target.dataset.layerProp; const layer = selectedLayer(); if (!key || !layer) return;
+  const numeric = ["x","y","width","rotation","opacity","fontSize"].includes(key);
+  layer[key] = numeric ? Number(event.target.value) : event.target.value;
+  renderPreviewLayers(state.layers); setStatus("Cambios sin guardar");
+}
+function handleLayerInspectorClick(event) {
+  const action = event.target.dataset.layerAction; const layer = selectedLayer(); if (!action || !layer) return;
+  const index = state.layers.indexOf(layer);
+  if (action === "delete") { state.layers.splice(index,1); state.selectedLayerId=state.layers.at(-1)?.id||null; }
+  if (action === "front" && index < state.layers.length-1) { state.layers.splice(index,1); state.layers.push(layer); }
+  if (action === "back" && index > 0) { state.layers.splice(index,1); state.layers.unshift(layer); }
+  if (action === "duplicate") { const copy={...layer,id:makeLayerId(),x:clampNumber(layer.x+4,0,100,50),y:clampNumber(layer.y+4,0,100,30)}; state.layers.push(copy); state.selectedLayerId=copy.id; }
+  renderLayerManager(); render(); setStatus("Cambios sin guardar");
+}
+
+function renderPreviewLayers(layers) {
+  const stage = $("[data-preview-layer-stage]"); if (!stage) return;
+  stage.innerHTML="";
+  normalizeLayers(layers).forEach((layer,index) => {
+    const node=document.createElement("div"); node.className=`free-layer free-layer-${layer.type}${layer.id===state.selectedLayerId?" selected":""}`;
+    node.dataset.layerId=layer.id; node.style.left=`${layer.x}%`; node.style.top=`${layer.y}%`; node.style.width=`${layer.width}%`; node.style.opacity=String(layer.opacity/100); node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation}deg)`; node.style.zIndex=String(20+index);
+    if (layer.type === "image") { const image=document.createElement("img"); image.src=layer.src; image.alt=""; node.appendChild(image); }
+    else { node.textContent=layer.text; node.style.fontSize=`${layer.fontSize}px`; node.style.color=layer.color; node.style.fontFamily=`'${layer.fontFamily}'`; node.style.fontWeight=String(layer.fontWeight); }
+    node.addEventListener("pointerdown", beginLayerDrag); stage.appendChild(node);
+  });
+}
+
+function beginLayerDrag(event) {
+  if (event.button !== undefined && event.button !== 0) return;
+  event.preventDefault(); const node=event.currentTarget; const stage=node.parentElement; const layer=state.layers.find((item)=>item.id===node.dataset.layerId); if(!layer)return;
+  state.selectedLayerId=layer.id; renderLayerManager(); node.classList.add("selected","dragging"); node.setPointerCapture?.(event.pointerId);
+  const move=(moveEvent)=>{const rect=stage.getBoundingClientRect();layer.x=clampNumber(((moveEvent.clientX-rect.left)/rect.width)*100,0,100,50);layer.y=clampNumber(((moveEvent.clientY-rect.top)/rect.height)*100,0,100,30);node.style.left=`${layer.x}%`;node.style.top=`${layer.y}%`;};
+  const end=()=>{node.classList.remove("dragging");node.removeEventListener("pointermove",move);node.removeEventListener("pointerup",end);node.removeEventListener("pointercancel",end);renderLayerManager();setStatus("Capa movida · cambios sin guardar");};
+  node.addEventListener("pointermove",move);node.addEventListener("pointerup",end);node.addEventListener("pointercancel",end);
 }
 
 async function save() {

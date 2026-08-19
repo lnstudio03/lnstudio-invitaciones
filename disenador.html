@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Baloo+2:wght@500;600;700;800&family=Bangers&family=Bebas+Neue&family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Dancing+Script:wght@500;600;700&family=DM+Serif+Display&family=Fredoka:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Great+Vibes&family=Lilita+One&family=Lobster&family=Luckiest+Guy&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Oswald:wght@400;500;600;700&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&family=Raleway:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&family=Satisfy&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="disenador.css?v=4.4.15">
-  <script type="module" src="disenador.js?v=4.4.15"></script>
+  <link rel="stylesheet" href="disenador.css?v=4.5.1">
+  <script type="module" src="disenador.js?v=4.5.1"></script>
 </head>
 <body class="designer-is-loading">
   <div class="designer-loading-screen" data-designer-loading role="status" aria-live="polite">
@@ -101,13 +101,27 @@
         </details>
 
         <details open>
-          <summary>5. Galería de fotos</summary>
+          <summary>5. Capas libres · estilo Canva</summary>
+          <p class="form-help">Agrega texto, fotografías o stickers a la portada. Selecciona una capa y arrástrala directamente en la vista previa.</p>
+          <div class="layer-toolbar">
+            <button type="button" data-add-text-layer>+ Texto</button>
+            <label>+ Foto o sticker<input type="file" data-layer-upload accept="image/png,image/jpeg,image/webp,image/gif"></label>
+          </div>
+          <div class="sticker-palette" aria-label="Stickers rápidos">
+            <button type="button" data-add-emoji="✨" aria-label="Agregar destellos">✨</button><button type="button" data-add-emoji="💍" aria-label="Agregar anillo">💍</button><button type="button" data-add-emoji="♥" aria-label="Agregar corazón">♥</button><button type="button" data-add-emoji="🌸" aria-label="Agregar flor">🌸</button><button type="button" data-add-emoji="🎈" aria-label="Agregar globo">🎈</button><button type="button" data-add-emoji="⭐" aria-label="Agregar estrella">⭐</button>
+          </div>
+          <div class="layer-list" data-layer-list></div>
+          <div class="layer-inspector" data-layer-inspector hidden></div>
+        </details>
+
+        <details open>
+          <summary>6. Galería de fotos</summary>
           <div class="gallery-upload-row"><label class="upload-button wide">Agregar fotografías<input type="file" data-upload="gallery" accept="image/png,image/jpeg,image/webp,image/gif" multiple></label><small>Hasta 8 imágenes por invitación.</small></div>
           <div class="gallery-manager" data-gallery-manager></div>
         </details>
 
         <details open>
-          <summary>6. Cuenta regresiva</summary>
+          <summary>7. Cuenta regresiva</summary>
           <label>Estilo<select name="countdown_style">
             <option value="cards">Tarjetas</option>
             <option value="minimal">Minimalista</option>
@@ -124,7 +138,7 @@
         </details>
 
         <details open>
-          <summary>7. Animaciones</summary>
+          <summary>8. Animaciones</summary>
           <label>Animación de entrada<select name="animation_preset"><option value="fade-up">Aparecer y subir</option><option value="fade">Aparecer</option><option value="zoom">Zoom suave</option><option value="slide-left">Deslizar desde la izquierda</option><option value="float">Flotar</option><option value="none">Sin animación</option></select></label>
           <label>Ambiente animado<select name="ambient_animation"><option value="none">Ninguno</option><option value="sparkles">Destellos</option><option value="bubbles">Burbujas</option><option value="confetti">Confeti sutil</option><option value="neon">Resplandor neón</option><option value="stars">Estrellas</option></select></label>
           <label>Intensidad<select name="animation_intensity"><option value="low">Baja</option><option value="medium">Media</option><option value="high">Alta</option></select></label>
@@ -132,7 +146,7 @@
         </details>
 
         <details open>
-          <summary>8. Secciones y orden</summary>
+          <summary>9. Secciones y orden</summary>
           <p class="form-help">Activa, oculta y ordena los bloques. Usa las flechas para cambiar su posición.</p>
           <div class="section-manager" data-section-manager></div>
         </details>
@@ -145,6 +159,7 @@
           <div class="preview-ambient" data-preview-ambient aria-hidden="true"></div>
           <section class="preview-block preview-hero" data-preview-section="hero">
             <div class="preview-overlay"></div>
+            <div class="free-layer-stage" data-preview-layer-stage aria-label="Capas libres de la portada"></div>
             <div class="preview-logo-cluster logo-layout-auto" data-preview-logo-cluster hidden>
               <img class="preview-logo" data-preview-logo alt="Logo principal" hidden>
               <img class="preview-secondary-logo" data-preview-secondary-logo alt="Logo secundario" hidden>

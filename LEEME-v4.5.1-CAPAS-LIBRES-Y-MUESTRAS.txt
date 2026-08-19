@@ -1,0 +1,35 @@
+LN STUDIO v4.5.1 — CAPAS LIBRES Y MUESTRAS CORREGIDAS
+
+ARCHIVOS PARA REEMPLAZAR EN LA RAÍZ DE GITHUB
+- invitacion.html
+- invitation.js
+- invitacion.css
+- catalogo.json
+- disenador.html
+- disenador.js
+- disenador.css
+- evento.html
+- rsvp.js
+
+No borres los demás archivos y no crees carpetas nuevas.
+
+CAMBIOS PRINCIPALES
+- Se corrigió el error que mostraba el día de la boda como si fuera la edad.
+- Se revisaron las 10 muestras y cada categoría tiene emblema coherente.
+- Las muestras ahora tienen más ornamentos, profundidad, marcos y composición.
+- Nuevo editor de capas libres exclusivo para owner/staff de LN Studio.
+- Se puede agregar texto, emojis, fotografías y stickers PNG/JPG/WEBP/GIF.
+- Las capas se pueden arrastrar, escalar, rotar y cambiar de opacidad.
+- El texto libre permite color, tamaño y tipografía.
+- Se puede duplicar, eliminar, enviar atrás o traer al frente.
+- Las capas se guardan en design_config y aparecen en la invitación publicada.
+
+BASE DE DATOS
+- No se necesita ejecutar SQL.
+- No se crean tablas ni políticas nuevas.
+- No cambia autenticación, RSVP, QR ni el escáner.
+
+ALCANCE DE ESTA VERSIÓN
+- Las capas libres se colocan sobre la portada del evento.
+- Máximo recomendado y validado: 30 capas por evento.
+- Imágenes de hasta 8 MB, igual que los demás recursos del diseñador.

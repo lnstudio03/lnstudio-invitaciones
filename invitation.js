@@ -1,5 +1,6 @@
 const INVITATIONS = {
   "biker-rebel-neon": sample({
+    emblem:"01", emblemLabel:"ANIVERSARIO", momentNumber:"01",
     theme: "fantasma", accent: "#1748ff", accentTwo: "#ff0875", background: "#030309",
     brand: "Riders United", title: "Noche de aniversario", subtitle: "Ruta, música y comunidad biker",
     date: "2026-09-19T18:00:00-06:00", fullDate: "Sábado 19 de septiembre de 2026", day: "19", month: "Septiembre", year: "2026", time: "6:00 p.m.",
@@ -10,6 +11,7 @@ const INVITATIONS = {
     launchTitle: "Enciende la noche.", launchCopy: "Música, exhibición y convivencia en un evento completamente ficticio.", launchTagline: "Riders United · Demo LN Studio."
   }),
   "boda-eternite": sample({
+    emblem:"∞", emblemLabel:"JUNTOS", momentNumber:"&",
     theme: "gold", accent: "#d6ad61", accentTwo: "#f5e0a8", background: "#080706",
     brand: "Lucía & Nicolás", title: "Nuestra boda", subtitle: "Una historia para toda la vida",
     date: "2026-10-24T17:00:00-06:00", fullDate: "Sábado 24 de octubre de 2026", day: "24", month: "Octubre", year: "2026", time: "5:00 p.m.",
@@ -28,9 +30,24 @@ const INVITATIONS = {
   "corporativo-maison": sample({ theme:"light",accent:"#5c4b36",accentTwo:"#aa8e68",background:"#ddd7ca",brand:"Maison Arquitectura",title:"Open studio",subtitle:"Espacios que comienzan una nueva conversación",date:"2026-10-15T18:00:00-06:00",fullDate:"Jueves 15 de octubre de 2026",day:"15",month:"Octubre",year:"2026",time:"6:00 p.m.",locationShort:"Maison Studio",address:"Ciudad de México",purpose:"Apertura de estudio",purposeCopy:"Recorrido, presentación y cóctel.",intro:"Un espacio puede transformar la manera en que vivimos, trabajamos y nos encontramos.",statement:"Materia. Luz. Propósito.",momentTitle:"Abrimos nuestras puertas.",momentCopy:"Conoce el estudio, nuestro proceso y los proyectos que definen esta nueva etapa.",launchTitle:"Una conversación sobre diseño.",launchCopy:"Recorrido guiado y encuentro con el equipo creativo.",launchTagline:"Maison Arquitectura · Open Studio 2026." })
 };
 
+/* Emblemas semánticos: nunca se usa el día de la fecha como edad. */
+const SAMPLE_EMBLEMS = {
+  "biker-rebel-neon": { emblem:"01", emblemLabel:"ANIVERSARIO", momentNumber:"01" },
+  "boda-eternite": { emblem:"∞", emblemLabel:"JUNTOS", momentNumber:"&" },
+  "boda-jardin-luz": { emblem:"♥", emblemLabel:"NUESTRA HISTORIA", momentNumber:"&" },
+  "xv-eclat": { emblem:"XV", emblemLabel:"AÑOS", momentNumber:"XV" },
+  "xv-celestial": { emblem:"XV", emblemLabel:"AÑOS", momentNumber:"XV" },
+  "cumple-neon": { emblem:"25", emblemLabel:"AÑOS", momentNumber:"25" },
+  "bautizo-alba": { emblem:"✦", emblemLabel:"BAUTIZO", momentNumber:"✦" },
+  "baby-bloom": { emblem:"♥", emblemLabel:"EN CAMINO", momentNumber:"♥" },
+  "corporativo-signature": { emblem:"26", emblemLabel:"EDICIÓN", momentNumber:"26" },
+  "corporativo-maison": { emblem:"26", emblemLabel:"APERTURA", momentNumber:"26" }
+};
+Object.entries(SAMPLE_EMBLEMS).forEach(([key, values]) => Object.assign(INVITATIONS[key], values));
+
 function sample(data) {
   return {
-    official: false, kicker: "Invitación de muestra", emblem: data.day || "✦", emblemLabel: "EVENTO",
+    official: false, kicker: "Invitación de muestra", emblem: "✦", emblemLabel: "EVENTO", momentNumber:"✦",
     map: "https://www.google.com/maps", rsvpTitle: "Confirma tu asistencia.", rsvpCopy: "Este formulario demuestra cómo tus invitados pueden registrar su respuesta.", closeCopy: "Gracias por recorrer esta experiencia de muestra creada por LN Studio.", ...data
   };
 }
@@ -59,7 +76,7 @@ function applyInvitation(data) {
   document.body.classList.toggle("theme-light", data.theme === "light");
 
   const values = {
-    kicker:data.kicker, brand:data.brand, title:data.title, subtitle:data.subtitle, emblem:data.emblem,
+    kicker:data.kicker, brand:data.brand, title:data.title, subtitle:data.subtitle, emblem:data.emblem, emblemLabel:data.emblemLabel, momentNumber:data.momentNumber,
     day:data.day, month:data.month, year:data.year, intro:data.intro, statement:data.statement,
     fullDate:data.fullDate, time:data.time, locationShort:data.locationShort, address:data.address,
     purpose:data.purpose, purposeCopy:data.purposeCopy, momentTitle:data.momentTitle, momentCopy:data.momentCopy,
