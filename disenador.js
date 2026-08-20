@@ -6,6 +6,7 @@ const eventId = new URLSearchParams(location.search).get("id");
 const BUCKET = "invitation-assets";
 const SECTION_LABELS = { hero:"Portada", countdown:"Cuenta regresiva", details:"Detalles", gallery:"Galería", rsvp:"Confirmación RSVP" };
 const DEFAULT_ORDER = ["hero","countdown","details","gallery","rsvp"];
+const CUSTOM_TYPES = { image:"Imagen destacada", video:"Video", "photo-text":"Foto + texto", quote:"Pensamiento", separator:"Separador", itinerary:"Itinerario" };
 const DEFAULTS = {
   preset:"celebration",
   colors:{ background:"#0d1420", background2:"#1b2537", text:"#ffffff", muted:"#b7c1d5", primary:"#8f7dff", secondary:"#ff7f91", overlay:45, mode:"gradient" },
@@ -13,6 +14,7 @@ const DEFAULTS = {
   countdown:{ style:"cards", font:"Manrope", showSeconds:true },
   media:{ backgroundImage:"", gallery:[], heroFit:"cover", showMusicButton:true },
   layers:[],
+  customSections:[],
   animation:{ preset:"fade-up", ambient:"none", intensity:"medium", respectReducedMotion:true },
   content:{ kicker:"Invitación digital", rsvpTitle:"¿Nos acompañas?", rsvpCopy:"Confirma tu asistencia y recibe tu pase digital." },
   sections:{ order:[...DEFAULT_ORDER], enabled:{ hero:true,countdown:true,details:true,gallery:true,rsvp:true } }
@@ -25,7 +27,7 @@ const PRESETS = {
   corporate:{ primary:"#2774d8",secondary:"#40b8c4",background:"#0d1724",background2:"#182a3d",text:"#f6fbff",muted:"#b7c7d8",heading:"Montserrat",body:"Manrope",ambient:"none" },
   fantasy:{ primary:"#9b5de5",secondary:"#00d4b8",background:"#120e24",background2:"#25184a",text:"#ffffff",muted:"#d4cae9",heading:"Cinzel",body:"Poppins",ambient:"stars" }
 };
-let state = { user:null, profile:null, event:null, gallery:[], layers:[], selectedLayerId:null, sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0, localAssets:{} };
+let state = { user:null, profile:null, event:null, gallery:[], layers:[], customSections:[], selectedLayerId:null, sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0, localAssets:{} };
 let previewMode = "mobile";
 let previewResizeObserver = null;
 let previewCountdownTimer = null;
@@ -86,12 +88,23 @@ function bind() {
     render(); resetPreviewToTop(); setStatus("Archivo quitado · cambios sin guardar");
   }));
   $("[data-fix-contrast]").addEventListener("click", fixContrast);
+  $("[data-replay-animation]")?.addEventListener("click", replayPreviewAnimation);
+  $$(`[data-add-custom-section]`).forEach((button) => button.addEventListener("click", () => addCustomSection(button.dataset.addCustomSection)));
+  $("[data-section-manager]")?.addEventListener("input", handleCustomSectionInput);
+  $("[data-section-manager]")?.addEventListener("change", handleCustomSectionChange);
+  $("[data-section-manager]")?.addEventListener("click", handleCustomSectionClick);
   $("[data-add-text-layer]")?.addEventListener("click", () => addLayer({ section:"hero", type:"text", text:"Nuevo texto", x:50, y:28, width:48, rotation:0, opacity:100, fontSize:34, color:"#ffffff", fontFamily:"Montserrat", fontWeight:700 }));
   $$("[data-add-emoji]").forEach((button) => button.addEventListener("click", () => addLayer({ section:"hero", type:"emoji", text:button.dataset.addEmoji, x:50, y:24, width:18, rotation:0, opacity:100, fontSize:64, color:"#ffffff", fontFamily:"Manrope", fontWeight:700 })));
   $("[data-layer-upload]")?.addEventListener("change", (event) => handleLayerUpload(event.currentTarget));
   $("[data-layer-list]")?.addEventListener("click", handleLayerListClick);
   $("[data-layer-inspector]")?.addEventListener("input", handleLayerInspectorInput);
   $("[data-layer-inspector]")?.addEventListener("click", handleLayerInspectorClick);
+}
+
+function replayPreviewAnimation(){
+  const screen=$("[data-preview-screen]"),preset=$("#designer-form").elements.animation_preset.value;
+  screen.classList.remove(`animation-${preset}`);void screen.offsetWidth;screen.classList.add(`animation-${preset}`);screen.scrollTo({top:0,behavior:"smooth"});
+  setStatus("Reproduciendo animación");
 }
 
 function setupPreviewFitting() {
@@ -187,6 +200,7 @@ function fill() {
   form.elements.respect_reduced_motion.checked = config.animation.respectReducedMotion !== false;
   state.gallery = Array.isArray(config.media.gallery) ? config.media.gallery.filter(Boolean).slice(0,8) : [];
   state.layers = normalizeLayers(config.layers);
+  state.customSections = normalizeCustomSections(config.customSections);
   state.selectedLayerId = state.layers[0]?.id || null;
   state.sections = normalizeOrder(config.sections.order);
   state.enabled = { ...DEFAULTS.sections.enabled, ...(config.sections.enabled || {}) };
@@ -206,6 +220,7 @@ function mergeConfig(value) {
     countdown:{ ...DEFAULTS.countdown, ...(source.countdown || {}) },
     media:{ ...DEFAULTS.media, ...(source.media || {}) },
     layers:normalizeLayers(source.layers),
+    customSections:normalizeCustomSections(source.customSections),
     animation:{ ...DEFAULTS.animation, ...(source.animation || {}) },
     content:{ ...DEFAULTS.content, ...(source.content || {}) },
     sections:{ order:normalizeOrder(source.sections?.order), enabled:{ ...DEFAULTS.sections.enabled, ...(source.sections?.enabled || {}) } }
@@ -213,7 +228,7 @@ function mergeConfig(value) {
 }
 
 function normalizeOrder(order) {
-  const clean = Array.isArray(order) ? order.filter((item) => DEFAULT_ORDER.includes(item)) : [];
+  const clean = Array.isArray(order) ? order.filter((item) => DEFAULT_ORDER.includes(item) || /^custom:[a-z0-9-]{1,80}$/i.test(item)) : [];
   DEFAULT_ORDER.forEach((item) => { if (!clean.includes(item)) clean.push(item); });
   return clean;
 }
@@ -422,9 +437,13 @@ function revokeLocalAsset(fieldName) {
 function validateFile(file, role) {
   const imageTypes = ["image/png","image/jpeg","image/webp","image/gif"];
   const audioTypes = ["audio/mpeg","audio/mp3","audio/wav","audio/x-wav","audio/ogg"];
+  const videoTypes = ["video/mp4","video/webm","video/quicktime"];
   if (role === "music") {
     if (!audioTypes.includes(file.type)) throw new Error("La música debe ser MP3, WAV u OGG.");
     if (file.size > 15 * 1024 * 1024) throw new Error("La música supera el límite de 15 MB.");
+  } else if (role === "custom-video") {
+    if (!videoTypes.includes(file.type)) throw new Error("El video debe ser MP4, WEBM o MOV.");
+    if (file.size > 50 * 1024 * 1024) throw new Error("El video supera el límite de 50 MB.");
   } else {
     if (!imageTypes.includes(file.type)) throw new Error("La imagen debe ser PNG, JPG, WEBP o GIF.");
     if (file.size > 8 * 1024 * 1024) throw new Error("La imagen supera el límite de 8 MB.");
@@ -432,20 +451,95 @@ function validateFile(file, role) {
 }
 
 function extensionFor(file) {
-  const map = { "image/png":"png","image/jpeg":"jpg","image/webp":"webp","image/gif":"gif","audio/mpeg":"mp3","audio/mp3":"mp3","audio/wav":"wav","audio/x-wav":"wav","audio/ogg":"ogg" };
+  const map = { "image/png":"png","image/jpeg":"jpg","image/webp":"webp","image/gif":"gif","audio/mpeg":"mp3","audio/mp3":"mp3","audio/wav":"wav","audio/x-wav":"wav","audio/ogg":"ogg","video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov" };
   return map[file.type] || "bin";
 }
 function randomToken() { return Math.random().toString(36).slice(2,8); }
 
+function normalizeCustomSections(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0,12).map((item,index) => ({
+    id:String(item?.id || `section-${index}`).replace(/[^a-z0-9-]/gi,"-").slice(0,80),
+    type:CUSTOM_TYPES[item?.type] ? item.type : "quote",
+    title:String(item?.title || "").slice(0,140),
+    text:String(item?.text || "").slice(0,900),
+    mediaUrl:String(item?.mediaUrl || "").slice(0,1800),
+    caption:String(item?.caption || "").slice(0,220),
+    items:Array.isArray(item?.items) ? item.items.map((entry)=>String(entry).slice(0,120)).slice(0,8) : []
+  }));
+}
+
+function customKey(id) { return `custom:${id}`; }
+function addCustomSection(type) {
+  if (!CUSTOM_TYPES[type]) return;
+  if (state.customSections.length >= 12) return alert("Puedes agregar hasta 12 secciones especiales.");
+  const id=`section-${Date.now().toString(36)}-${randomToken()}`;
+  const defaults={
+    image:{title:"Un momento para recordar",text:"",caption:"Nuestra historia en una imagen."},
+    video:{title:"Revive este momento",text:"Presiona reproducir para verlo.",caption:""},
+    "photo-text":{title:"Nuestra historia",text:"Cada momento nos trajo hasta aquí.",caption:""},
+    quote:{title:"Un pensamiento especial",text:"Hay momentos que se quedan para siempre en el corazón.",caption:""},
+    separator:{title:"✦",text:"Celebremos juntos",caption:""},
+    itinerary:{title:"Itinerario",text:"",caption:"",items:["18:00 · Recepción","19:00 · Ceremonia","20:00 · Celebración"]}
+  }[type];
+  state.customSections.push({id,type,mediaUrl:"",items:[],...defaults});
+  const key=customKey(id); state.sections.push(key); state.enabled[key]=true;
+  renderSectionManager(); render(); setStatus("Sección agregada · cambios sin guardar");
+}
+
+function customSectionEditor(section,key,index) {
+  const accepts=section.type === "video" ? "video/mp4,video/webm,video/quicktime" : "image/png,image/jpeg,image/webp,image/gif";
+  const mediaField=["image","video","photo-text"].includes(section.type) ? `<label>Archivo o enlace<input data-custom-field="mediaUrl" data-custom-id="${section.id}" value="${escapeAttr(section.mediaUrl)}" placeholder="Pega una URL o sube un archivo"></label><label class="custom-upload">Subir ${section.type === "video" ? "video" : "foto"}<input type="file" data-custom-upload="${section.id}" accept="${accepts}"></label>${section.mediaUrl ? `<button type="button" class="danger-link" data-clear-custom-media="${section.id}">Quitar archivo</button>` : ""}` : "";
+  const textLabel=section.type === "itinerary" ? "Horario (una actividad por línea)" : section.type === "quote" ? "Pensamiento o frase" : "Texto";
+  const textValue=section.type === "itinerary" ? section.items.join("\n") : section.text;
+  return `<div class="section-row custom-section-row" data-custom-card="${section.id}">
+    <input type="checkbox" data-section-toggle="${key}" ${state.enabled[key] !== false ? "checked" : ""} aria-label="Mostrar ${CUSTOM_TYPES[section.type]}">
+    <div class="custom-section-main"><strong>${CUSTOM_TYPES[section.type]}</strong><small>Bloque prediseñado</small><details><summary>Editar contenido</summary><label>Título<input data-custom-field="title" data-custom-id="${section.id}" maxlength="140" value="${escapeAttr(section.title)}"></label><label>${textLabel}<textarea data-custom-field="${section.type === "itinerary" ? "items" : "text"}" data-custom-id="${section.id}" rows="3">${escapeAttr(textValue)}</textarea></label>${mediaField}<label>Pie de foto<input data-custom-field="caption" data-custom-id="${section.id}" maxlength="220" value="${escapeAttr(section.caption)}"></label></details></div>
+    <div class="section-move"><button type="button" data-move-section="${key}" data-direction="-1" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-move-section="${key}" data-direction="1" ${index === state.sections.length-1 ? "disabled" : ""}>↓</button><button type="button" class="delete-section" data-delete-custom-section="${section.id}" title="Eliminar sección">×</button></div>
+  </div>`;
+}
+
 function renderSectionManager() {
   const root = $("[data-section-manager]");
-  root.innerHTML = state.sections.map((key, index) => `<div class="section-row">
+  state.sections = state.sections.filter((key)=>DEFAULT_ORDER.includes(key) || state.customSections.some((section)=>customKey(section.id)===key));
+  DEFAULT_ORDER.forEach((key)=>{if(!state.sections.includes(key))state.sections.push(key)});
+  root.innerHTML = state.sections.map((key, index) => {
+    if (key.startsWith("custom:")) { const custom=state.customSections.find((section)=>customKey(section.id)===key); return custom ? customSectionEditor(custom,key,index) : ""; }
+    return `<div class="section-row">
     <input type="checkbox" data-section-toggle="${key}" ${state.enabled[key] !== false ? "checked" : ""} aria-label="Mostrar ${SECTION_LABELS[key]}">
     <strong>${SECTION_LABELS[key]}</strong>
     <div class="section-move"><button type="button" data-move-section="${key}" data-direction="-1" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-move-section="${key}" data-direction="1" ${index === state.sections.length - 1 ? "disabled" : ""}>↓</button></div>
-  </div>`).join("");
+  </div>`;}).join("");
   $$(`[data-section-toggle]`, root).forEach((input) => input.addEventListener("change", () => { state.enabled[input.dataset.sectionToggle] = input.checked; render(); setStatus("Cambios sin guardar"); }));
   $$(`[data-move-section]`, root).forEach((button) => button.addEventListener("click", () => moveSection(button.dataset.moveSection, Number(button.dataset.direction))));
+}
+
+function handleCustomSectionInput(event) {
+  const field=event.target.dataset.customField, id=event.target.dataset.customId;
+  if(!field || !id) return; const section=state.customSections.find((item)=>item.id===id); if(!section)return;
+  section[field]=field === "items" ? event.target.value.split("\n").map((item)=>item.trim()).filter(Boolean).slice(0,8) : event.target.value;
+  render(); setStatus("Cambios sin guardar");
+}
+function handleCustomSectionChange(event) {
+  const id=event.target.dataset.customUpload; if(!id || !event.target.files?.[0])return;
+  uploadCustomSectionMedia(id,event.target);
+}
+function handleCustomSectionClick(event) {
+  const deleteButton=event.target.closest("[data-delete-custom-section]");
+  if(deleteButton){deleteCustomSection(deleteButton.dataset.deleteCustomSection);return}
+  const clearButton=event.target.closest("[data-clear-custom-media]");
+  if(clearButton){const section=state.customSections.find((item)=>item.id===clearButton.dataset.clearCustomMedia);if(section){section.mediaUrl="";renderSectionManager();render();setStatus("Archivo quitado · cambios sin guardar")}}
+}
+async function uploadCustomSectionMedia(id,input){
+  const section=state.customSections.find((item)=>item.id===id),file=input.files?.[0];if(!section||!file)return;
+  const role=section.type === "video" ? "custom-video" : "custom-image";
+  try{const url=await uploadOne(file,role);section.mediaUrl=url;renderSectionManager();render();setStatus("Archivo listo · falta guardar el diseño")}catch(error){alert(errorMessage(error))}finally{input.value=""}
+}
+function deleteCustomSection(id){
+  const section=state.customSections.find((item)=>item.id===id);if(!section)return;
+  if(!confirm(`¿Eliminar la sección “${section.title || CUSTOM_TYPES[section.type]}”?`))return;
+  const key=customKey(id);state.customSections=state.customSections.filter((item)=>item.id!==id);state.sections=state.sections.filter((item)=>item!==key);delete state.enabled[key];
+  state.layers=state.layers.filter((layer)=>layer.section!==key);renderSectionManager();renderLayerManager();render();setStatus("Sección eliminada · cambios sin guardar");
 }
 
 function moveSection(key, direction) {
@@ -483,6 +577,7 @@ function buildConfig(data) {
     countdown:{ style:data.countdown_style || "cards", font:data.countdown_font || "Manrope", showSeconds:$("#designer-form").elements.countdown_seconds.checked },
     media:{ backgroundImage:data.background_image_url || "", gallery:[...state.gallery], heroFit:data.hero_fit || "cover", showMusicButton:$("#designer-form").elements.show_music_button.checked },
     layers:normalizeLayers(state.layers),
+    customSections:normalizeCustomSections(state.customSections),
     animation:{ preset:data.animation_preset || "fade-up", ambient:data.ambient_animation || "none", intensity:data.animation_intensity || "medium", respectReducedMotion:$("#designer-form").elements.respect_reduced_motion.checked },
     content:{ kicker:data.kicker || "Invitación digital", rsvpTitle:data.rsvp_title || "¿Nos acompañas?", rsvpCopy:data.rsvp_copy || "Confirma tu asistencia y recibe tu pase digital." },
     sections:{ order:[...state.sections], enabled:{...state.enabled} }
@@ -519,6 +614,7 @@ function render() {
   setPreviewImage($("[data-preview-secondary-logo]"), data.secondary_logo_url, "secondary_logo_url");
   updatePreviewLogoCluster();
   setPreviewImage($("[data-preview-hero-image]"), data.hero_image_url, "hero_image_url");
+  renderPreviewCustomSections(config.customSections);
   renderPreviewLayers(config.layers);
   renderPreviewCountdown(config, data.event_date);
   const gallery = $("[data-preview-gallery]"); gallery.innerHTML = state.gallery.length ? state.gallery.slice(0,6).map((url) => `<img src="${escapeAttr(url)}" alt="">`).join("") : '<div class="gallery-placeholder">Las fotografías aparecerán aquí.</div>';
@@ -530,6 +626,21 @@ function render() {
     fitPreviewTitle();
     fitPreviewToVisibleArea();
   });
+}
+
+function customSectionMarkup(section) {
+  const media=safeAsset(section.mediaUrl), title=escapeAttr(section.title), text=escapeAttr(section.text), caption=escapeAttr(section.caption);
+  if(section.type==="video") return `<p>Video</p><h3>${title}</h3>${media?`<video src="${escapeAttr(media)}" controls muted playsinline preload="metadata"></video>`:'<div class="custom-media-placeholder">Sube un video o pega su enlace.</div>'}<span>${text}</span>`;
+  if(section.type==="image") return `<p>Imagen destacada</p><h3>${title}</h3>${media?`<img src="${escapeAttr(media)}" alt="${caption}" loading="lazy">`:'<div class="custom-media-placeholder">Agrega una fotografía.</div>'}<span>${caption}</span>`;
+  if(section.type==="photo-text") return `<div class="custom-split">${media?`<img src="${escapeAttr(media)}" alt="${caption}" loading="lazy">`:'<div class="custom-media-placeholder">Agrega una fotografía.</div>'}<div><p>Nuestra historia</p><h3>${title}</h3><span>${text}</span></div></div>`;
+  if(section.type==="quote") return `<span class="custom-quote-mark">“</span><blockquote>${text}</blockquote><h3>${title}</h3>`;
+  if(section.type==="separator") return `<span class="custom-separator-symbol">${title||"✦"}</span><h3>${text}</h3>`;
+  const items=section.items.map((item)=>{const parts=item.split("·");return `<li><strong>${escapeAttr(parts.shift()?.trim()||"")}</strong><span>${escapeAttr(parts.join("·").trim())}</span></li>`}).join("");
+  return `<p>Itinerario</p><h3>${title}</h3><ol class="custom-itinerary">${items}</ol>`;
+}
+function renderPreviewCustomSections(sections){
+  $$('[data-preview-custom]').forEach((node)=>node.remove());
+  normalizeCustomSections(sections).forEach((section)=>{const node=document.createElement("section");node.className=`preview-block preview-custom preview-custom-${section.type}`;node.dataset.previewSection=customKey(section.id);node.dataset.previewCustom=section.id;node.innerHTML=customSectionMarkup(section);$("[data-preview-screen]").appendChild(node)});
 }
 
 function renderPreviewCountdown(config, value) {
@@ -618,7 +729,7 @@ function normalizeLayers(value) {
     const type = ["text","image","emoji"].includes(item?.type) ? item.type : "text";
     return {
       id:String(item?.id || `layer-${Date.now()}-${index}`).slice(0,80), type,
-      section:DEFAULT_ORDER.includes(item?.section) ? item.section : "hero",
+      section:(DEFAULT_ORDER.includes(item?.section) || /^custom:[a-z0-9-]{1,80}$/i.test(item?.section)) ? item.section : "hero",
       text:String(item?.text || (type === "text" ? "Texto" : "")).slice(0,240),
       src:type === "image" ? String(item?.src || "").slice(0,1500) : "",
       name:String(item?.name || "").slice(0,120),
@@ -651,12 +762,14 @@ function renderLayerManager() {
   if (!state.layers.length) list.innerHTML = '<div class="layer-empty">Agrega texto, una fotografía o un sticker.</div>';
   else list.innerHTML = [...state.layers].reverse().map((layer,index) => {
     const label = layer.type === "image" ? (layer.name || "Imagen") : (layer.text || "Texto");
-    return `<button type="button" class="layer-list-item${layer.id===state.selectedLayerId?" selected":""}" data-select-layer="${escapeAttr(layer.id)}"><span>${layer.type === "image" ? "▣" : layer.type === "emoji" ? "★" : "T"}</span><strong>${escapeAttr(label.slice(0,32))}<em>${escapeAttr(SECTION_LABELS[layer.section] || "Portada")}</em></strong><small>${state.layers.length-index}</small></button>`;
+    const sectionLabel=SECTION_LABELS[layer.section] || CUSTOM_TYPES[state.customSections.find((item)=>customKey(item.id)===layer.section)?.type] || "Portada";
+    return `<button type="button" class="layer-list-item${layer.id===state.selectedLayerId?" selected":""}" data-select-layer="${escapeAttr(layer.id)}"><span>${layer.type === "image" ? "▣" : layer.type === "emoji" ? "★" : "T"}</span><strong>${escapeAttr(label.slice(0,32))}<em>${escapeAttr(sectionLabel)}</em></strong><small>${state.layers.length-index}</small></button>`;
   }).join("");
   const layer = selectedLayer(); inspector.hidden = !layer;
   if (!layer) { inspector.innerHTML=""; return; }
   const textControl = layer.type === "image" ? "" : `<label>Contenido<textarea data-layer-prop="text" rows="2" maxlength="240">${escapeAttr(layer.text)}</textarea></label>`;
-  inspector.innerHTML = `<strong>Editar capa seleccionada</strong><label>Sección<select data-layer-prop="section"><option value="hero">Portada</option><option value="countdown">Cuenta regresiva</option><option value="details">Detalles</option><option value="gallery">Galería</option><option value="rsvp">Confirmación RSVP</option></select></label>${textControl}
+  const customOptions=state.customSections.map((item)=>`<option value="${customKey(item.id)}">${escapeAttr(CUSTOM_TYPES[item.type])}: ${escapeAttr(item.title||"Sin título")}</option>`).join("");
+  inspector.innerHTML = `<strong>Editar capa seleccionada</strong><label>Sección<select data-layer-prop="section"><option value="hero">Portada</option><option value="countdown">Cuenta regresiva</option><option value="details">Detalles</option><option value="gallery">Galería</option><option value="rsvp">Confirmación RSVP</option>${customOptions}</select></label>${textControl}
     <div class="form-pair"><label>Posición X<input data-layer-prop="x" type="range" min="0" max="100" value="${layer.x}"></label><label>Posición Y<input data-layer-prop="y" type="range" min="0" max="100" value="${layer.y}"></label></div>
     <label>Ancho<input data-layer-prop="width" type="range" min="5" max="100" value="${layer.width}"></label>
     <div class="form-pair"><label>Rotación<input data-layer-prop="rotation" type="range" min="-180" max="180" value="${layer.rotation}"></label><label>Opacidad<input data-layer-prop="opacity" type="range" min="10" max="100" value="${layer.opacity}"></label></div>
@@ -694,7 +807,7 @@ function handleLayerInspectorClick(event) {
 function renderPreviewLayers(layers) {
   $$("[data-preview-layer-stage]").forEach((stage) => stage.remove());
   const stages = {};
-  DEFAULT_ORDER.forEach((section) => {
+  state.sections.forEach((section) => {
     const block = $(`[data-preview-section="${section}"]`); if (!block) return;
     const stage = document.createElement("div"); stage.className="free-layer-stage"; stage.dataset.previewLayerStage=section; block.appendChild(stage); stages[section]=stage;
   });
@@ -722,7 +835,7 @@ async function save() {
   if (state.uploading) return alert("Espera a que terminen las cargas.");
   setBusy(true); setStatus("Guardando diseño…");
   try {
-    const data = formData(); const config = buildConfig(data);
+    const data = formData(); const config = buildConfig(data); const previousAssets=collectDesignAssets(state.event,mergeConfig(state.event.design_config));
     const payload = {
       name:data.name.trim(), description:data.description || null,
       event_date:data.event_date ? new Date(data.event_date).toISOString() : null,
@@ -733,6 +846,8 @@ async function save() {
       design_config:config
     };
     await api.rpc("update_event_design", { p_event_id:eventId, p_payload:payload });
+    const nextAssets=collectDesignAssets(payload,config);const obsolete=[...previousAssets].filter((url)=>!nextAssets.has(url)).map(storagePathFromUrl).filter(Boolean);
+    if(obsolete.length) try{await api.removeFile(BUCKET,obsolete)}catch(error){console.warn("No fue posible limpiar algunos archivos anteriores.",error)}
     state.event = { ...state.event, ...payload };
     $("[data-event-title]").textContent = payload.name;
     ["logo_url","secondary_logo_url","hero_image_url","background_image_url","music_url"].forEach((fieldName) => {
@@ -742,6 +857,13 @@ async function save() {
     setStatus("Diseño guardado", true);
   } catch (error) { setStatus(errorMessage(error)); }
   finally { setBusy(false); }
+}
+
+function collectDesignAssets(event,config){
+  return new Set([event?.logo_url,event?.secondary_logo_url,event?.hero_image_url,event?.music_url,config?.media?.backgroundImage,...(config?.media?.gallery||[]),...(config?.layers||[]).map((item)=>item.src),...(config?.customSections||[]).map((item)=>item.mediaUrl)].filter((url)=>/^https?:/i.test(String(url||""))));
+}
+function storagePathFromUrl(value){
+  try{const url=new URL(value),marker=`/storage/v1/object/public/${BUCKET}/`,index=url.pathname.indexOf(marker);return index>=0?decodeURIComponent(url.pathname.slice(index+marker.length)):""}catch{return""}
 }
 
 function fixContrast() {

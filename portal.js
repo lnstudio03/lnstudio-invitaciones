@@ -310,7 +310,7 @@ function renderClients() {
   $("[data-clients]").innerHTML = rows.map((client) => `<article class="data-card">
     <span class="status-pill status-${esc(client.status)}">${esc(client.status)}</span><h3>${esc(client.business_name)}</h3><p>${esc(client.contact_name || "Sin contacto")}</p>
     <dl><div><dt>Correo</dt><dd>${esc(client.email || "—")}</dd></div><div><dt>WhatsApp</dt><dd>${esc(client.phone || "—")}</dd></div><div><dt>Eventos</dt><dd>${state.events.filter((event) => event.client_id === client.id).length}</dd></div></dl>
-    <div class="card-actions"><button type="button" data-client-event="${client.id}">Crear evento</button><button type="button" data-edit-client="${client.id}">Editar</button></div>
+    <div class="card-actions"><button type="button" data-client-event="${client.id}">Crear evento</button><button type="button" data-edit-client="${client.id}">Editar</button>${isOwner()?`<button type="button" class="danger-link" data-delete-client="${client.id}">Eliminar</button>`:""}</div>
   </article>`).join("");
   $("[data-clients-empty]").hidden = rows.length > 0;
   bindDynamicActions($("[data-clients]"));
@@ -343,7 +343,7 @@ function renderTemplates() {
   if (!isOwner()) return;
   $("[data-templates]").innerHTML = state.templates.map((template) => `<article class="template-card">
     <div class="template-preview template-${esc(template.category)}"><span>LN</span></div><p class="admin-eyebrow">${esc(template.category)}</p><h3>${esc(template.name)}</h3><p>${esc(template.description || "Plantilla editable")}</p>
-    <div class="card-actions"><button type="button" data-template-event="${esc(template.template_key)}">Crear evento</button><button type="button" data-edit-template="${template.id}">Editar</button>${template.preview_url ? `<a href="${esc(template.preview_url)}" target="_blank" rel="noopener">Vista previa</a>` : ""}</div>
+    <div class="card-actions"><button type="button" data-template-event="${esc(template.template_key)}">Crear evento</button><button type="button" data-edit-template="${template.id}">Editar</button><button type="button" class="danger-link" data-delete-template="${template.id}">Eliminar</button>${template.preview_url ? `<a href="${esc(template.preview_url)}" target="_blank" rel="noopener">Vista previa</a>` : ""}</div>
   </article>`).join("");
   bindDynamicActions($("[data-templates]"));
 }
@@ -358,6 +358,7 @@ function renderMembers() {
       ${isOwner() && member.invitation_status !== "active" && member.invitation_status !== "revoked" ? `<button type="button" data-resend-member="${member.id}">Reenviar</button>` : ""}
       ${isOwner() ? `<button type="button" data-edit-member="${member.id}">Editar</button>` : ""}
       ${isOwner() && member.invitation_status !== "revoked" ? `<button type="button" class="danger-link" data-revoke-member="${member.id}">Revocar</button>` : ""}
+      ${isOwner() ? `<button type="button" class="danger-link" data-delete-member="${member.id}">Eliminar</button>` : ""}
     </div>
   </article>`).join("") || '<div class="empty-state">Todavía no hay usuarios asignados.</div>';
   bindDynamicActions($("[data-members]"));
@@ -366,13 +367,16 @@ function renderMembers() {
 function bindDynamicActions(root) {
   $$('[data-client-event]', root).forEach((button) => button.addEventListener("click", () => openEvent({ clientId: button.dataset.clientEvent })));
   $$('[data-edit-client]', root).forEach((button) => button.addEventListener("click", () => openClient(button.dataset.editClient)));
+  $$('[data-delete-client]', root).forEach((button) => button.addEventListener("click", () => deleteClient(button.dataset.deleteClient)));
   $$('[data-edit-event]', root).forEach((button) => button.addEventListener("click", () => openEvent({ id: button.dataset.editEvent })));
   $$('[data-delete-event]', root).forEach((button) => button.addEventListener("click", () => deleteEvent(button.dataset.deleteEvent)));
   $$('[data-template-event]', root).forEach((button) => button.addEventListener("click", () => openEvent({ templateKey: button.dataset.templateEvent })));
   $$('[data-edit-template]', root).forEach((button) => button.addEventListener("click", () => openTemplate(button.dataset.editTemplate)));
+  $$('[data-delete-template]', root).forEach((button) => button.addEventListener("click", () => deleteTemplate(button.dataset.deleteTemplate)));
   $$('[data-edit-member]', root).forEach((button) => button.addEventListener("click", () => openMember(button.dataset.editMember)));
   $$('[data-resend-member]', root).forEach((button) => button.addEventListener("click", () => resendMember(button.dataset.resendMember)));
   $$('[data-revoke-member]', root).forEach((button) => button.addEventListener("click", () => revokeMember(button.dataset.revokeMember)));
+  $$('[data-delete-member]', root).forEach((button) => button.addEventListener("click", () => deleteMember(button.dataset.deleteMember)));
   $$('[data-request]', root).forEach((button) => button.addEventListener("click", () => openRequest(button.dataset.request)));
 }
 
@@ -406,6 +410,13 @@ async function saveClient(event) {
     $("#client-dialog").close(); await load();
   } catch (error) { status.textContent = errorMessage(error); }
   finally { setBusy(form, false); }
+}
+
+async function deleteClient(id){
+  const client=state.clients.find((item)=>item.id===id);if(!client||!isOwner())return;
+  const count=state.events.filter((item)=>item.client_id===id).length;
+  if(!confirm(`¿Eliminar al cliente “${client.business_name}”?${count?` Sus ${count} evento(s) se conservarán sin cliente asignado.`:""}`))return;
+  try{await api.remove("clients",{id});await load();showGlobal("Cliente eliminado.","success");setTimeout(hideGlobal,2200)}catch(error){showGlobal(`No fue posible eliminar: ${errorMessage(error)}`,"error")}
 }
 
 function openEvent(options = {}) {
@@ -545,6 +556,12 @@ async function saveTemplate(event) {
   finally { setBusy(form, false); }
 }
 
+async function deleteTemplate(id){
+  const item=state.templates.find((template)=>template.id===id);if(!item||!isOwner())return;
+  if(!confirm(`¿Eliminar la plantilla “${item.name}”? Los eventos ya creados no se borrarán.`))return;
+  try{await api.remove("templates",{id});await load();showGlobal("Plantilla eliminada.","success");setTimeout(hideGlobal,2200)}catch(error){showGlobal(`No fue posible eliminar: ${errorMessage(error)}`,"error")}
+}
+
 function openMember(id = null) {
   const form = $("#member-form");
   form.reset();
@@ -633,6 +650,12 @@ async function revokeMember(id) {
   }
 }
 
+async function deleteMember(id){
+  const member=state.members.find((item)=>item.id===id);if(!member||!isOwner())return;
+  if(!confirm(`¿Eliminar definitivamente la asignación de ${member.email}? Su cuenta personal se conservará.`))return;
+  try{await api.remove("event_members",{id});await load();showGlobal("Asignación eliminada.","success");setTimeout(hideGlobal,2200)}catch(error){showGlobal(`No fue posible eliminar: ${errorMessage(error)}`,"error")}
+}
+
 function openRequest(id) {
   const request = state.requests.find((item) => item.id === id); if (!request) return;
   const view = requestView(request);
@@ -650,12 +673,18 @@ function openRequest(id) {
     </dl>
     <div class="request-copy-block"><strong>Detalles de la solicitud</strong><p>${esc(view.details)}</p></div>
     <div class="request-copy-block"><strong>Funciones solicitadas</strong><div class="request-feature-list">${features}</div></div>
-    <div class="dialog-actions"><button type="button" class="ghost-button" data-request-contacted>Marcar contactada</button><button type="button" class="ghost-button" data-request-archive>Archivar</button><button type="button" class="primary-button" data-request-convert>Convertir en cliente</button></div>`;
+    <div class="dialog-actions"><button type="button" class="danger-link" data-request-delete>Eliminar</button><button type="button" class="ghost-button" data-request-contacted>Marcar contactada</button><button type="button" class="ghost-button" data-request-archive>Archivar</button><button type="button" class="primary-button" data-request-convert>Convertir en cliente</button></div>`;
   $("[data-request-close]").addEventListener("click", () => $("#request-dialog").close());
   $("[data-request-contacted]").addEventListener("click", () => updateRequest(request.id, "contacted"));
   $("[data-request-archive]").addEventListener("click", () => updateRequest(request.id, "archived"));
   $("[data-request-convert]").addEventListener("click", () => convertRequest(request));
+  $("[data-request-delete]").addEventListener("click", () => deleteRequest(request));
   $("#request-dialog").showModal();
+}
+
+async function deleteRequest(request){
+  if(!isOwner()||!confirm(`¿Eliminar definitivamente la solicitud ${request.folio}?`))return;
+  try{await api.remove("quote_requests",{id:request.id});$("#request-dialog").close();await load();showGlobal("Solicitud eliminada.","success");setTimeout(hideGlobal,2200)}catch(error){alert(errorMessage(error))}
 }
 
 async function updateRequest(id, status) {

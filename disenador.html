@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Baloo+2:wght@500;600;700;800&family=Bangers&family=Bebas+Neue&family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Dancing+Script:wght@500;600;700&family=DM+Serif+Display&family=Fredoka:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Great+Vibes&family=Lilita+One&family=Lobster&family=Luckiest+Guy&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Oswald:wght@400;500;600;700&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&family=Raleway:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&family=Satisfy&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="disenador.css?v=4.5.2">
-  <script type="module" src="disenador.js?v=4.5.2"></script>
+  <link rel="stylesheet" href="disenador.css?v=4.6.0">
+  <script type="module" src="disenador.js?v=4.6.0"></script>
 </head>
 <body class="designer-is-loading">
   <div class="designer-loading-screen" data-designer-loading role="status" aria-live="polite">
@@ -142,12 +142,21 @@
           <label>Animación de entrada<select name="animation_preset"><option value="fade-up">Aparecer y subir</option><option value="fade">Aparecer</option><option value="zoom">Zoom suave</option><option value="slide-left">Deslizar desde la izquierda</option><option value="float">Flotar</option><option value="none">Sin animación</option></select></label>
           <label>Ambiente animado<select name="ambient_animation"><option value="none">Ninguno</option><option value="sparkles">Destellos</option><option value="bubbles">Burbujas</option><option value="confetti">Confeti sutil</option><option value="neon">Resplandor neón</option><option value="stars">Estrellas</option></select></label>
           <label>Intensidad<select name="animation_intensity"><option value="low">Baja</option><option value="medium">Media</option><option value="high">Alta</option></select></label>
+          <button type="button" class="animation-preview-button" data-replay-animation>▶ Probar animación en la vista previa</button>
           <label class="toggle-line"><input name="respect_reduced_motion" type="checkbox" checked> Respetar “reducir movimiento” del dispositivo</label>
         </details>
 
         <details open>
           <summary>9. Secciones y orden</summary>
-          <p class="form-help">Activa, oculta y ordena los bloques. Usa las flechas para cambiar su posición.</p>
+          <p class="form-help">Activa, oculta y ordena los bloques. También puedes insertar secciones prediseñadas para que cada invitación tenga más ritmo y personalidad.</p>
+          <div class="section-presets" data-section-presets>
+            <button type="button" data-add-custom-section="image"><span>▣</span><strong>Imagen destacada</strong><small>Una foto grande con título</small></button>
+            <button type="button" data-add-custom-section="video"><span>▶</span><strong>Video</strong><small>Archivo MP4 o enlace</small></button>
+            <button type="button" data-add-custom-section="photo-text"><span>◫</span><strong>Foto + texto</strong><small>Historia en dos columnas</small></button>
+            <button type="button" data-add-custom-section="quote"><span>“</span><strong>Pensamiento</strong><small>Frase o dedicatoria</small></button>
+            <button type="button" data-add-custom-section="separator"><span>✦</span><strong>Separador</strong><small>Respiro visual decorativo</small></button>
+            <button type="button" data-add-custom-section="itinerary"><span>⌚</span><strong>Itinerario</strong><small>Horario y actividad</small></button>
+          </div>
           <div class="section-manager" data-section-manager></div>
         </details>
       </form>

@@ -1,0 +1,50 @@
+LN STUDIO v4.6.0
+SECCIONES PREDISEÑADAS, ANIMACIONES VISIBLES Y ELIMINACIÓN COMPLETA
+
+ARCHIVOS DE ESTA ENTREGA
+- disenador.html
+- disenador.js
+- disenador.css
+- evento.html
+- rsvp.js
+- invitacion.css
+- admin.html
+- portal.js
+- evento-admin.html
+- event-admin.js
+- MIGRACION-v4.6.sql
+
+NOVEDADES DEL DISEÑADOR
+- Secciones prediseñadas: imagen destacada, video, foto + texto,
+  pensamiento, separador e itinerario.
+- Se pueden agregar hasta 12 secciones especiales, editarlas, activarlas,
+  ordenarlas y eliminarlas.
+- Las capas libres también pueden colocarse dentro de estas secciones.
+- Video: MP4, WEBM o MOV, máximo 50 MB. También admite una URL directa.
+- Al guardar, se intentan limpiar de Storage los archivos reemplazados o quitados.
+
+ANIMACIONES
+- Botón “Probar animación” en el diseñador.
+- Intensidad alta ahora usa desplazamientos, zoom y desenfoque más notorios.
+- Los efectos ambientales son más visibles en intensidad alta.
+- La invitación publicada anima cada sección al entrar en pantalla.
+
+ELIMINACIÓN REVISADA
+- Eventos (ya existente, conservado).
+- Clientes, conservando sus eventos sin cliente asignado.
+- Plantillas, sin borrar eventos ya creados.
+- Solicitudes de cotización.
+- Grupos/familias e invitados internos relacionados.
+- Confirmaciones RSVP y su pase QR relacionado.
+- Asignaciones de usuarios, sin borrar la cuenta de acceso.
+- Registros de acceso/check-in.
+- Fotos de galería, capas, archivos y secciones especiales.
+
+PASO OBLIGATORIO EN SUPABASE
+1. Abre Supabase > SQL Editor.
+2. Ejecuta el archivo MIGRACION-v4.6.sql una sola vez.
+3. Después sube los demás archivos a la raíz de GitHub/Cloudflare.
+
+La migración solamente agrega permisos RLS de eliminación para asignaciones
+y check-ins. No elimina datos ni modifica los eventos existentes.
+

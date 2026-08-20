@@ -105,9 +105,10 @@ function renderRsvps() {
 }
 
 function renderGuests() {
-  $("[data-guests-body]").innerHTML = state.groups.map((group) => `<tr><td><b>${esc(group.display_name)}</b><small>${statusLabel(group.status)}</small></td><td>${esc(group.phone || group.email || "—")}</td><td>${Number(group.allowed_entries || 1)}</td><td>${esc(group.table_name || "—")}</td><td>${esc(group.invitation_code)}</td><td>${state.canAdmin ? `<button type="button" data-edit-guest="${group.id}">Editar</button>` : ""}</td></tr>`).join("");
+  $("[data-guests-body]").innerHTML = state.groups.map((group) => `<tr><td><b>${esc(group.display_name)}</b><small>${statusLabel(group.status)}</small></td><td>${esc(group.phone || group.email || "—")}</td><td>${Number(group.allowed_entries || 1)}</td><td>${esc(group.table_name || "—")}</td><td>${esc(group.invitation_code)}</td><td>${state.canAdmin ? `<button type="button" data-edit-guest="${group.id}">Editar</button><button type="button" class="danger-link" data-delete-guest="${group.id}">Eliminar</button>` : ""}</td></tr>`).join("");
   $("[data-guests-empty]").hidden = state.groups.length > 0;
   $$('[data-edit-guest]').forEach((button) => button.addEventListener("click", () => openGuest(button.dataset.editGuest)));
+  $$('[data-delete-guest]').forEach((button) => button.addEventListener("click", () => deleteGuest(button.dataset.deleteGuest)));
 }
 
 function renderMembers() {
@@ -115,18 +116,20 @@ function renderMembers() {
     <td>${esc(member.email)}</td>
     <td>${roleLabel(member.role)}</td>
     <td><span class="status-pill ${invitationStatusClass(member)}">${invitationStatusLabel(member)}</span></td>
-    <td>${state.isOwner ? `<button type="button" data-edit-member="${member.id}">Editar</button>${member.invitation_status !== "active" && member.invitation_status !== "revoked" ? `<button type="button" data-resend-member="${member.id}">Reenviar</button>` : ""}${member.invitation_status !== "revoked" ? `<button type="button" class="danger-link" data-revoke-member="${member.id}">Revocar</button>` : ""}` : ""}</td>
+    <td>${state.isOwner ? `<button type="button" data-edit-member="${member.id}">Editar</button>${member.invitation_status !== "active" && member.invitation_status !== "revoked" ? `<button type="button" data-resend-member="${member.id}">Reenviar</button>` : ""}${member.invitation_status !== "revoked" ? `<button type="button" class="danger-link" data-revoke-member="${member.id}">Revocar</button>` : ""}<button type="button" class="danger-link" data-delete-member="${member.id}">Eliminar</button>` : ""}</td>
   </tr>`).join("");
   $("[data-members-empty]").hidden = state.members.length > 0;
   $$('[data-edit-member]').forEach((button) => button.addEventListener("click", () => openMember(button.dataset.editMember)));
   $$('[data-resend-member]').forEach((button) => button.addEventListener("click", () => resendMember(button.dataset.resendMember)));
   $$('[data-revoke-member]').forEach((button) => button.addEventListener("click", () => revokeMember(button.dataset.revokeMember)));
+  $$('[data-delete-member]').forEach((button) => button.addEventListener("click", () => deleteMember(button.dataset.deleteMember)));
 }
 
 function renderCheckins() {
   const passMap = new Map(state.passes.map((pass) => [pass.id, pass]));
-  $("[data-checkins-body]").innerHTML = state.checkins.map((item) => `<tr><td>${formatDate(item.created_at)}</td><td>${esc(passMap.get(item.pass_id)?.folio || "—")}</td><td>${item.decision === "approved" ? "Aprobado" : item.decision === "rejected" ? "Rechazado" : "Revertido"}</td><td>${Number(item.entries || 0)}</td><td>${esc(item.reason || "—")}</td></tr>`).join("");
+  $("[data-checkins-body]").innerHTML = state.checkins.map((item) => `<tr><td>${formatDate(item.created_at)}</td><td>${esc(passMap.get(item.pass_id)?.folio || "—")}</td><td>${item.decision === "approved" ? "Aprobado" : item.decision === "rejected" ? "Rechazado" : "Revertido"}</td><td>${Number(item.entries || 0)}</td><td>${esc(item.reason || "—")}${state.canAdmin?`<button type="button" class="delete-button" data-delete-checkin="${item.id}" aria-label="Eliminar registro">×</button>`:""}</td></tr>`).join("");
   $("[data-checkins-empty]").hidden = state.checkins.length > 0;
+  $$('[data-delete-checkin]').forEach((button)=>button.addEventListener("click",()=>deleteCheckin(button.dataset.deleteCheckin)));
 }
 
 function renderLatest() {
@@ -160,6 +163,12 @@ async function saveGuest(event) {
     if (id) await api.update("guest_groups", values, { id }); else await api.insert("guest_groups", values);
     $("#guest-dialog").close(); await load();
   } catch (error) { status.textContent = errorMessage(error); } finally { setBusy(form, false); }
+}
+
+async function deleteGuest(id){
+  const group=state.groups.find((item)=>item.id===id);if(!group||!state.canAdmin)return;
+  if(!confirm(`¿Eliminar el grupo “${group.display_name}”? También se quitarán sus invitados internos.`))return;
+  try{await api.remove("guest_groups",{id});await load();tab("guests")}catch(error){alert(errorMessage(error))}
 }
 
 function openMember(id = null) {
@@ -248,6 +257,12 @@ async function revokeMember(id) {
   }
 }
 
+async function deleteMember(id){
+  const member=state.members.find((item)=>item.id===id);if(!member||!state.isOwner)return;
+  if(!confirm(`¿Eliminar definitivamente la asignación de ${member.email}? La cuenta personal se conservará.`))return;
+  try{await api.remove("event_members",{id});await load();tab("members")}catch(error){alert(errorMessage(error))}
+}
+
 async function saveSettings(event) {
   event.preventDefault(); const form = event.currentTarget; if (!form.reportValidity()) return;
   const status = $("[data-settings-status]"); status.textContent = "Guardando…"; setBusy(form, true);
@@ -275,6 +290,11 @@ async function deleteEvent() {
 async function deleteRsvp(id) {
   if (!confirm("¿Eliminar esta confirmación y su pase QR?")) return;
   try { await api.remove("rsvp_responses", { id }); await load(); tab("rsvp"); } catch (error) { alert(errorMessage(error)); }
+}
+
+async function deleteCheckin(id){
+  if(!state.canAdmin||!confirm("¿Eliminar este registro de acceso? El conteo del pase no se modificará automáticamente."))return;
+  try{await api.remove("checkins",{id});await load();tab("checkins")}catch(error){alert(errorMessage(error))}
 }
 
 function exportCsv() {
