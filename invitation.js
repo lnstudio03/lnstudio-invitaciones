@@ -53,7 +53,7 @@ Object.entries(SAMPLE_EMBLEMS).forEach(([key, values]) => Object.assign(INVITATI
 function sample(data) {
   return {
     official: false, kicker: "Invitación de muestra", emblem: "✦", emblemLabel: "EVENTO", momentNumber:"✦",
-    map: "https://www.google.com/maps", rsvpTitle: "Confirma tu asistencia.", rsvpCopy: "Este formulario demuestra cómo tus invitados pueden registrar su respuesta.", closeCopy: "Gracias por recorrer esta experiencia de muestra creada por LN Studio.", ...data
+    map: "https://www.google.com/maps", rsvpTitle: "Confirma tu asistencia.", rsvpCopy: "Cuéntanos si podrás acompañarnos para reservar tu lugar y preparar cada detalle de la celebración.", closeCopy: "Gracias por recorrer esta experiencia de muestra creada por LN Studio.", ...data
   };
 }
 
