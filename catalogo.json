@@ -119,5 +119,10 @@
     "acento": "#f6f0e6",
     "texto": "#ffffff",
     "fecha": "15 OCT 2026"
-  }
+  },
+  {"id":"fiesta-nube","nombre":"Fiesta Nube","categoria":"social","categoriaTexto":"Infantil · Caricatura original","etiqueta":"Nueva colección con stickers","descripcion":"Nubes felices, arcoíris, globos y estrellas para una fiesta infantil llena de color.","fondo":"linear-gradient(145deg,#65c9ff,#9d72ff 55%,#ff78b8)","acento":"#ffe55d","texto":"#ffffff","fecha":"04 OCT 2026","stickerTheme":"cartoon"},
+  {"id":"reino-del-dragon","nombre":"Reino del Dragón","categoria":"social","categoriaTexto":"Infantil · Aventura animada","etiqueta":"Nueva colección fantástica","descripcion":"Una aventura original con dragón amistoso, luna, brújula mágica y destellos.","fondo":"radial-gradient(circle at 75% 20%,#7149db,transparent 30%),linear-gradient(145deg,#09152f,#17285f)","acento":"#ffcc45","texto":"#ffffff","fecha":"18 OCT 2026","stickerTheme":"fantasy"},
+  {"id":"academia-nocturna","nombre":"Academia Nocturna","categoria":"social","categoriaTexto":"Temática · Misterio gótico","etiqueta":"Nueva colección oscura","descripcion":"Cuervos, dalias negras, máquina de escribir y misterio de academia gótica.","fondo":"radial-gradient(circle at 70% 25%,#582367,transparent 28%),linear-gradient(145deg,#050308,#1b0d24)","acento":"#b06bd4","texto":"#ffffff","fecha":"31 OCT 2026","stickerTheme":"gothic"},
+  {"id":"xv-sticker-pop","nombre":"XV Starlight","categoria":"xv","categoriaTexto":"XV años · Sticker glam","etiqueta":"Nueva colección brillante","descripcion":"Mariposas, tiara, cristales y stickers luminosos para una noche de quince años.","fondo":"radial-gradient(circle at 20% 20%,#d99cff,transparent 32%),linear-gradient(145deg,#261044,#6d2c8d 60%,#d77bb9)","acento":"#efe0ff","texto":"#ffffff","fecha":"14 NOV 2026","stickerTheme":"xv"},
+  {"id":"boda-sticker-romance","nombre":"Amour","categoria":"boda","categoriaTexto":"Boda · Romance ilustrado","etiqueta":"Nueva colección romántica","descripcion":"Rosas, anillos, perlas, brindis y detalles adhesivos para celebrar el amor.","fondo":"radial-gradient(circle at 75% 25%,#d7b16d,transparent 25%),linear-gradient(145deg,#241811,#806448 60%,#d9c6a8)","acento":"#fff3d7","texto":"#ffffff","fecha":"28 NOV 2026","stickerTheme":"wedding"}
 ]

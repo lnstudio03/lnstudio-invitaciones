@@ -50,6 +50,7 @@ function createCard(item) {
   return `
     <article class="${classes}">
       <a class="invitation-visual" href="${url}" aria-label="Abrir invitación ${escapeHtml(item.nombre)}" style="--card-background:${escapeHtml(item.fondo)};--card-accent:${escapeHtml(item.acento)};--card-text:${escapeHtml(item.texto)}">
+        ${item.stickerTheme ? `<span class="catalog-sticker sticker-${escapeHtml(item.stickerTheme)}" aria-hidden="true"></span>` : ""}
         <div class="phone-preview" aria-hidden="true">
           <div class="phone-screen">
             <small>${escapeHtml(item.categoriaTexto)}</small>
