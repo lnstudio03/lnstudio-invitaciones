@@ -388,3 +388,42 @@
     transform: none;
   }
 }
+
+/* Contraste crítico de la sección narrativa.
+   Se mantiene aquí como respaldo para instalaciones que actualicen las hojas
+   existentes antes de incorporar experience-responsive.css. */
+body.invitation-page:not(.theme-light) .invite-statement,
+body.invitation-page:not([data-invite-theme="light"]) .invite-statement {
+  color: #f8f5ff !important;
+  background:
+    radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--invite-accent) 15%, transparent), transparent 38%),
+    linear-gradient(145deg, color-mix(in srgb, var(--invite-bg) 88%, #21192b), var(--invite-bg)) !important;
+}
+
+body.invitation-page:not(.theme-light) .invite-statement p,
+body.invitation-page:not([data-invite-theme="light"]) .invite-statement p {
+  color: #f8f5ff !important;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, .22);
+}
+
+body.invitation-page:not(.theme-light) .invite-statement strong,
+body.invitation-page:not([data-invite-theme="light"]) .invite-statement strong {
+  color: color-mix(in srgb, var(--invite-accent) 78%, #fff) !important;
+}
+
+body.invitation-page.theme-light .invite-statement,
+body.invitation-page[data-invite-theme="light"] .invite-statement {
+  color: #2b241d !important;
+  background: linear-gradient(145deg, #fcf8f1, color-mix(in srgb, var(--invite-accent-two) 10%, #eee6dc)) !important;
+}
+
+body.invitation-page.theme-light .invite-statement p,
+body.invitation-page[data-invite-theme="light"] .invite-statement p {
+  color: #2b241d !important;
+  text-shadow: none;
+}
+
+body.invitation-page.theme-light .invite-statement strong,
+body.invitation-page[data-invite-theme="light"] .invite-statement strong {
+  color: color-mix(in srgb, var(--invite-accent) 78%, #241c16) !important;
+}
