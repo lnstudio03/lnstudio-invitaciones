@@ -1,1 +1,390 @@
-body[data-sticker-theme]:not([data-sticker-theme=""]) .invite-rsvp{position:relative;isolation:isolate;padding:clamp(70px,8vw,110px) max(6vw,24px);gap:clamp(38px,7vw,95px);color:#fff;background:linear-gradient(145deg,color-mix(in srgb,var(--invite-bg) 88%,#111),color-mix(in srgb,var(--invite-accent-two) 30%,var(--invite-bg)))!important;border-top:1px solid color-mix(in srgb,var(--invite-accent) 38%,transparent);border-bottom:1px solid color-mix(in srgb,var(--invite-accent-two) 35%,transparent);overflow:hidden}body[data-sticker-theme]:not([data-sticker-theme=""]) .invite-rsvp:before{content:"";position:absolute;z-index:-1;width:520px;height:520px;left:-150px;bottom:-170px;background-repeat:no-repeat;background-position:center;background-size:contain;opacity:.14;filter:saturate(.8) drop-shadow(0 25px 55px #0006)}body[data-sticker-theme="cartoon"] .invite-rsvp{background:radial-gradient(circle at 10% 85%,#74d8ff55,transparent 28%),radial-gradient(circle at 92% 12%,#ff75b555,transparent 28%),linear-gradient(145deg,#334eba,#8a4eb4 58%,#d05298)!important}body[data-sticker-theme="cartoon"] .invite-rsvp:before{background-image:url('art-fiesta-nube.png');opacity:.22}body[data-sticker-theme="fantasy"] .invite-rsvp{background:radial-gradient(circle at 12% 82%,#5b4ec555,transparent 30%),linear-gradient(145deg,#06132d,#162653 65%,#302260)!important}body[data-sticker-theme="fantasy"] .invite-rsvp:before{background-image:url('art-reino-dragon.png');opacity:.17}body[data-sticker-theme="gothic"] .invite-rsvp{background:radial-gradient(circle at 10% 80%,#65276945,transparent 28%),linear-gradient(145deg,#020204,#16091d 62%,#2d0e28)!important}body[data-sticker-theme="gothic"] .invite-rsvp:before{background-image:url('art-academia-nocturna.png');opacity:.16}body[data-sticker-theme="xv"] .invite-rsvp{background:radial-gradient(circle at 12% 85%,#d28cff44,transparent 30%),linear-gradient(145deg,#220a3b,#65306e 62%,#a64f7e)!important}body[data-sticker-theme="xv"] .invite-rsvp:before{background-image:url('art-xv-starlight.png');opacity:.18}body[data-sticker-theme="wedding"] .invite-rsvp{background:radial-gradient(circle at 12% 82%,#cfad7150,transparent 30%),linear-gradient(145deg,#17100c,#4f392a 65%,#735b42)!important}body[data-sticker-theme="wedding"] .invite-rsvp:before{background-image:url('art-boda-amour.png');opacity:.16}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-copy{position:relative;z-index:1;align-self:center}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-copy .invite-kicker{color:var(--invite-accent);font-weight:800}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-copy h2{max-width:620px;font-size:clamp(3rem,5.5vw,6rem);line-height:.94;color:#fff;text-wrap:balance;text-shadow:0 8px 30px #0005}body[data-sticker-theme="cartoon"] .rsvp-copy h2{font-family:"Arial Rounded MT Bold","Trebuchet MS",sans-serif;font-size:clamp(2.8rem,5vw,5.2rem);line-height:1}body[data-sticker-theme="fantasy"] .rsvp-copy h2,body[data-sticker-theme="gothic"] .rsvp-copy h2,body[data-sticker-theme="xv"] .rsvp-copy h2,body[data-sticker-theme="wedding"] .rsvp-copy h2{font-family:"Cormorant Garamond",serif}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-copy>p:not(.invite-kicker){max-width:580px;color:#ffffffc9;font-size:1rem;line-height:1.7}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-note{border-color:#ffffff2b}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-note span{color:var(--invite-accent)}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-note p{color:#ffffffa6}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form{position:relative;z-index:2;padding:clamp(26px,3.5vw,46px)!important;border:1px solid #ffffff26!important;border-radius:24px!important;background:linear-gradient(145deg,#0b0e17d9,#171221c7)!important;box-shadow:0 30px 85px #0007!important;backdrop-filter:blur(18px)}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form label{color:#fff!important}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form input,body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form textarea,body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form select{min-height:52px;padding:14px 16px!important;border:1px solid #ffffff2b!important;border-radius:11px!important;background:#ffffff0e!important;color:#fff!important}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form textarea{min-height:110px}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form input::placeholder,body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form textarea::placeholder{color:#ffffff72!important}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form select option{background:#171420;color:#fff}body[data-sticker-theme]:not([data-sticker-theme=""]) .attendance-choice legend{color:#fff;font-size:1.08rem}body[data-sticker-theme]:not([data-sticker-theme=""]) .attendance-choice span{min-height:58px;border:1px solid #ffffff2b!important;border-radius:11px!important;background:#ffffff0d!important;color:#fff!important}body[data-sticker-theme]:not([data-sticker-theme=""]) .attendance-choice input:checked+span{background:linear-gradient(135deg,var(--invite-accent),var(--invite-accent-two))!important;color:#121018!important;border-color:transparent!important;box-shadow:0 10px 30px color-mix(in srgb,var(--invite-accent) 28%,transparent)}body[data-sticker-theme]:not([data-sticker-theme=""]) .privacy-check{display:flex;grid-template-columns:auto 1fr;align-items:center;gap:10px;color:#ffffffc7!important}body[data-sticker-theme]:not([data-sticker-theme=""]) .privacy-check input{width:20px;height:20px;min-height:0;padding:0!important;accent-color:var(--invite-accent)}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-submit{min-height:68px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--invite-accent),var(--invite-accent-two));color:#111;box-shadow:0 15px 38px color-mix(in srgb,var(--invite-accent) 25%,transparent)}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-submit span,body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-submit small{color:#111}body[data-sticker-theme="gothic"] .rsvp-submit span,body[data-sticker-theme="gothic"] .rsvp-submit small{color:#fff}@media(max-width:780px){body[data-sticker-theme]:not([data-sticker-theme=""]) .invite-rsvp{grid-template-columns:1fr;padding:64px 18px 72px;gap:28px}body[data-sticker-theme]:not([data-sticker-theme=""]) .invite-rsvp:before{width:300px;height:300px;left:auto;right:-100px;top:-70px;bottom:auto;opacity:.12}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-copy h2{font-size:clamp(2.65rem,13vw,4.2rem)}body[data-sticker-theme]:not([data-sticker-theme=""]) .rsvp-form{padding:22px 17px!important;border-radius:18px!important}.attendance-choice,.form-pair{grid-template-columns:1fr!important}}
+/* RSVP final: una misma estructura, adaptada a la identidad de cada muestra. */
+.invitation-page .invite-rsvp {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(76px, 8vw, 118px) max(6vw, 24px);
+  gap: clamp(38px, 7vw, 96px);
+  color: #fff;
+  background:
+    radial-gradient(circle at 8% 86%, color-mix(in srgb, var(--invite-accent) 24%, transparent), transparent 30%),
+    radial-gradient(circle at 94% 8%, color-mix(in srgb, var(--invite-accent-two) 18%, transparent), transparent 28%),
+    linear-gradient(145deg, color-mix(in srgb, var(--invite-bg) 90%, #151821), color-mix(in srgb, var(--invite-accent-two) 18%, var(--invite-bg))) !important;
+  border-block: 1px solid color-mix(in srgb, var(--invite-accent) 30%, transparent);
+}
+
+/* También permanece visible al abrir directamente el enlace #confirmar. */
+.invitation-page .invite-rsvp .invite-reveal {
+  opacity: 1;
+  transform: none;
+}
+
+.invitation-page .invite-rsvp::after {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  right: -160px;
+  top: -190px;
+  width: 520px;
+  height: 520px;
+  border: 1px solid color-mix(in srgb, var(--invite-accent) 23%, transparent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 54px color-mix(in srgb, var(--invite-accent-two) 6%, transparent),
+    0 0 0 110px color-mix(in srgb, var(--invite-accent) 4%, transparent);
+}
+
+.invitation-page .rsvp-copy {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+}
+
+.invitation-page .rsvp-copy .invite-kicker {
+  color: var(--invite-accent);
+  font-weight: 800;
+}
+
+.invitation-page .rsvp-copy h2 {
+  max-width: 630px;
+  color: #fff;
+  font-size: clamp(3rem, 5.5vw, 6rem);
+  line-height: .94;
+  text-wrap: balance;
+  text-shadow: 0 8px 30px rgba(0, 0, 0, .3);
+}
+
+.invitation-page .rsvp-copy > p:not(.invite-kicker) {
+  max-width: 580px;
+  color: rgba(255, 255, 255, .78);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.invitation-page .rsvp-note {
+  border-color: rgba(255, 255, 255, .18);
+}
+
+.invitation-page .rsvp-note span {
+  color: var(--invite-accent);
+}
+
+.invitation-page .rsvp-note p {
+  color: rgba(255, 255, 255, .63);
+}
+
+.invitation-page .rsvp-form {
+  position: relative;
+  z-index: 2;
+  padding: clamp(26px, 3.5vw, 46px) !important;
+  border: 1px solid rgba(255, 255, 255, .15) !important;
+  border-radius: 24px !important;
+  background: linear-gradient(145deg, rgba(9, 12, 20, .88), rgba(23, 18, 33, .78)) !important;
+  box-shadow: 0 30px 85px rgba(0, 0, 0, .42) !important;
+  backdrop-filter: blur(18px);
+}
+
+.invitation-page .rsvp-form label,
+.invitation-page .attendance-choice legend {
+  color: #fff !important;
+}
+
+.invitation-page .attendance-choice legend {
+  font-size: 1.08rem;
+}
+
+.invitation-page .rsvp-form input,
+.invitation-page .rsvp-form textarea,
+.invitation-page .rsvp-form select {
+  min-height: 52px;
+  padding: 14px 16px !important;
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  border-radius: 11px !important;
+  background: rgba(255, 255, 255, .065) !important;
+  color: #fff !important;
+}
+
+.invitation-page .rsvp-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.invitation-page .rsvp-form input::placeholder,
+.invitation-page .rsvp-form textarea::placeholder {
+  color: rgba(255, 255, 255, .44) !important;
+}
+
+.invitation-page .rsvp-form select option {
+  background: #171420;
+  color: #fff;
+}
+
+.invitation-page .rsvp-form input:focus,
+.invitation-page .rsvp-form textarea:focus,
+.invitation-page .rsvp-form select:focus {
+  outline: none;
+  border-color: var(--invite-accent) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--invite-accent) 18%, transparent) !important;
+}
+
+.invitation-page .attendance-choice span {
+  min-height: 58px;
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  border-radius: 11px !important;
+  background: rgba(255, 255, 255, .055) !important;
+  color: #fff !important;
+}
+
+.invitation-page .attendance-choice input:focus-visible + span {
+  outline: 3px solid color-mix(in srgb, var(--invite-accent) 58%, transparent);
+  outline-offset: 2px;
+}
+
+.invitation-page .attendance-choice input:checked + span {
+  border-color: transparent !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--invite-accent) 70%, #fff), color-mix(in srgb, var(--invite-accent-two) 70%, #fff)) !important;
+  color: #11131a !important;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--invite-accent) 28%, transparent);
+}
+
+.invitation-page .privacy-check {
+  display: flex;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, .76) !important;
+}
+
+.invitation-page .privacy-check input {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  padding: 0 !important;
+  accent-color: var(--invite-accent);
+}
+
+.invitation-page .rsvp-submit {
+  min-height: 68px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--invite-accent) 70%, #fff), color-mix(in srgb, var(--invite-accent-two) 70%, #fff)) !important;
+  color: #11131a !important;
+  box-shadow: 0 15px 38px color-mix(in srgb, var(--invite-accent) 25%, transparent);
+}
+
+.invitation-page .rsvp-submit span,
+.invitation-page .rsvp-submit small {
+  color: #11131a;
+}
+
+.invitation-page .rsvp-submit:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.08) brightness(1.04);
+}
+
+.invitation-page .rsvp-submit:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+/* Las invitaciones claras conservan calidez, contraste y la misma jerarquía. */
+.invitation-page.theme-light .invite-rsvp {
+  color: #28231e;
+  background:
+    radial-gradient(circle at 8% 86%, color-mix(in srgb, var(--invite-accent-two) 24%, transparent), transparent 31%),
+    radial-gradient(circle at 94% 8%, color-mix(in srgb, var(--invite-accent) 14%, transparent), transparent 28%),
+    linear-gradient(145deg, #f7f1e8, color-mix(in srgb, var(--invite-accent-two) 14%, #eee5d9)) !important;
+  border-color: color-mix(in srgb, var(--invite-accent) 28%, transparent);
+}
+
+.invitation-page.theme-light .rsvp-copy h2 {
+  color: #28231e;
+  text-shadow: none;
+}
+
+.invitation-page.theme-light .rsvp-copy > p:not(.invite-kicker),
+.invitation-page.theme-light .rsvp-note p {
+  color: rgba(40, 35, 30, .68);
+}
+
+.invitation-page.theme-light .rsvp-note {
+  border-color: rgba(40, 35, 30, .17);
+}
+
+.invitation-page.theme-light .rsvp-form {
+  border-color: rgba(65, 51, 39, .14) !important;
+  background: rgba(255, 253, 248, .78) !important;
+  box-shadow: 0 28px 75px rgba(70, 50, 31, .15) !important;
+}
+
+.invitation-page.theme-light .rsvp-form label,
+.invitation-page.theme-light .attendance-choice legend {
+  color: #342d26 !important;
+}
+
+.invitation-page.theme-light .rsvp-form input,
+.invitation-page.theme-light .rsvp-form textarea,
+.invitation-page.theme-light .rsvp-form select {
+  border-color: rgba(65, 51, 39, .2) !important;
+  background: rgba(255, 255, 255, .72) !important;
+  color: #28231e !important;
+}
+
+.invitation-page.theme-light .rsvp-form input::placeholder,
+.invitation-page.theme-light .rsvp-form textarea::placeholder {
+  color: rgba(40, 35, 30, .42) !important;
+}
+
+.invitation-page.theme-light .rsvp-form select option {
+  background: #fff;
+  color: #28231e;
+}
+
+.invitation-page.theme-light .attendance-choice span {
+  border-color: rgba(65, 51, 39, .2) !important;
+  background: rgba(255, 255, 255, .68) !important;
+  color: #342d26 !important;
+}
+
+.invitation-page.theme-light .privacy-check {
+  color: rgba(40, 35, 30, .68) !important;
+}
+
+/* Arte original de cada colección temática. */
+.invitation-page[data-sticker-theme]:not([data-sticker-theme=""]) .invite-opening::after {
+  display: none;
+}
+
+.invitation-page[data-sticker-theme]:not([data-sticker-theme=""]) .invite-rsvp::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -150px;
+  bottom: -170px;
+  width: 520px;
+  height: 520px;
+  background: no-repeat center / contain;
+  opacity: .16;
+  filter: saturate(.86) drop-shadow(0 25px 55px rgba(0, 0, 0, .4));
+}
+
+.invitation-page[data-sticker-theme="cartoon"] .invite-rsvp {
+  background:
+    radial-gradient(circle at 10% 85%, rgba(116, 216, 255, .34), transparent 28%),
+    radial-gradient(circle at 92% 12%, rgba(255, 117, 181, .34), transparent 28%),
+    linear-gradient(145deg, #334eba, #8a4eb4 58%, #d05298) !important;
+}
+
+.invitation-page[data-sticker-theme="cartoon"] .invite-rsvp::before {
+  background-image: url("art-fiesta-nube.png");
+  opacity: .22;
+}
+
+.invitation-page[data-sticker-theme="fantasy"] .invite-rsvp {
+  background: radial-gradient(circle at 12% 82%, rgba(91, 78, 197, .34), transparent 30%), linear-gradient(145deg, #06132d, #162653 65%, #302260) !important;
+}
+
+.invitation-page[data-sticker-theme="fantasy"] .invite-rsvp::before {
+  background-image: url("art-reino-dragon.png");
+}
+
+.invitation-page[data-sticker-theme="gothic"] .invite-rsvp {
+  background: radial-gradient(circle at 10% 80%, rgba(101, 39, 105, .27), transparent 28%), linear-gradient(145deg, #020204, #16091d 62%, #2d0e28) !important;
+}
+
+.invitation-page[data-sticker-theme="gothic"] .invite-rsvp::before {
+  background-image: url("art-academia-nocturna.png");
+}
+
+.invitation-page[data-sticker-theme="xv"] .invite-rsvp {
+  background: radial-gradient(circle at 12% 85%, rgba(210, 140, 255, .27), transparent 30%), linear-gradient(145deg, #220a3b, #65306e 62%, #a64f7e) !important;
+}
+
+.invitation-page[data-sticker-theme="xv"] .invite-rsvp::before {
+  background-image: url("art-xv-starlight.png");
+  opacity: .18;
+}
+
+.invitation-page[data-sticker-theme="wedding"] .invite-rsvp {
+  background: radial-gradient(circle at 12% 82%, rgba(207, 173, 113, .31), transparent 30%), linear-gradient(145deg, #17100c, #4f392a 65%, #735b42) !important;
+}
+
+.invitation-page[data-sticker-theme="wedding"] .invite-rsvp::before {
+  background-image: url("art-boda-amour.png");
+}
+
+.invitation-page[data-sticker-theme="cartoon"] .rsvp-copy h2 {
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  font-size: clamp(2.8rem, 5vw, 5.2rem);
+  line-height: 1;
+}
+
+.invitation-page[data-sticker-theme="fantasy"] .rsvp-copy h2,
+.invitation-page[data-sticker-theme="gothic"] .rsvp-copy h2,
+.invitation-page[data-sticker-theme="xv"] .rsvp-copy h2,
+.invitation-page[data-sticker-theme="wedding"] .rsvp-copy h2 {
+  font-family: "Cormorant Garamond", serif;
+}
+
+@media (max-width: 900px) {
+  .invitation-page .invite-rsvp {
+    grid-template-columns: 1fr;
+    padding: 72px max(4vw, 22px) 82px;
+    gap: 34px;
+  }
+
+  .invitation-page .rsvp-copy {
+    position: static;
+    max-width: 720px;
+  }
+}
+
+@media (max-width: 600px) {
+  .invitation-page .invite-rsvp {
+    padding: 62px 16px 70px;
+    gap: 28px;
+  }
+
+  .invitation-page .invite-rsvp::after {
+    right: -170px;
+    top: -210px;
+    transform: scale(.68);
+  }
+
+  .invitation-page[data-sticker-theme]:not([data-sticker-theme=""]) .invite-rsvp::before {
+    left: auto;
+    right: -105px;
+    top: -90px;
+    bottom: auto;
+    width: 310px;
+    height: 310px;
+    opacity: .12;
+  }
+
+  .invitation-page .rsvp-copy h2 {
+    font-size: clamp(2.65rem, 13vw, 4.2rem);
+  }
+
+  .invitation-page .rsvp-form {
+    gap: 20px;
+    padding: 22px 16px !important;
+    border-radius: 18px !important;
+  }
+
+  .invitation-page .attendance-choice,
+  .invitation-page .form-pair {
+    grid-template-columns: 1fr !important;
+  }
+
+  .invitation-page .rsvp-submit {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invitation-page .rsvp-submit:hover {
+    transform: none;
+  }
+}

@@ -79,6 +79,7 @@ function applyInvitation(data) {
   document.documentElement.style.setProperty("--invite-accent-two", data.accentTwo);
   document.documentElement.style.setProperty("--invite-bg", data.background);
   document.body.classList.toggle("theme-light", data.theme === "light");
+  document.body.dataset.inviteTheme = data.theme || "";
   document.body.dataset.stickerTheme = data.stickerTheme || "";
 
   const values = {
