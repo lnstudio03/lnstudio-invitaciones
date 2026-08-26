@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="style.css?v=4.4.4">
 <link rel="stylesheet" href="public-pages.css?v=5.2">
 <link rel="stylesheet" href="unified-design.css?v=5.3">
+<link rel="stylesheet" href="comercial-v5.css?v=5.4">
 <script type="module" src="app.js?v=4.4.4"></script>
 
 </head>
@@ -30,10 +31,10 @@
     <span></span><span></span><span></span><span class="sr-only">Abrir menú</span>
   </button>
   <nav id="main-navigation" class="main-navigation" aria-label="Navegación principal">
-    <a href="index.html#muestras">Muestras</a>
-    <a href="catalogo.html">Catálogo</a>
-    <a href="index.html#servicios">Servicios</a>
-    <a href="index.html#paquetes">Paquetes</a>
+    <a href="productos.html">Invitaciones</a>
+    <a href="muestras.html">Muestras</a>
+    <a href="paquetes.html">Paquetes</a>
+    <a href="preguntas.html">Preguntas</a>
     <a href="login.html">Mi evento</a>
     <a class="button button-small button-outline" href="cotizar.html">Cotizar</a>
   </nav>
@@ -46,7 +47,7 @@
         <h1>Cuéntanos la historia que estás por celebrar.</h1>
         <p>Completa este breve recorrido. Al finalizar, prepararemos un correo con toda tu información dirigido a LN Studio.</p>
         <div class="progress-track"><span id="quote-progress"></span></div>
-        <small id="quote-step-label">Paso 1 de 6</small>
+        <small id="quote-step-label">Paso 1 de 8</small>
         <div class="quote-prices"><span><b>$249</b>Básico</span><span><b>$300</b>Intermedio</span><span><b>$480</b>Premium</span></div>
       </div>
       <form id="quote-form" class="quote-form" action="#" onsubmit="return false;" novalidate>
@@ -101,6 +102,29 @@
         </fieldset>
 
         <fieldset class="quote-step" data-step="5">
+          <legend>¿Qué producto necesitas?</legend>
+          <div class="choice-grid">
+            <label><input type="radio" name="producto" value="Invitación web" required><span>Invitación web</span></label>
+            <label><input type="radio" name="producto" value="Imagen o PDF"><span>Imagen o PDF</span></label>
+            <label><input type="radio" name="producto" value="Animación o video"><span>Animación o video</span></label>
+            <label><input type="radio" name="producto" value="Save the date"><span>Save the date</span></label>
+            <label><input type="radio" name="producto" value="Recordatorio o agradecimiento"><span>Recordatorio o agradecimiento</span></label>
+            <label><input type="radio" name="producto" value="Diseño empresarial"><span>Diseño empresarial</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="quote-step" data-step="6">
+          <legend>Elige un punto de partida</legend>
+          <div class="choice-grid quote-packages">
+            <label><input type="radio" name="paquete" value="Básico · desde $249" required><span><b>Básico · $249</b><small>24 h después del evento</small></span></label>
+            <label><input type="radio" name="paquete" value="Intermedio · desde $300"><span><b>Intermedio · $300</b><small>7 días después del evento</small></span></label>
+            <label><input type="radio" name="paquete" value="Premium · desde $480"><span><b>Premium · $480</b><small>Sin vencimiento automático</small></span></label>
+            <label><input type="radio" name="paquete" value="Necesito orientación"><span><b>Necesito orientación</b><small>Te ayudamos a elegir</small></span></label>
+          </div>
+          <label class="quote-urgent"><input type="checkbox" name="urgente" value="Sí"> Necesito entrega urgente (puede generar costo adicional)</label>
+        </fieldset>
+
+        <fieldset class="quote-step" data-step="7">
           <legend>¿Cómo podemos contactarte?</legend>
           <div class="form-two-columns">
             <label>Nombre completo<input type="text" name="nombre" autocomplete="name" required></label>
@@ -109,12 +133,16 @@
             <label>Ciudad<input type="text" name="ciudad" autocomplete="address-level2" required></label>
           </div>
           <label>Detalles adicionales<textarea name="detalles" rows="5" placeholder="Colores, temática, referencias o cualquier detalle importante."></textarea></label>
+          <label>Fotos, videos, documentos o referencias
+            <input type="file" name="archivos" multiple accept="image/jpeg,image/png,image/webp,video/mp4,application/pdf,.doc,.docx">
+            <small class="field-help">Hasta 5 archivos de 10 MB cada uno. Se almacenan de forma privada.</small>
+          </label>
         </fieldset>
 
-        <fieldset class="quote-step" data-step="6">
+        <fieldset class="quote-step" data-step="8">
           <legend>Revisa tu solicitud</legend>
           <div class="quote-summary" id="quote-summary"></div>
-          <p class="form-note">Al enviarla recibirás un folio. LN Studio podrá convertirla en cliente y evento desde su panel.</p>
+          <p class="form-note">Al enviarla recibirás un folio y podrás continuar por WhatsApp. Para comenzar se solicita 50 % de anticipo; el resto se cubre al entregar el diseño final.</p>
         </fieldset>
 
         <div class="quote-actions">

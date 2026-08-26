@@ -279,6 +279,18 @@ export const api = {
     return parseResponse(response);
   },
 
+  async uploadPublicFile(bucket, path, file) {
+    if (!(file instanceof Blob)) throw new ApiError("El archivo seleccionado no es válido.");
+    const cleanBucket = encodeURIComponent(String(bucket || "").trim());
+    const cleanPath = String(path || "").split("/").map((part) => encodeURIComponent(part)).join("/");
+    const response = await fetch(`${baseUrl}/storage/v1/object/${cleanBucket}/${cleanPath}`, {
+      method: "POST",
+      headers: apiHeaders(null, { "Content-Type": file.type || "application/octet-stream", "x-upsert": "false" }),
+      body: file
+    });
+    return parseResponse(response);
+  },
+
   async removeFile(bucket, paths = []) {
     const session = await getValidSession();
     if (!session) throw new ApiError("Debes iniciar sesión para eliminar archivos.", 401);

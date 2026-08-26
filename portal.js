@@ -3,7 +3,7 @@ import { api, ApiError } from "./supabase.js";
 const state = {
   user: null,
   profile: null,
-  events: [], clients: [], requests: [], templates: [], members: [], guestGroups: [], rsvps: [], checkins: []
+  events: [], clients: [], requests: [], templates: [], members: [], guestGroups: [], rsvps: [], checkins: [], deliverables: [], payments: [], changes: [], approvals: []
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -63,6 +63,8 @@ function bindEvents() {
   $("[data-event-status]").addEventListener("change", renderEvents);
   $("[data-client-search]").addEventListener("input", renderClients);
   $("[data-request-status]").addEventListener("change", renderRequests);
+  $("[data-change-form]")?.addEventListener("submit", submitChangeRequest);
+  $("[data-approve-design]")?.addEventListener("click", approveDesign);
 }
 
 async function login(event) {
@@ -133,6 +135,7 @@ async function load() {
   showGlobal("Actualizando información…", "loading");
   try {
     const owner = isOwner();
+    const optional = (promise) => promise.catch(() => []);
     const tasks = [
       api.select("events", { order: "created_at.desc" }),
       api.select("clients", { order: "business_name.asc" }),
@@ -140,10 +143,14 @@ async function load() {
       api.select("event_members", { order: "created_at.desc" }),
       api.select("guest_groups", { order: "created_at.desc" }),
       api.select("rsvp_responses", { order: "created_at.desc" }),
-      api.select("checkins", { order: "created_at.desc" })
+      api.select("checkins", { order: "created_at.desc" }),
+      optional(api.select("event_deliverables", { order: "created_at.desc" })),
+      optional(api.select("event_payments", { order: "created_at.desc" })),
+      optional(api.select("change_requests", { order: "created_at.desc" })),
+      optional(api.select("event_approvals", { order: "created_at.desc" }))
     ];
     if (owner) tasks.push(api.select("quote_requests", { order: "created_at.desc" }));
-    const [events, clients, templates, members, guestGroups, rsvps, checkins, requests = []] = await Promise.all(tasks);
+    const [events, clients, templates, members, guestGroups, rsvps, checkins, deliverables, payments, changes, approvals, requests = []] = await Promise.all(tasks);
     state.events = events || [];
     state.clients = clients || [];
     state.templates = templates || [];
@@ -151,6 +158,7 @@ async function load() {
     state.guestGroups = guestGroups || [];
     state.rsvps = rsvps || [];
     state.checkins = checkins || [];
+    state.deliverables = deliverables || []; state.payments = payments || []; state.changes = changes || []; state.approvals = approvals || [];
     state.requests = requests || [];
     renderAll();
     hideGlobal();
@@ -280,6 +288,30 @@ function renderClientHome() {
   }));
   activity.sort((a, b) => new Date(b.date) - new Date(a.date));
   $("[data-client-activity]").innerHTML = activity.slice(0, 7).map((item) => `<article class="activity-item"><span>${item.icon}</span><div><strong>${esc(item.title)}</strong><small>${esc(item.meta)} · ${formatRelative(item.date)}</small></div></article>`).join("") || '<div class="empty-state compact-empty">Todavía no hay actividad. Las confirmaciones aparecerán aquí.</div>';
+  setText("[data-client-package]", packageLabel(event.package_key));
+  setText("[data-client-work-status]", workStatusLabel(event.work_status));
+  setText("[data-client-total]", money(event.total_amount)); setText("[data-client-deposit]", money(event.deposit_amount)); setText("[data-client-balance]", money(event.balance_amount));
+  const deliverables = state.deliverables.filter((item) => item.event_id === event.id && item.status !== "replaced");
+  $("[data-client-deliverables]").innerHTML = deliverables.map((item) => `<article class="client-line"><span>${esc(item.title)}</span>${item.external_url ? `<a target="_blank" rel="noopener" href="${esc(item.external_url)}">Abrir</a>` : `<small>${item.status === "available" ? "Disponible" : "Pendiente"}</small>`}</article>`).join("") || '<p class="muted">Los entregables aparecerán aquí.</p>';
+  const changes = state.changes.filter((item) => item.event_id === event.id);
+  $("[data-client-changes]").innerHTML = changes.slice(0,4).map((item) => `<article class="client-line"><span>${esc(item.message)}</span><small>${esc(item.status)}</small></article>`).join("");
+  $("[data-change-form]").dataset.eventId = event.id; $("[data-approve-design]").dataset.eventId = event.id;
+  const approved = state.approvals.some((item) => item.event_id === event.id);
+  $("[data-approve-design]").disabled = approved; $("[data-approval-status]").textContent = approved ? "Diseño aprobado formalmente." : "";
+}
+
+async function submitChangeRequest(event) {
+  event.preventDefault(); const form = event.currentTarget; if (!form.reportValidity()) return;
+  const data = new FormData(form), status = $("[data-change-status]"); status.textContent = "Enviando…";
+  try { await api.insert("change_requests", { event_id:form.dataset.eventId, request_type:data.get("request_type"), message:data.get("message"), requested_by:state.user.id }); form.reset(); await load(); status.textContent = "Solicitud registrada."; }
+  catch (error) { status.textContent = errorMessage(error); }
+}
+async function approveDesign() {
+  const button = $("[data-approve-design]"), status = $("[data-approval-status]");
+  if (!confirm("¿Confirmas que apruebas el diseño final? Esta acción quedará registrada.")) return;
+  status.textContent = "Registrando aprobación…";
+  try { await api.rpc("approve_event_design", { p_event_id:button.dataset.eventId, p_notes:$("[data-approval-notes]").value || null }); await load(); }
+  catch (error) { status.textContent = errorMessage(error); }
 }
 
 function eventConfirmed(eventId) {
@@ -460,6 +492,11 @@ async function saveEvent(event) {
     const values = formObject(form, ["id"]);
     values.client_id = values.client_id || null;
     values.max_companions = Number(values.max_companions || 0);
+    values.total_amount = Number(values.total_amount || 0);
+    values.deposit_amount = Number(values.deposit_amount || 0);
+    values.balance_amount = Number(values.balance_amount || 0);
+    values.package_key = values.package_key || null;
+    values.expiry_policy = values.expiry_policy || null;
     values.qr_enabled = values.qr_enabled === "true";
     values.event_date = new Date(values.event_date).toISOString();
     values.slug = slugify(values.slug || values.name);
@@ -773,6 +810,9 @@ function formatDate(value) { if (!value) return "Fecha pendiente"; try { return 
 function formatRelative(value) { if (!value) return "Ahora"; const diff = Date.now() - new Date(value).getTime(); const minutes = Math.max(0, Math.floor(diff / 60000)); if (minutes < 1) return "Ahora"; if (minutes < 60) return `Hace ${minutes} min`; const hours = Math.floor(minutes / 60); if (hours < 24) return `Hace ${hours} h`; const days = Math.floor(hours / 24); return `Hace ${days} día${days === 1 ? "" : "s"}`; }
 function eventTypeLabel(value) { return ({ anniversary: "Aniversario", wedding: "Boda", xv: "XV años", birthday: "Cumpleaños", kids: "Infantil", baptism: "Bautizo", baby_shower: "Baby shower", corporate: "Empresarial", other: "Celebración" })[value] || "Celebración"; }
 function statusLabel(value) { return ({ draft: "Borrador", published: "Publicado", paused: "Pausado", finished: "Finalizado", archived: "Archivado" })[value] || value; }
+function packageLabel(value) { return ({ basic:"Básico · desde $249", intermediate:"Intermedio · desde $300", premium:"Premium · desde $480" })[value] || "Paquete por definir"; }
+function workStatusLabel(value) { return ({ brief:"Brief recibido", design:"En diseño", client_review:"Revisión del cliente", approved:"Aprobado", delivered:"Entregado" })[value] || "Brief recibido"; }
+function money(value) { return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(Number(value || 0)); }
 function requestStatus(value) { return ({ new: "Nueva", contacted: "Contactada", converted: "Convertida", archived: "Archivada" })[value] || value; }
 function firstFilled(...values) {
   for (const value of values) {

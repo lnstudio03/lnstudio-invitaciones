@@ -45,6 +45,9 @@ async function init() {
       if (!token) return fail("Invitación no válida.");
       eventData = await api.rpc("get_public_event", { p_token:token }, { publicCall:true });
       if (!eventData?.id) return fail("Esta invitación todavía no está publicada o el enlace no es válido.");
+      if (eventData.status === "finished" || (eventData.expires_at && new Date(eventData.expires_at) <= new Date())) {
+        location.replace("evento-finalizado.html"); return;
+      }
     }
     renderEvent();
   } catch (error) { fail(errorMessage(error)); }

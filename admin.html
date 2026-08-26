@@ -112,6 +112,12 @@
               </div>
             </section>
           </div>
+          <div class="client-commerce-grid" data-client-commerce>
+            <section class="client-panel-card"><p class="admin-eyebrow">Proyecto y pagos</p><h2 data-client-package>Paquete por definir</h2><div class="client-project-status" data-client-work-status>Brief</div><dl class="client-money"><div><dt>Total</dt><dd data-client-total>$0</dd></div><div><dt>Anticipo</dt><dd data-client-deposit>$0</dd></div><div><dt>Saldo</dt><dd data-client-balance>$0</dd></div></dl></section>
+            <section class="client-panel-card"><p class="admin-eyebrow">Entregables</p><h2>Tus archivos</h2><div data-client-deliverables></div></section>
+            <section class="client-panel-card"><p class="admin-eyebrow">Cambios</p><h2>Solicitar un ajuste</h2><p>Incluye 3 rondas grandes y ajustes menores ilimitados hasta aprobar.</p><form data-change-form><select name="request_type"><option value="minor">Ajuste menor</option><option value="major">Cambio grande</option></select><textarea name="message" required minlength="5" placeholder="Describe exactamente el cambio"></textarea><button class="primary-button">Enviar solicitud</button><small data-change-status></small></form><div data-client-changes></div></section>
+            <section class="client-panel-card"><p class="admin-eyebrow">Aprobación final</p><h2>¿El diseño está listo?</h2><p>La aprobación queda registrada con fecha y usuario. Después de aprobar, cualquier cambio puede cotizarse aparte.</p><textarea data-approval-notes placeholder="Comentario opcional"></textarea><button class="primary-button" data-approve-design>Aprobar diseño final</button><small data-approval-status></small></section>
+          </div>
           <div class="empty-state client-no-event" data-client-no-event hidden><strong>Aún no tienes un evento asignado.</strong><p>LN Studio debe vincular tu correo a un evento antes de mostrar la información.</p></div>
         </div>
       </section>
@@ -171,6 +177,10 @@
         <label class="span-2">Dirección<input name="venue_address"></label>
         <label>Acompañantes máximos<input name="max_companions" type="number" min="0" max="20" value="3"></label>
         <label>QR<select name="qr_enabled"><option value="true">Activado</option><option value="false">Desactivado</option></select></label>
+        <label>Paquete<select name="package_key"><option value="">Por definir</option><option value="basic">Básico · $249</option><option value="intermediate">Intermedio · $300</option><option value="premium">Premium · $480</option></select></label>
+        <label>Etapa<select name="work_status"><option value="brief">Brief</option><option value="design">Diseño</option><option value="client_review">Revisión del cliente</option><option value="approved">Aprobado</option><option value="delivered">Entregado</option></select></label>
+        <label>Total<input name="total_amount" type="number" min="0" step="0.01"></label><label>Anticipo<input name="deposit_amount" type="number" min="0" step="0.01"></label>
+        <label>Saldo<input name="balance_amount" type="number" min="0" step="0.01"></label><label>Vigencia<select name="expiry_policy"><option value="">Por definir</option><option value="24h">24 h</option><option value="7d">7 días</option><option value="unlimited">Sin límite</option></select></label>
         <label class="span-2">Descripción<textarea name="description"></textarea></label>
       </div>
       <p class="form-status" data-event-status-message></p>
