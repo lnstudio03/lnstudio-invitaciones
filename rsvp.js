@@ -13,9 +13,14 @@ let previewEventId = null;
 
 const DEFAULT_CONFIG = {
   colors:{ background:"#0d1420",background2:"#1b2537",text:"#ffffff",muted:"#b7c1d5",primary:"#8f7dff",secondary:"#ff7f91",overlay:45,mode:"gradient" },
-  typography:{ heading:"Fraunces",body:"Manrope",headingSize:72,bodySize:18,headingWeight:700,align:"center",transform:"none" },
+  typography:{ heading:"Fraunces",body:"Manrope",headingSize:64,bodySize:18,headingWeight:700,align:"center",transform:"none" },
   countdown:{ style:"cards",font:"Manrope",showSeconds:true },
-  media:{ backgroundImage:"",gallery:[],heroFit:"cover",showMusicButton:true },
+  media:{
+    backgroundImage:"",backgroundVideo:"",backgroundPositionX:50,backgroundPositionY:50,
+    backgroundVideoFit:"cover",backgroundVideoStart:0,backgroundVideoEnd:0,
+    backgroundVideoAutoplay:true,backgroundVideoLoop:true,backgroundVideoMuted:true,
+    gallery:[],heroFit:"cover",showMusicButton:true
+  },
   layers:[],
   customSections:[],
   animation:{ preset:"fade-up",ambient:"none",intensity:"medium",respectReducedMotion:true },
@@ -132,18 +137,20 @@ function applyVariables(config) {
   root.setProperty("--invite-heading-font", `'${safeFont(config.typography.heading,"Fraunces")}'`);
   root.setProperty("--invite-body-font", `'${safeFont(config.typography.body,"Manrope")}'`);
   root.setProperty("--invite-countdown-font", `'${safeFont(config.countdown.font,"Manrope")}'`);
-  root.setProperty("--invite-heading-size", `${Math.min(120,Math.max(36,Number(config.typography.headingSize||72)))}px`);
-  root.setProperty("--invite-body-size", `${Math.min(28,Math.max(14,Number(config.typography.bodySize||18)))}px`);
+  root.setProperty("--invite-heading-size", `${Math.min(200,Math.max(24,Number(config.typography.headingSize||72)))}px`);
+  root.setProperty("--invite-body-size", `${Math.min(48,Math.max(12,Number(config.typography.bodySize||18)))}px`);
   root.setProperty("--invite-heading-weight", String(config.typography.headingWeight||700));
   const align = ["left","center","right"].includes(config.typography.align)?config.typography.align:"center";
   root.setProperty("--invite-text-align", align);
   root.setProperty("--hero-align", align === "left" ? "flex-start" : align === "right" ? "flex-end" : "center");
   root.setProperty("--invite-heading-transform", ["none","uppercase","capitalize"].includes(config.typography.transform)?config.typography.transform:"none");
-  root.setProperty("--invite-hero-fit", ["cover","contain","scale-down"].includes(config.media.heroFit)?config.media.heroFit:"cover");
+  root.setProperty("--invite-hero-fit", ["cover","contain","scale-down"].includes(config.media.heroFit)?config.media.heroFit:(config.media.heroFit==="center"?"scale-down":"cover"));
   const hero = $("[data-section=hero]");
+  hero.style.backgroundPosition = `${clampMedia(config.media.backgroundPositionX,0,100,50)}% ${clampMedia(config.media.backgroundPositionY,0,100,50)}%`;
   if (config.colors.mode === "image" && config.media.backgroundImage) hero.style.backgroundImage = `url("${cssUrl(config.media.backgroundImage)}")`;
   else if (config.colors.mode === "solid") hero.style.backgroundImage = "none", hero.style.backgroundColor = safeColor(config.colors.background,"#0d1420");
   else hero.style.backgroundImage = `linear-gradient(145deg,${safeColor(config.colors.background,"#0d1420")},${safeColor(config.colors.background2,"#1b2537")})`;
+  configureBackgroundVideo(config);
   document.body.classList.add(`animation-${safeAnimation(config.animation.preset)}`);
   document.body.classList.toggle("allow-motion", config.animation.respectReducedMotion === false);
   document.body.dataset.animationIntensity = config.animation.intensity || "medium";
@@ -157,11 +164,11 @@ function applyLayout(config) {
   if (!config.media.gallery?.length && !config.layers.some((layer)=>layer.section==="gallery")) $("[data-section=gallery]").hidden = true;
 }
 
-function normalizeCustomSections(value){if(!Array.isArray(value))return[];return value.slice(0,12).map((item,index)=>({id:String(item?.id||`section-${index}`).replace(/[^a-z0-9-]/gi,"-").slice(0,80),type:["image","video","photo-text","quote","separator","itinerary"].includes(item?.type)?item.type:"quote",title:String(item?.title||"").slice(0,140),text:String(item?.text||"").slice(0,900),mediaUrl:String(item?.mediaUrl||"").slice(0,1800),caption:String(item?.caption||"").slice(0,220),items:Array.isArray(item?.items)?item.items.map((entry)=>String(entry).slice(0,120)).slice(0,8):[]}))}
+function normalizeCustomSections(value){if(!Array.isArray(value))return[];return value.slice(0,12).map((item,index)=>({id:String(item?.id||`section-${index}`).replace(/[^a-z0-9-]/gi,"-").slice(0,80),type:["image","video","photo-text","quote","separator","itinerary"].includes(item?.type)?item.type:"quote",title:String(item?.title||"").slice(0,140),text:String(item?.text||"").slice(0,900),mediaUrl:String(item?.mediaUrl||"").slice(0,1800),caption:String(item?.caption||"").slice(0,220),videoStart:clampMedia(item?.videoStart,0,3600,0),videoEnd:clampMedia(item?.videoEnd,0,3600,0),videoAutoplay:item?.videoAutoplay===true,videoLoop:item?.videoLoop===true,videoMuted:item?.videoAutoplay===true?true:item?.videoMuted!==false,videoControls:item?.videoControls!==false,videoFit:["cover","contain"].includes(item?.videoFit)?item.videoFit:"cover",items:Array.isArray(item?.items)?item.items.map((entry)=>String(entry).slice(0,120)).slice(0,8):[]}))}
 function renderCustomSections(value){
   $$('[data-custom-section]').forEach((node)=>node.remove());const anchor=$("[data-pass]");
   normalizeCustomSections(value).forEach((section)=>{const node=document.createElement("section");node.className=`official-custom official-custom-${section.type} invite-animated`;node.dataset.section=`custom:${section.id}`;node.dataset.customSection=section.id;const media=safeAsset(section.mediaUrl);
-    if(section.type==="video")node.innerHTML=`<p class="invite-kicker">Video</p><h2>${escapeAttr(section.title)}</h2>${media?`<video src="${escapeAttr(media)}" controls playsinline preload="metadata"></video>`:""}<p>${escapeAttr(section.text)}</p>`;
+    if(section.type==="video"){const attrs=`${section.videoControls?" controls":""}${section.videoMuted?" muted":""}${section.videoAutoplay?" autoplay":""} playsinline preload="metadata" data-video-start="${section.videoStart}" data-video-end="${section.videoEnd}" data-video-loop="${section.videoLoop?"1":"0"}" style="object-fit:${section.videoFit}"`;node.innerHTML=`<p class="invite-kicker">Video</p><h2>${escapeAttr(section.title)}</h2>${media?`<video src="${escapeAttr(media)}"${attrs}></video>`:""}<p>${escapeAttr(section.text)}</p>`;}
     else if(section.type==="image")node.innerHTML=`<p class="invite-kicker">Imagen destacada</p><h2>${escapeAttr(section.title)}</h2>${media?`<img src="${escapeAttr(media)}" alt="${escapeAttr(section.caption)}" loading="lazy">`:""}<p>${escapeAttr(section.caption)}</p>`;
     else if(section.type==="photo-text")node.innerHTML=`<div class="official-custom-split">${media?`<img src="${escapeAttr(media)}" alt="${escapeAttr(section.caption)}" loading="lazy">`:""}<div><p class="invite-kicker">Nuestra historia</p><h2>${escapeAttr(section.title)}</h2><p>${escapeAttr(section.text)}</p></div></div>`;
     else if(section.type==="quote")node.innerHTML=`<span class="official-quote-mark">“</span><blockquote>${escapeAttr(section.text)}</blockquote><h2>${escapeAttr(section.title)}</h2>`;
@@ -169,6 +176,7 @@ function renderCustomSections(value){
     else {const items=section.items.map((item)=>{const parts=item.split("·");return `<li><strong>${escapeAttr(parts.shift()?.trim()||"")}</strong><span>${escapeAttr(parts.join("·").trim())}</span></li>`}).join("");node.innerHTML=`<p class="invite-kicker">Itinerario</p><h2>${escapeAttr(section.title)}</h2><ol class="official-itinerary">${items}</ol>`}
     anchor.parentElement.insertBefore(node,anchor);
   });
+  configureRangedVideos(document);
 }
 
 function renderGallery(gallery) {
@@ -656,13 +664,18 @@ function applyTypographyDirectly(config){
   document.documentElement.dataset.bodyFont=body;
   document.documentElement.dataset.countdownFont=countdown;
 
-  document.querySelectorAll(".official-hero h1,.official-message h2,.official-details h2,.official-gallery h2,.official-custom h2,.official-custom blockquote,.rsvp-section>h2,.invite-success h2,.invite-close p").forEach((node)=>{
-    node.style.setProperty("font-family",`'${heading}', serif`,"important");
-  });
-  document.querySelectorAll(".official-event,.official-event button,.official-event input,.official-event textarea,.official-event select,.official-event a,.official-subtitle,.event-facts,.rsvp-copy,.rsvp-form").forEach((node)=>{
+  const bodySelector = [
+    ".official-event",".official-event p",".official-event span",".official-event strong",
+    ".official-event a",".official-event button",".official-event label",".official-event legend",
+    ".official-event input",".official-event textarea",".official-event select",".official-event small"
+  ].join(",");
+  document.querySelectorAll(bodySelector).forEach((node)=>{
     node.style.setProperty("font-family",`'${body}', sans-serif`,"important");
   });
-  document.querySelectorAll(".countdown-display,.countdown-display strong").forEach((node)=>{
+  document.querySelectorAll(".official-event h1,.official-event h2,.official-event h3,.official-custom blockquote,.invite-close p").forEach((node)=>{
+    node.style.setProperty("font-family",`'${heading}', serif`,"important");
+  });
+  document.querySelectorAll(".countdown-display,.countdown-display strong,.countdown-display span").forEach((node)=>{
     node.style.setProperty("font-family",`'${countdown}', sans-serif`,"important");
   });
 }
@@ -690,6 +703,35 @@ async function ensureSelectedFonts(config){
     document.fonts.load(`800 32px "${font}"`)
   ])));
   await document.fonts.ready;
+}
+
+function clampMedia(value,min,max,fallback){const number=Number(value);return Number.isFinite(number)?Math.min(max,Math.max(min,number)):fallback}
+function configureBackgroundVideo(config){
+  const video=$("[data-background-video]");
+  if(!video)return;
+  const url=safeAsset(config?.media?.backgroundVideo);
+  const show=config?.colors?.mode==="video"&&Boolean(url);
+  video.hidden=!show;
+  if(!show){video.pause();video.removeAttribute("src");video.load();return}
+  if(video.dataset.src!==url){video.dataset.src=url;video.src=url}
+  const autoplay=config.media.backgroundVideoAutoplay!==false;
+  video.muted=autoplay?true:config.media.backgroundVideoMuted!==false;
+  video.autoplay=autoplay;
+  video.loop=false;
+  video.style.objectFit=["cover","contain"].includes(config.media.backgroundVideoFit)?config.media.backgroundVideoFit:"cover";
+  video.style.objectPosition=`${clampMedia(config.media.backgroundPositionX,0,100,50)}% ${clampMedia(config.media.backgroundPositionY,0,100,50)}%`;
+  video.dataset.videoStart=String(clampMedia(config.media.backgroundVideoStart,0,3600,0));
+  video.dataset.videoEnd=String(clampMedia(config.media.backgroundVideoEnd,0,3600,0));
+  video.dataset.videoLoop=config.media.backgroundVideoLoop!==false?"1":"0";
+  configureRangedVideo(video);
+  if(autoplay)video.play().catch(()=>{});
+}
+function configureRangedVideos(root=document){root.querySelectorAll("video[data-video-start]").forEach(configureRangedVideo)}
+function configureRangedVideo(video){
+  const start=clampMedia(video.dataset.videoStart,0,3600,0),end=clampMedia(video.dataset.videoEnd,0,3600,0),loopRange=video.dataset.videoLoop==="1";
+  video.onloadedmetadata=()=>{const safeStart=Math.min(start,Math.max(0,(video.duration||start)-.05));if(safeStart>0&&Math.abs(video.currentTime-safeStart)>.2){try{video.currentTime=safeStart}catch{}}if(video.autoplay)video.play().catch(()=>{})};
+  video.ontimeupdate=()=>{if(end>start&&video.currentTime>=end-.05){if(loopRange){try{video.currentTime=start}catch{}video.play().catch(()=>{})}else video.pause()}};
+  video.onended=()=>{if(loopRange&&!(end>start)){try{video.currentTime=start}catch{}video.play().catch(()=>{})}};
 }
 function safeCountdownStyle(value){return ["cards","minimal","circles","inline","neon","flip"].includes(value)?value:"cards"}
 function safeAnimation(value){return ["fade-up","fade","zoom","slide-left","float","none"].includes(value)?value:"fade-up"}

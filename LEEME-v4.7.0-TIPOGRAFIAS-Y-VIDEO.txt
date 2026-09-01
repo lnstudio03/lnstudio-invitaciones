@@ -1,0 +1,46 @@
+LN Studio v4.7.0 — Tipografías fieles + video
+Fecha: 2026-09-01
+
+ARCHIVOS MODIFICADOS
+- disenador.html
+- disenador.js
+- disenador.css
+- evento.html
+- rsvp.js
+- invitacion.css
+
+REPARACIONES PRINCIPALES
+1. Tipografías y tamaños
+- Corregido el media query horizontal que también se activaba en laptops/escritorio de poca altura y reducía el título publicado aunque el diseñador tuviera 120 px.
+- El modo horizontal compacto ahora solo entra hasta 980 px de ancho.
+- La invitación publicada fuerza la fuente de títulos, la fuente de texto y la fuente del contador elegidas en el diseñador.
+- Se alinearon pesos 800 disponibles de Fraunces, Playfair Display y Cinzel entre diseñador e invitación.
+- Rango de título ampliado a 24–200 px.
+- Rango de texto ampliado a 12–48 px.
+- Corregido “Centrada” de imagen principal: ahora usa scale-down válido y conserva compatibilidad con diseños antiguos que guardaron center.
+
+2. Video de fondo
+- Nuevo modo de fondo “Video”.
+- Carga MP4, WEBM o MOV hasta 50 MB desde el editor.
+- También acepta URL pública directa para archivos mayores.
+- Autoplay, loop, mute, cover/contain, posición X/Y e inicio/fin por segundos.
+- Al subir un video de fondo, el editor cambia automáticamente a modo Video.
+
+3. Secciones de video
+- La sección Video existente quedó ampliada y reparada.
+- Permite inicio/fin, autoplay, repetir, silencio, controles y cover/contain.
+- El rango temporal funciona tanto en la vista previa como en la invitación publicada.
+
+4. Estabilidad
+- Se corrigieron selectores de z-index para que el video de fondo permanezca detrás del contenido y de la superposición oscura.
+- Se validan valores y rangos antes de guardar.
+- Se conserva compatibilidad con design_config anteriores.
+
+VERIFICACIONES REALIZADAS
+- Sintaxis de todos los .js del proyecto: OK.
+- Parser CSS de todos los .css: 0 errores.
+- Referencias locales de las páginas activas: 0 archivos faltantes.
+- Referencias del formulario del diseñador: 0 controles faltantes.
+
+NOTA DE VIDEO
+El límite de carga directa se mantiene en 50 MB para no romper el almacenamiento/configuración actual. Para videos más grandes usa una URL pública directa a MP4/WEBM/MOV. Un enlace normal de YouTube no es un archivo de video directo.

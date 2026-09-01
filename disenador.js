@@ -12,7 +12,12 @@ const DEFAULTS = {
   colors:{ background:"#0d1420", background2:"#1b2537", text:"#ffffff", muted:"#b7c1d5", primary:"#8f7dff", secondary:"#ff7f91", overlay:45, mode:"gradient" },
   typography:{ heading:"Fraunces", body:"Manrope", headingSize:64, bodySize:18, headingWeight:700, align:"center", transform:"none" },
   countdown:{ style:"cards", font:"Manrope", showSeconds:true },
-  media:{ backgroundImage:"", gallery:[], heroFit:"cover", showMusicButton:true },
+  media:{
+    backgroundImage:"", backgroundVideo:"", backgroundPositionX:50, backgroundPositionY:50,
+    backgroundVideoFit:"cover", backgroundVideoStart:0, backgroundVideoEnd:0,
+    backgroundVideoAutoplay:true, backgroundVideoLoop:true, backgroundVideoMuted:true,
+    gallery:[], heroFit:"cover", showMusicButton:true
+  },
   layers:[],
   customSections:[],
   animation:{ preset:"fade-up", ambient:"none", intensity:"medium", respectReducedMotion:true },
@@ -84,6 +89,8 @@ function bind() {
     const field = $("#designer-form").elements[fieldName];
     revokeLocalAsset(fieldName);
     if (field) field.value = "";
+    if (fieldName === "background_video_url" && $("#designer-form").elements.background_mode.value === "video") $("#designer-form").elements.background_mode.value = "gradient";
+    if (fieldName === "background_image_url" && $("#designer-form").elements.background_mode.value === "image") $("#designer-form").elements.background_mode.value = "gradient";
     syncAssetFeedback(fieldName, "", "empty");
     render(); resetPreviewToTop(); setStatus("Archivo quitado · cambios sin guardar");
   }));
@@ -179,7 +186,7 @@ function fill() {
   form.elements.background_color_two.value = safeColor(config.colors.background2, DEFAULTS.colors.background2);
   form.elements.text_color.value = safeColor(config.colors.text, DEFAULTS.colors.text);
   form.elements.muted_color.value = safeColor(config.colors.muted, DEFAULTS.colors.muted);
-  form.elements.background_mode.value = config.colors.mode;
+  form.elements.background_mode.value = ["gradient","solid","image","video"].includes(config.colors.mode) ? config.colors.mode : "gradient";
   form.elements.overlay_opacity.value = Number(config.colors.overlay ?? 45);
   form.elements.heading_font.value = config.typography.heading;
   form.elements.body_font.value = config.typography.body;
@@ -192,7 +199,16 @@ function fill() {
   form.elements.countdown_font.value = config.countdown.font || "Manrope";
   form.elements.countdown_seconds.checked = config.countdown.showSeconds !== false;
   form.elements.background_image_url.value = config.media.backgroundImage || "";
-  form.elements.hero_fit.value = config.media.heroFit || "cover";
+  form.elements.background_video_url.value = config.media.backgroundVideo || "";
+  form.elements.background_position_x.value = Number(config.media.backgroundPositionX ?? 50);
+  form.elements.background_position_y.value = Number(config.media.backgroundPositionY ?? 50);
+  form.elements.background_video_fit.value = ["cover","contain"].includes(config.media.backgroundVideoFit) ? config.media.backgroundVideoFit : "cover";
+  form.elements.background_video_start.value = Number(config.media.backgroundVideoStart || 0);
+  form.elements.background_video_end.value = Number(config.media.backgroundVideoEnd || 0);
+  form.elements.background_video_autoplay.checked = config.media.backgroundVideoAutoplay !== false;
+  form.elements.background_video_loop.checked = config.media.backgroundVideoLoop !== false;
+  form.elements.background_video_muted.checked = config.media.backgroundVideoMuted !== false;
+  form.elements.hero_fit.value = ["cover","contain","scale-down"].includes(config.media.heroFit) ? config.media.heroFit : (config.media.heroFit === "center" ? "scale-down" : "cover");
   form.elements.show_music_button.checked = config.media.showMusicButton !== false;
   form.elements.animation_preset.value = config.animation.preset || "fade-up";
   form.elements.ambient_animation.value = config.animation.ambient || "none";
@@ -207,7 +223,7 @@ function fill() {
   $("[data-event-title]").textContent = state.event.name;
   $(`[data-open-invitation]`).href = `evento.html?id=${encodeURIComponent(state.event.id)}&preview=1`;
   $(`[data-open-invitation]`).hidden = false;
-  ["logo_url","secondary_logo_url","hero_image_url","background_image_url","music_url"].forEach((fieldName) => syncAssetFeedback(fieldName, form.elements[fieldName]?.value || "", form.elements[fieldName]?.value ? "saved" : "empty"));
+  ["logo_url","secondary_logo_url","hero_image_url","background_image_url","background_video_url","music_url"].forEach((fieldName) => syncAssetFeedback(fieldName, form.elements[fieldName]?.value || "", form.elements[fieldName]?.value ? "saved" : "empty"));
 }
 
 function mergeConfig(value) {
@@ -268,7 +284,7 @@ async function handleUpload(input) {
     renderGalleryManager(); render(); setStatus("Galería actualizada · guarda el diseño"); input.value = ""; return;
   }
 
-  const fieldMap = { logo:"logo_url", "secondary-logo":"secondary_logo_url", hero:"hero_image_url", background:"background_image_url", music:"music_url" };
+  const fieldMap = { logo:"logo_url", "secondary-logo":"secondary_logo_url", hero:"hero_image_url", background:"background_image_url", "background-video":"background_video_url", music:"music_url" };
   const fieldName = fieldMap[role];
   const file = files[0];
   if (!fieldName || !file) { input.value = ""; return; }
@@ -282,6 +298,8 @@ async function handleUpload(input) {
     const localUrl = URL.createObjectURL(file);
     state.localAssets[fieldName] = localUrl;
     field.value = localUrl;
+    if (role === "background-video") $("#designer-form").elements.background_mode.value = "video";
+    if (role === "background") $("#designer-form").elements.background_mode.value = "image";
     syncAssetFeedback(fieldName, localUrl, "uploading", `Vista previa local de ${file.name}. Subiendo…`);
     render(); resetPreviewToTop();
 
@@ -338,7 +356,8 @@ async function uploadOne(file, role) {
 function verifyPublicAsset(url, role) {
   return new Promise((resolve, reject) => {
     const isAudio = role === "music";
-    const node = document.createElement(isAudio ? "audio" : "img");
+    const isVideo = role === "custom-video" || role === "background-video";
+    const node = document.createElement(isAudio ? "audio" : isVideo ? "video" : "img");
     let finished = false;
     const done = (ok) => {
       if (finished) return;
@@ -347,7 +366,7 @@ function verifyPublicAsset(url, role) {
       node.removeAttribute("src");
       ok ? resolve(true) : reject(new Error("El archivo llegó a Storage, pero su URL pública no se puede abrir. Ejecuta la reparación de Storage incluida con esta versión."));
     };
-    node.addEventListener(isAudio ? "loadedmetadata" : "load", () => done(true), { once:true });
+    node.addEventListener(isAudio || isVideo ? "loadedmetadata" : "load", () => done(true), { once:true });
     node.addEventListener("error", () => done(false), { once:true });
     const timer = window.setTimeout(() => done(false), 12000);
     node.src = `${url}${url.includes("?") ? "&" : "?"}v=${Date.now()}`;
@@ -361,6 +380,7 @@ function syncAssetFeedback(fieldName, url, stateName = "empty", message = "") {
   const thumb = $(`[data-asset-thumb="${fieldName}"]`);
   const messageNode = $(`[data-asset-message="${fieldName}"]`);
   const isAudio = fieldName === "music_url";
+  const isVideo = fieldName === "background_video_url";
   if (messageNode) messageNode.textContent = message || ({
     empty:"Sin archivo seleccionado.",
     saved:"Archivo guardado en el evento.",
@@ -371,12 +391,13 @@ function syncAssetFeedback(fieldName, url, stateName = "empty", message = "") {
   if (!thumb) return;
   thumb.hidden = !url;
   if (!url) { thumb.style.backgroundImage = ""; return; }
-  if (isAudio) { thumb.textContent = "♪"; return; }
+  if (isAudio) { thumb.textContent = "♪"; thumb.style.backgroundImage = ""; return; }
+  if (isVideo) { thumb.textContent = "▶"; thumb.style.backgroundImage = ""; return; }
   thumb.style.backgroundImage = `url("${cssUrl(url)}")`;
 }
 
 function assetLabel(fieldName) {
-  return ({ logo_url:"Logo principal", secondary_logo_url:"Logo secundario", hero_image_url:"Imagen principal", background_image_url:"Imagen de fondo", music_url:"Música" })[fieldName] || "Archivo";
+  return ({ logo_url:"Logo principal", secondary_logo_url:"Logo secundario", hero_image_url:"Imagen principal", background_image_url:"Imagen de fondo", background_video_url:"Video de fondo", music_url:"Música" })[fieldName] || "Archivo";
 }
 function resetPreviewToTop() {
   const screen = $(`[data-preview-screen]`);
@@ -395,9 +416,9 @@ function fitPreviewTitle() {
   if (!title || !hero) return;
 
   const configured = Math.max(28, Number(sizeField?.value || 64));
-  const mobileMaximum = Math.min(configured, 58);
-  const landscapeMaximum = Math.min(configured, 48);
-  const desktopMaximum = Math.min(configured, 104);
+  const mobileMaximum = Math.min(configured, 72);
+  const landscapeMaximum = Math.min(configured, 64);
+  const desktopMaximum = Math.min(configured, 180);
   let size = previewMode === "desktop" ? desktopMaximum : previewMode === "landscape" ? landscapeMaximum : mobileMaximum;
 
   title.style.fontSize = `${size}px`;
@@ -441,9 +462,9 @@ function validateFile(file, role) {
   if (role === "music") {
     if (!audioTypes.includes(file.type)) throw new Error("La música debe ser MP3, WAV u OGG.");
     if (file.size > 15 * 1024 * 1024) throw new Error("La música supera el límite de 15 MB.");
-  } else if (role === "custom-video") {
+  } else if (role === "custom-video" || role === "background-video") {
     if (!videoTypes.includes(file.type)) throw new Error("El video debe ser MP4, WEBM o MOV.");
-    if (file.size > 50 * 1024 * 1024) throw new Error("El video supera el límite de 50 MB.");
+    if (file.size > 50 * 1024 * 1024) throw new Error("El video supera el límite de 50 MB. Puedes usar una URL pública para videos más grandes.");
   } else {
     if (!imageTypes.includes(file.type)) throw new Error("La imagen debe ser PNG, JPG, WEBP o GIF.");
     if (file.size > 8 * 1024 * 1024) throw new Error("La imagen supera el límite de 8 MB.");
@@ -465,6 +486,13 @@ function normalizeCustomSections(value) {
     text:String(item?.text || "").slice(0,900),
     mediaUrl:String(item?.mediaUrl || "").slice(0,1800),
     caption:String(item?.caption || "").slice(0,220),
+    videoStart:clampNumber(item?.videoStart,0,3600,0),
+    videoEnd:clampNumber(item?.videoEnd,0,3600,0),
+    videoAutoplay:item?.videoAutoplay === true,
+    videoLoop:item?.videoLoop === true,
+    videoMuted:item?.videoAutoplay === true ? true : item?.videoMuted !== false,
+    videoControls:item?.videoControls !== false,
+    videoFit:["cover","contain"].includes(item?.videoFit) ? item.videoFit : "cover",
     items:Array.isArray(item?.items) ? item.items.map((entry)=>String(entry).slice(0,120)).slice(0,8) : []
   }));
 }
@@ -482,14 +510,22 @@ function addCustomSection(type) {
     separator:{title:"✦",text:"Celebremos juntos",caption:""},
     itinerary:{title:"Itinerario",text:"",caption:"",items:["18:00 · Recepción","19:00 · Ceremonia","20:00 · Celebración"]}
   }[type];
-  state.customSections.push({id,type,mediaUrl:"",items:[],...defaults});
+  state.customSections.push({
+    id,type,mediaUrl:"",items:[],videoStart:0,videoEnd:0,videoAutoplay:false,
+    videoLoop:false,videoMuted:true,videoControls:true,videoFit:"cover",...defaults
+  });
   const key=customKey(id); state.sections.push(key); state.enabled[key]=true;
   renderSectionManager(); render(); setStatus("Sección agregada · cambios sin guardar");
 }
 
 function customSectionEditor(section,key,index) {
   const accepts=section.type === "video" ? "video/mp4,video/webm,video/quicktime" : "image/png,image/jpeg,image/webp,image/gif";
-  const mediaField=["image","video","photo-text"].includes(section.type) ? `<label>Archivo o enlace<input data-custom-field="mediaUrl" data-custom-id="${section.id}" value="${escapeAttr(section.mediaUrl)}" placeholder="Pega una URL o sube un archivo"></label><label class="custom-upload">Subir ${section.type === "video" ? "video" : "foto"}<input type="file" data-custom-upload="${section.id}" accept="${accepts}"></label>${section.mediaUrl ? `<button type="button" class="danger-link" data-clear-custom-media="${section.id}">Quitar archivo</button>` : ""}` : "";
+  const videoControls = section.type === "video" ? `<div class="custom-video-controls">
+    <div class="form-pair"><label>Inicio (s)<input type="number" min="0" max="3600" step="0.5" data-custom-field="videoStart" data-custom-id="${section.id}" value="${section.videoStart}"></label><label>Fin (s)<input type="number" min="0" max="3600" step="0.5" data-custom-field="videoEnd" data-custom-id="${section.id}" value="${section.videoEnd}" placeholder="0 = final"></label></div>
+    <label>Ajuste<select data-custom-field="videoFit" data-custom-id="${section.id}"><option value="cover"${section.videoFit==="cover"?" selected":""}>Cubrir</option><option value="contain"${section.videoFit==="contain"?" selected":""}>Completo</option></select></label>
+    <div class="video-options"><label class="toggle-line"><input type="checkbox" data-custom-field="videoAutoplay" data-custom-id="${section.id}" ${section.videoAutoplay?"checked":""}> Autoplay</label><label class="toggle-line"><input type="checkbox" data-custom-field="videoLoop" data-custom-id="${section.id}" ${section.videoLoop?"checked":""}> Repetir</label><label class="toggle-line"><input type="checkbox" data-custom-field="videoMuted" data-custom-id="${section.id}" ${section.videoMuted?"checked":""}> Sin sonido</label><label class="toggle-line"><input type="checkbox" data-custom-field="videoControls" data-custom-id="${section.id}" ${section.videoControls?"checked":""}> Controles</label></div>
+  </div>` : "";
+  const mediaField=["image","video","photo-text"].includes(section.type) ? `<label>Archivo o enlace<input data-custom-field="mediaUrl" data-custom-id="${section.id}" value="${escapeAttr(section.mediaUrl)}" placeholder="Pega una URL o sube un archivo"></label><label class="custom-upload">Subir ${section.type === "video" ? "video" : "foto"}<input type="file" data-custom-upload="${section.id}" accept="${accepts}"></label>${section.mediaUrl ? `<button type="button" class="danger-link" data-clear-custom-media="${section.id}">Quitar archivo</button>` : ""}${videoControls}` : "";
   const textLabel=section.type === "itinerary" ? "Horario (una actividad por línea)" : section.type === "quote" ? "Pensamiento o frase" : "Texto";
   const textValue=section.type === "itinerary" ? section.items.join("\n") : section.text;
   return `<div class="section-row custom-section-row" data-custom-card="${section.id}">
@@ -517,7 +553,15 @@ function renderSectionManager() {
 function handleCustomSectionInput(event) {
   const field=event.target.dataset.customField, id=event.target.dataset.customId;
   if(!field || !id) return; const section=state.customSections.find((item)=>item.id===id); if(!section)return;
-  section[field]=field === "items" ? event.target.value.split("\n").map((item)=>item.trim()).filter(Boolean).slice(0,8) : event.target.value;
+  if (field === "items") section[field] = event.target.value.split("\n").map((item)=>item.trim()).filter(Boolean).slice(0,8);
+  else if (["videoStart","videoEnd"].includes(field)) section[field] = clampNumber(event.target.value,0,3600,0);
+  else if (["videoAutoplay","videoLoop","videoMuted","videoControls"].includes(field)) section[field] = Boolean(event.target.checked);
+  else section[field] = event.target.value;
+  if (section.videoAutoplay) {
+    section.videoMuted = true;
+    const mutedControl = $(`[data-custom-field="videoMuted"][data-custom-id="${id}"]`, $("[data-section-manager]"));
+    if (mutedControl) mutedControl.checked = true;
+  }
   render(); setStatus("Cambios sin guardar");
 }
 function handleCustomSectionChange(event) {
@@ -571,11 +615,23 @@ function buildConfig(data) {
       primary:safeColor(data.theme_primary, DEFAULTS.colors.primary), secondary:safeColor(data.theme_secondary, DEFAULTS.colors.secondary),
       background:safeColor(data.background_color, DEFAULTS.colors.background), background2:safeColor(data.background_color_two, DEFAULTS.colors.background2),
       text:safeColor(data.text_color, DEFAULTS.colors.text), muted:safeColor(data.muted_color, DEFAULTS.colors.muted),
-      overlay:Number(data.overlay_opacity || 45), mode:data.background_mode || "gradient"
+      overlay:clampNumber(data.overlay_opacity,0,90,45), mode:["gradient","solid","image","video"].includes(data.background_mode) ? data.background_mode : "gradient"
     },
-    typography:{ heading:data.heading_font || "Fraunces", body:data.body_font || "Manrope", headingSize:Number(data.heading_size || 64), bodySize:Number(data.body_size || 18), headingWeight:Number(data.heading_weight || 700), align:data.text_align || "center", transform:data.heading_transform || "none" },
+    typography:{ heading:data.heading_font || "Fraunces", body:data.body_font || "Manrope", headingSize:clampNumber(data.heading_size,24,200,64), bodySize:clampNumber(data.body_size,12,48,18), headingWeight:Number(data.heading_weight || 700), align:data.text_align || "center", transform:data.heading_transform || "none" },
     countdown:{ style:data.countdown_style || "cards", font:data.countdown_font || "Manrope", showSeconds:$("#designer-form").elements.countdown_seconds.checked },
-    media:{ backgroundImage:data.background_image_url || "", gallery:[...state.gallery], heroFit:data.hero_fit || "cover", showMusicButton:$("#designer-form").elements.show_music_button.checked },
+    media:{
+      backgroundImage:data.background_image_url || "",
+      backgroundVideo:data.background_video_url || "",
+      backgroundPositionX:clampNumber(data.background_position_x,0,100,50),
+      backgroundPositionY:clampNumber(data.background_position_y,0,100,50),
+      backgroundVideoFit:["cover","contain"].includes(data.background_video_fit) ? data.background_video_fit : "cover",
+      backgroundVideoStart:clampNumber(data.background_video_start,0,3600,0),
+      backgroundVideoEnd:clampNumber(data.background_video_end,0,3600,0),
+      backgroundVideoAutoplay:$("#designer-form").elements.background_video_autoplay.checked,
+      backgroundVideoLoop:$("#designer-form").elements.background_video_loop.checked,
+      backgroundVideoMuted:$("#designer-form").elements.background_video_autoplay.checked ? true : $("#designer-form").elements.background_video_muted.checked,
+      gallery:[...state.gallery], heroFit:["cover","contain","scale-down"].includes(data.hero_fit) ? data.hero_fit : "cover", showMusicButton:$("#designer-form").elements.show_music_button.checked
+    },
     layers:normalizeLayers(state.layers),
     customSections:normalizeCustomSections(state.customSections),
     animation:{ preset:data.animation_preset || "fade-up", ambient:data.ambient_animation || "none", intensity:data.animation_intensity || "medium", respectReducedMotion:$("#designer-form").elements.respect_reduced_motion.checked },
@@ -598,9 +654,11 @@ function render() {
   screen.dataset.intensity = config.animation.intensity;
   const ambient = $("[data-preview-ambient]"); ambient.className = `preview-ambient ${config.animation.ambient}`;
   const hero = $("[data-preview-section=hero]");
+  hero.style.backgroundPosition = `${config.media.backgroundPositionX}% ${config.media.backgroundPositionY}%`;
   if (config.colors.mode === "solid") hero.style.backgroundImage = "none", hero.style.backgroundColor = config.colors.background;
   else if (config.colors.mode === "image" && config.media.backgroundImage) hero.style.backgroundImage = `url("${cssUrl(config.media.backgroundImage)}")`;
   else hero.style.backgroundImage = `linear-gradient(145deg,${config.colors.background},${config.colors.background2})`;
+  configurePreviewBackgroundVideo(config);
   $("[data-preview-kicker]").textContent = config.content.kicker;
   $("[data-preview-name]").textContent = data.name || "Tu evento";
   fitPreviewTitle();
@@ -621,6 +679,7 @@ function render() {
   state.sections.forEach((key) => { const node = $(`[data-preview-section="${key}"]`); if (node) screen.appendChild(node); });
   Object.entries(state.enabled).forEach(([key, enabled]) => { const node = $(`[data-preview-section="${key}"]`); if (node) node.hidden = !enabled; });
   $("[data-overlay-output]").textContent = `${config.colors.overlay}%`; $("[data-heading-size-output]").textContent = `${config.typography.headingSize} px`; $("[data-body-size-output]").textContent = `${config.typography.bodySize} px`;
+  $("[data-bg-x-output]").textContent = `${config.media.backgroundPositionX}%`; $("[data-bg-y-output]").textContent = `${config.media.backgroundPositionY}%`;
   renderContrast(config.colors.text, config.colors.background);
   requestAnimationFrame(() => {
     fitPreviewTitle();
@@ -630,7 +689,10 @@ function render() {
 
 function customSectionMarkup(section) {
   const media=safeAsset(section.mediaUrl), title=escapeAttr(section.title), text=escapeAttr(section.text), caption=escapeAttr(section.caption);
-  if(section.type==="video") return `<p>Video</p><h3>${title}</h3>${media?`<video src="${escapeAttr(media)}" controls muted playsinline preload="metadata"></video>`:'<div class="custom-media-placeholder">Sube un video o pega su enlace.</div>'}<span>${text}</span>`;
+  if(section.type==="video") {
+    const attrs = `${section.videoControls?" controls":""}${section.videoMuted?" muted":""}${section.videoAutoplay?" autoplay":""} playsinline preload="metadata" data-video-start="${section.videoStart}" data-video-end="${section.videoEnd}" data-video-loop="${section.videoLoop?"1":"0"}" style="object-fit:${section.videoFit}"`;
+    return `<p>Video</p><h3>${title}</h3>${media?`<video src="${escapeAttr(media)}"${attrs}></video>`:'<div class="custom-media-placeholder">Sube un video o pega su enlace.</div>'}<span>${text}</span>`;
+  }
   if(section.type==="image") return `<p>Imagen destacada</p><h3>${title}</h3>${media?`<img src="${escapeAttr(media)}" alt="${caption}" loading="lazy">`:'<div class="custom-media-placeholder">Agrega una fotografía.</div>'}<span>${caption}</span>`;
   if(section.type==="photo-text") return `<div class="custom-split">${media?`<img src="${escapeAttr(media)}" alt="${caption}" loading="lazy">`:'<div class="custom-media-placeholder">Agrega una fotografía.</div>'}<div><p>Nuestra historia</p><h3>${title}</h3><span>${text}</span></div></div>`;
   if(section.type==="quote") return `<span class="custom-quote-mark">“</span><blockquote>${text}</blockquote><h3>${title}</h3>`;
@@ -641,6 +703,68 @@ function customSectionMarkup(section) {
 function renderPreviewCustomSections(sections){
   $$('[data-preview-custom]').forEach((node)=>node.remove());
   normalizeCustomSections(sections).forEach((section)=>{const node=document.createElement("section");node.className=`preview-block preview-custom preview-custom-${section.type}`;node.dataset.previewSection=customKey(section.id);node.dataset.previewCustom=section.id;node.innerHTML=customSectionMarkup(section);$("[data-preview-screen]").appendChild(node)});
+  configureRangedVideos($("[data-preview-screen]"));
+}
+
+
+function configurePreviewBackgroundVideo(config) {
+  const video = $("[data-preview-background-video]");
+  if (!video) return;
+  const url = safeAsset(config.media.backgroundVideo);
+  const shouldShow = config.colors.mode === "video" && Boolean(url);
+  video.hidden = !shouldShow;
+  if (!shouldShow) {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+    return;
+  }
+  if (video.dataset.src !== url) {
+    video.dataset.src = url;
+    video.src = url;
+  }
+  video.muted = config.media.backgroundVideoAutoplay ? true : config.media.backgroundVideoMuted !== false;
+  video.loop = false;
+  video.autoplay = config.media.backgroundVideoAutoplay !== false;
+  video.style.objectFit = config.media.backgroundVideoFit || "cover";
+  video.style.objectPosition = `${config.media.backgroundPositionX}% ${config.media.backgroundPositionY}%`;
+  video.dataset.videoStart = String(config.media.backgroundVideoStart || 0);
+  video.dataset.videoEnd = String(config.media.backgroundVideoEnd || 0);
+  video.dataset.videoLoop = config.media.backgroundVideoLoop !== false ? "1" : "0";
+  configureRangedVideo(video);
+  if (video.autoplay) video.play().catch(() => {});
+}
+
+function configureRangedVideos(root=document) {
+  root.querySelectorAll("video[data-video-start]").forEach(configureRangedVideo);
+}
+function configureRangedVideo(video) {
+  const start = clampNumber(video.dataset.videoStart,0,3600,0);
+  const end = clampNumber(video.dataset.videoEnd,0,3600,0);
+  const loopRange = video.dataset.videoLoop === "1";
+  video.onloadedmetadata = () => {
+    const safeStart = Math.min(start, Math.max(0, (video.duration || start) - .05));
+    if (safeStart > 0 && Math.abs(video.currentTime - safeStart) > .2) {
+      try { video.currentTime = safeStart; } catch {}
+    }
+    if (video.autoplay) video.play().catch(() => {});
+  };
+  video.ontimeupdate = () => {
+    if (end > start && video.currentTime >= end - .05) {
+      if (loopRange) {
+        try { video.currentTime = start; } catch {}
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    }
+  };
+  video.onended = () => {
+    if (loopRange && !(end > start)) {
+      try { video.currentTime = start; } catch {}
+      video.play().catch(() => {});
+    }
+  };
 }
 
 function renderPreviewCountdown(config, value) {
@@ -850,7 +974,7 @@ async function save() {
     if(obsolete.length) try{await api.removeFile(BUCKET,obsolete)}catch(error){console.warn("No fue posible limpiar algunos archivos anteriores.",error)}
     state.event = { ...state.event, ...payload };
     $("[data-event-title]").textContent = payload.name;
-    ["logo_url","secondary_logo_url","hero_image_url","background_image_url","music_url"].forEach((fieldName) => {
+    ["logo_url","secondary_logo_url","hero_image_url","background_image_url","background_video_url","music_url"].forEach((fieldName) => {
       const value = $("#designer-form").elements[fieldName]?.value || "";
       syncAssetFeedback(fieldName, value, value ? "saved" : "empty", value ? "Archivo guardado en la invitación." : "Sin archivo seleccionado.");
     });
@@ -860,7 +984,7 @@ async function save() {
 }
 
 function collectDesignAssets(event,config){
-  return new Set([event?.logo_url,event?.secondary_logo_url,event?.hero_image_url,event?.music_url,config?.media?.backgroundImage,...(config?.media?.gallery||[]),...(config?.layers||[]).map((item)=>item.src),...(config?.customSections||[]).map((item)=>item.mediaUrl)].filter((url)=>/^https?:/i.test(String(url||""))));
+  return new Set([event?.logo_url,event?.secondary_logo_url,event?.hero_image_url,event?.music_url,config?.media?.backgroundImage,config?.media?.backgroundVideo,...(config?.media?.gallery||[]),...(config?.layers||[]).map((item)=>item.src),...(config?.customSections||[]).map((item)=>item.mediaUrl)].filter((url)=>/^https?:/i.test(String(url||""))));
 }
 function storagePathFromUrl(value){
   try{const url=new URL(value),marker=`/storage/v1/object/public/${BUCKET}/`,index=url.pathname.indexOf(marker);return index>=0?decodeURIComponent(url.pathname.slice(index+marker.length)):""}catch{return""}
