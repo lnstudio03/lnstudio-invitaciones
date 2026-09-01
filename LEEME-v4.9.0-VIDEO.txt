@@ -1,0 +1,39 @@
+LN Studio v4.9.0 — Reparación del motor de video
+================================================
+
+QUÉ SE CORRIGIÓ
+- El campo "Archivo o enlace" de las secciones personalizadas estaba siendo reducido a 18x18 px por una regla CSS de los checkboxes. Ahora vuelve a ser un campo de texto completo.
+- Las secciones de video ya no intentan reproducir cualquier URL como si fuera un archivo MP4.
+- Se reconocen enlaces normales de YouTube (watch, youtu.be, Shorts, Live y embed) y se convierten automáticamente a un reproductor integrado. También pueden usarse como video de fondo.
+- Inicio y fin funcionan también con YouTube.
+- Repetir, autoplay, silencio y controles se traducen a parámetros del reproductor de YouTube.
+- Los archivos subidos se prueban localmente ANTES de subirse. Si Chrome no puede leer el códec, LN Studio lo avisa en vez de guardar un reproductor roto en 0:00.
+- Después de subir el archivo a Supabase Storage, se vuelve a comprobar que la URL pública realmente puede cargar sus metadatos.
+- Se amplió la aceptación a MP4, WebM, OGV/OGG, M4V y MOV, siempre que el navegador pueda decodificarlos.
+- Límite de video subido: 80 MB.
+- Si una URL no es YouTube ni una URL directa de video, la invitación muestra un mensaje de incompatibilidad en vez de un reproductor vacío.
+- Si un video directo falla al reproducirse, se muestra una explicación visible.
+- Se conserva el render WYSIWYG exacto de v4.8.0: diseñador e invitación pública usan el mismo motor.
+
+FORMATOS RECOMENDADOS
+1. Mejor compatibilidad: MP4 con video H.264 y audio AAC.
+2. También funciona: WebM.
+3. MOV/M4V/OGV se aceptan solo si Chrome puede decodificar el códec interno.
+4. Para videos pesados o de larga duración: pega directamente el enlace normal de YouTube.
+
+RANGOS
+- Inicio (s): segundo desde el que debe comenzar el video.
+- Fin (s): segundo en el que debe detenerse. 0 significa hasta el final.
+- Repetir: repite el rango elegido; en YouTube también se configura el loop.
+
+NO REQUIERE SQL NI CAMBIOS EN SUPABASE.
+
+ARCHIVOS A REEMPLAZAR
+- disenador.html
+- disenador.js
+- disenador.css
+- evento.html
+- rsvp.js
+- invitacion.css
+
+Después de publicar en Cloudflare Pages, usa Ctrl + Shift + R una vez para eliminar archivos anteriores de caché.

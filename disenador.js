@@ -36,6 +36,7 @@ let state = { user:null, profile:null, event:null, gallery:[], layers:[], custom
 let previewMode = "mobile";
 let previewResizeObserver = null;
 let previewCountdownTimer = null;
+let exactPreviewReady = false;
 
 window.addEventListener("DOMContentLoaded", init);
 
@@ -81,6 +82,7 @@ function bind() {
     resetPreviewToTop();
     fitPreviewTitle();
     requestAnimationFrame(fitPreviewToVisibleArea);
+    syncExactPreview();
   }));
   $$(`[data-preset]`).forEach((button) => button.addEventListener("click", () => applyPreset(button.dataset.preset)));
   $$(`[data-upload]`).forEach((input) => input.addEventListener("change", () => handleUpload(input)));
@@ -106,11 +108,19 @@ function bind() {
   $("[data-layer-list]")?.addEventListener("click", handleLayerListClick);
   $("[data-layer-inspector]")?.addEventListener("input", handleLayerInspectorInput);
   $("[data-layer-inspector]")?.addEventListener("click", handleLayerInspectorClick);
+  const exactFrame = $("[data-exact-preview-frame]");
+  exactFrame?.addEventListener("load", () => { exactPreviewReady = true; syncExactPreview(); });
+  window.addEventListener("message", (event) => {
+    if (event.origin !== location.origin || event.source !== exactFrame?.contentWindow) return;
+    if (event.data?.type === "lnstudio:designer-preview-ready") { exactPreviewReady = true; syncExactPreview(); }
+  });
 }
 
 function replayPreviewAnimation(){
   const screen=$("[data-preview-screen]"),preset=$("#designer-form").elements.animation_preset.value;
-  screen.classList.remove(`animation-${preset}`);void screen.offsetWidth;screen.classList.add(`animation-${preset}`);screen.scrollTo({top:0,behavior:"smooth"});
+  if (screen) { screen.classList.remove(`animation-${preset}`);void screen.offsetWidth;screen.classList.add(`animation-${preset}`);screen.scrollTo({top:0,behavior:"smooth"}); }
+  const frame=$("[data-exact-preview-frame]");
+  frame?.contentWindow?.postMessage({type:"lnstudio:designer-preview-replay"}, location.origin);
   setStatus("Reproduciendo animación");
 }
 
@@ -149,7 +159,7 @@ function fitPreviewToVisibleArea() {
   }
 
   const natural = previewMode === "desktop"
-    ? { width:1180, height:760 }
+    ? { width:1440, height:900 }
     : previewMode === "landscape"
       ? { width:844, height:390 }
       : { width:390, height:844 };
@@ -295,6 +305,7 @@ async function handleUpload(input) {
 
   try {
     validateFile(file, role);
+    if (role === "background-video") await probeVideoFile(file);
     const localUrl = URL.createObjectURL(file);
     state.localAssets[fieldName] = localUrl;
     field.value = localUrl;
@@ -345,7 +356,8 @@ async function uploadOne(file, role) {
     const ext = extensionFor(file);
     const safeRole = role.replace(/[^a-z0-9-]/gi, "-");
     const path = `${eventId}/${safeRole}-${Date.now()}-${randomToken()}.${ext}`;
-    await api.uploadFile(BUCKET, path, file, { upsert:false, cacheControl:"31536000" });
+    const uploadBody = normalizeUploadMime(file, ext);
+    await api.uploadFile(BUCKET, path, uploadBody, { upsert:false, cacheControl:"31536000" });
     return api.getPublicFileUrl(BUCKET, path);
   } finally {
     state.uploading = Math.max(0, state.uploading - 1);
@@ -458,13 +470,15 @@ function revokeLocalAsset(fieldName) {
 function validateFile(file, role) {
   const imageTypes = ["image/png","image/jpeg","image/webp","image/gif"];
   const audioTypes = ["audio/mpeg","audio/mp3","audio/wav","audio/x-wav","audio/ogg"];
-  const videoTypes = ["video/mp4","video/webm","video/quicktime"];
+  const videoTypes = ["video/mp4","video/webm","video/ogg","video/x-m4v","video/quicktime"];
+  const ext = String(file?.name || "").toLowerCase().split(".").pop();
+  const videoExtensions = ["mp4","webm","ogv","ogg","m4v","mov"];
   if (role === "music") {
     if (!audioTypes.includes(file.type)) throw new Error("La música debe ser MP3, WAV u OGG.");
     if (file.size > 15 * 1024 * 1024) throw new Error("La música supera el límite de 15 MB.");
   } else if (role === "custom-video" || role === "background-video") {
-    if (!videoTypes.includes(file.type)) throw new Error("El video debe ser MP4, WEBM o MOV.");
-    if (file.size > 50 * 1024 * 1024) throw new Error("El video supera el límite de 50 MB. Puedes usar una URL pública para videos más grandes.");
+    if (!videoTypes.includes(file.type) && !videoExtensions.includes(ext)) throw new Error("El video debe ser MP4, WebM, OGV, M4V o MOV.");
+    if (file.size > 80 * 1024 * 1024) throw new Error("El video supera el límite de 80 MB. Para archivos mayores usa YouTube o una URL pública directa.");
   } else {
     if (!imageTypes.includes(file.type)) throw new Error("La imagen debe ser PNG, JPG, WEBP o GIF.");
     if (file.size > 8 * 1024 * 1024) throw new Error("La imagen supera el límite de 8 MB.");
@@ -472,9 +486,52 @@ function validateFile(file, role) {
 }
 
 function extensionFor(file) {
-  const map = { "image/png":"png","image/jpeg":"jpg","image/webp":"webp","image/gif":"gif","audio/mpeg":"mp3","audio/mp3":"mp3","audio/wav":"wav","audio/x-wav":"wav","audio/ogg":"ogg","video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov" };
-  return map[file.type] || "bin";
+  const map = { "image/png":"png","image/jpeg":"jpg","image/webp":"webp","image/gif":"gif","audio/mpeg":"mp3","audio/mp3":"mp3","audio/wav":"wav","audio/x-wav":"wav","audio/ogg":"ogg","video/mp4":"mp4","video/webm":"webm","video/ogg":"ogv","video/x-m4v":"m4v","video/quicktime":"mov" };
+  const byName=String(file?.name||"").toLowerCase().match(/\.([a-z0-9]{2,5})$/)?.[1];
+  return map[file.type] || byName || "bin";
 }
+
+function probeVideoFile(file) {
+  return new Promise((resolve,reject)=>{
+    const video=document.createElement("video");
+    const url=URL.createObjectURL(file);
+    let settled=false;
+    const cleanup=()=>{window.clearTimeout(timer);video.pause();video.removeAttribute("src");try{video.load()}catch{}URL.revokeObjectURL(url)};
+    const done=(ok,message="")=>{if(settled)return;settled=true;const duration=Number(video.duration||0);cleanup();ok?resolve({duration}):reject(new Error(message||"El navegador no puede reproducir este archivo de video."))};
+    video.preload="metadata";video.muted=true;video.playsInline=true;
+    video.addEventListener("loadedmetadata",()=>done(Number.isFinite(video.duration)&&video.duration>0,"El archivo no contiene una duración de video válida."),{once:true});
+    video.addEventListener("error",()=>done(false,"El archivo usa un formato o códec que Chrome no puede reproducir. Usa MP4 con video H.264 + audio AAC, WebM, o pega un enlace de YouTube."),{once:true});
+    const timer=window.setTimeout(()=>done(false,"El navegador tardó demasiado en leer el video. Prueba MP4 H.264/AAC o WebM."),10000);
+    video.src=url;video.load();
+  });
+}
+
+function parseYouTubeId(value){
+  const text=String(value||"").trim();
+  if(!text)return"";
+  try{
+    const url=new URL(text,location.href),host=url.hostname.replace(/^www\./,"").toLowerCase();
+    if(host==="youtu.be") return (url.pathname.split("/").filter(Boolean)[0]||"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,20);
+    if(host.endsWith("youtube.com")){
+      if(url.pathname==="/watch") return (url.searchParams.get("v")||"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,20);
+      const parts=url.pathname.split("/").filter(Boolean);
+      if(["embed","shorts","live"].includes(parts[0])) return (parts[1]||"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,20);
+    }
+  }catch{}
+  return"";
+}
+function isDirectVideoUrl(value){const text=String(value||"").trim();if(/^(blob:|data:video\/)/i.test(text))return true;try{const u=new URL(text,location.href);return /\.(mp4|webm|ogv|ogg|m4v|mov)$/i.test(u.pathname)}catch{return false}}
+function isRecognizedVideoSource(value){return Boolean(parseYouTubeId(value)||isDirectVideoUrl(value))}
+function describeVideoSource(value){const yt=parseYouTubeId(value);if(yt)return"Enlace de YouTube reconocido. Se mostrará como reproductor integrado.";if(isDirectVideoUrl(value))return"Video directo reconocido. Se reproducirá con el reproductor HTML5.";return"Este enlace no parece ser un video directo ni un enlace de YouTube. Usa YouTube o una URL que termine en .mp4, .webm, .ogv, .m4v o .mov."}
+function buildYouTubeEmbed(section){const id=parseYouTubeId(section.mediaUrl);if(!id)return"";const params=new URLSearchParams({playsinline:"1",rel:"0",modestbranding:"1",controls:section.videoControls?"1":"0",autoplay:section.videoAutoplay?"1":"0",mute:(section.videoAutoplay||section.videoMuted)?"1":"0"});const start=Math.max(0,Math.floor(Number(section.videoStart)||0)),end=Math.max(0,Math.floor(Number(section.videoEnd)||0));if(start)params.set("start",String(start));if(end>start)params.set("end",String(end));if(section.videoLoop){params.set("loop","1");params.set("playlist",id)}return`https://www.youtube.com/embed/${id}?${params.toString()}`}
+
+function normalizeUploadMime(file, ext) {
+  const mimeByExt={mp4:"video/mp4",webm:"video/webm",ogv:"video/ogg",ogg:file.type?.startsWith("audio/")?"audio/ogg":"video/ogg",m4v:"video/x-m4v",mov:"video/quicktime",png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",webp:"image/webp",gif:"image/gif",mp3:"audio/mpeg",wav:"audio/wav"};
+  const mime=file.type || mimeByExt[String(ext||"").toLowerCase()] || "application/octet-stream";
+  if(file.type===mime)return file;
+  try{return file.slice(0,file.size,mime)}catch{return file}
+}
+
 function randomToken() { return Math.random().toString(36).slice(2,8); }
 
 function normalizeCustomSections(value) {
@@ -519,13 +576,14 @@ function addCustomSection(type) {
 }
 
 function customSectionEditor(section,key,index) {
-  const accepts=section.type === "video" ? "video/mp4,video/webm,video/quicktime" : "image/png,image/jpeg,image/webp,image/gif";
+  const accepts=section.type === "video" ? "video/mp4,video/webm,video/ogg,video/x-m4v,video/quicktime,.mp4,.webm,.ogv,.ogg,.m4v,.mov" : "image/png,image/jpeg,image/webp,image/gif";
   const videoControls = section.type === "video" ? `<div class="custom-video-controls">
     <div class="form-pair"><label>Inicio (s)<input type="number" min="0" max="3600" step="0.5" data-custom-field="videoStart" data-custom-id="${section.id}" value="${section.videoStart}"></label><label>Fin (s)<input type="number" min="0" max="3600" step="0.5" data-custom-field="videoEnd" data-custom-id="${section.id}" value="${section.videoEnd}" placeholder="0 = final"></label></div>
     <label>Ajuste<select data-custom-field="videoFit" data-custom-id="${section.id}"><option value="cover"${section.videoFit==="cover"?" selected":""}>Cubrir</option><option value="contain"${section.videoFit==="contain"?" selected":""}>Completo</option></select></label>
     <div class="video-options"><label class="toggle-line"><input type="checkbox" data-custom-field="videoAutoplay" data-custom-id="${section.id}" ${section.videoAutoplay?"checked":""}> Autoplay</label><label class="toggle-line"><input type="checkbox" data-custom-field="videoLoop" data-custom-id="${section.id}" ${section.videoLoop?"checked":""}> Repetir</label><label class="toggle-line"><input type="checkbox" data-custom-field="videoMuted" data-custom-id="${section.id}" ${section.videoMuted?"checked":""}> Sin sonido</label><label class="toggle-line"><input type="checkbox" data-custom-field="videoControls" data-custom-id="${section.id}" ${section.videoControls?"checked":""}> Controles</label></div>
   </div>` : "";
-  const mediaField=["image","video","photo-text"].includes(section.type) ? `<label>Archivo o enlace<input data-custom-field="mediaUrl" data-custom-id="${section.id}" value="${escapeAttr(section.mediaUrl)}" placeholder="Pega una URL o sube un archivo"></label><label class="custom-upload">Subir ${section.type === "video" ? "video" : "foto"}<input type="file" data-custom-upload="${section.id}" accept="${accepts}"></label>${section.mediaUrl ? `<button type="button" class="danger-link" data-clear-custom-media="${section.id}">Quitar archivo</button>` : ""}${videoControls}` : "";
+  const videoHelp = section.type === "video" ? `<div class="custom-media-help">Puedes subir MP4, WebM, OGV/M4V/MOV compatibles con el navegador, pegar una URL directa de video o pegar un enlace normal de YouTube. Los enlaces de YouTube se convierten automáticamente a reproductor.</div><div class="custom-video-state" data-state="${escapeAttr(section._videoStateType || "idle")}">${escapeAttr(section._videoState || (section.mediaUrl ? describeVideoSource(section.mediaUrl) : "Sin video seleccionado."))}</div>` : "";
+  const mediaField=["image","video","photo-text"].includes(section.type) ? `<label>Archivo o enlace<input data-custom-field="mediaUrl" data-custom-id="${section.id}" value="${escapeAttr(section.mediaUrl)}" placeholder="${section.type === "video" ? "YouTube o URL directa .mp4/.webm" : "Pega una URL o sube un archivo"}"></label>${videoHelp}<label class="custom-upload${section._videoUploading ? " is-uploading" : ""}">Subir ${section.type === "video" ? "video" : "foto"}<input type="file" data-custom-upload="${section.id}" accept="${accepts}"></label>${section.mediaUrl ? `<button type="button" class="danger-link" data-clear-custom-media="${section.id}">Quitar archivo</button>` : ""}${videoControls}` : "";
   const textLabel=section.type === "itinerary" ? "Horario (una actividad por línea)" : section.type === "quote" ? "Pensamiento o frase" : "Texto";
   const textValue=section.type === "itinerary" ? section.items.join("\n") : section.text;
   return `<div class="section-row custom-section-row" data-custom-card="${section.id}">
@@ -557,6 +615,12 @@ function handleCustomSectionInput(event) {
   else if (["videoStart","videoEnd"].includes(field)) section[field] = clampNumber(event.target.value,0,3600,0);
   else if (["videoAutoplay","videoLoop","videoMuted","videoControls"].includes(field)) section[field] = Boolean(event.target.checked);
   else section[field] = event.target.value;
+  if (field === "mediaUrl" && section.type === "video") {
+    section._videoState = section.mediaUrl ? describeVideoSource(section.mediaUrl) : "Sin video seleccionado.";
+    section._videoStateType = section.mediaUrl ? (isRecognizedVideoSource(section.mediaUrl) ? "ready" : "error") : "idle";
+    const stateBox=$(`[data-custom-card="${id}"] .custom-video-state`, $(`[data-section-manager]`));
+    if(stateBox){stateBox.textContent=section._videoState;stateBox.dataset.state=section._videoStateType}
+  }
   if (section.videoAutoplay) {
     section.videoMuted = true;
     const mutedControl = $(`[data-custom-field="videoMuted"][data-custom-id="${id}"]`, $("[data-section-manager]"));
@@ -572,12 +636,44 @@ function handleCustomSectionClick(event) {
   const deleteButton=event.target.closest("[data-delete-custom-section]");
   if(deleteButton){deleteCustomSection(deleteButton.dataset.deleteCustomSection);return}
   const clearButton=event.target.closest("[data-clear-custom-media]");
-  if(clearButton){const section=state.customSections.find((item)=>item.id===clearButton.dataset.clearCustomMedia);if(section){section.mediaUrl="";renderSectionManager();render();setStatus("Archivo quitado · cambios sin guardar")}}
+  if(clearButton){const section=state.customSections.find((item)=>item.id===clearButton.dataset.clearCustomMedia);if(section){section.mediaUrl="";section._videoState="Sin video seleccionado.";section._videoStateType="idle";renderSectionManager();render();setStatus("Archivo quitado · cambios sin guardar")}}
 }
 async function uploadCustomSectionMedia(id,input){
-  const section=state.customSections.find((item)=>item.id===id),file=input.files?.[0];if(!section||!file)return;
+  const section=state.customSections.find((item)=>item.id===id),file=input.files?.[0];
+  if(!section||!file)return;
   const role=section.type === "video" ? "custom-video" : "custom-image";
-  try{const url=await uploadOne(file,role);section.mediaUrl=url;renderSectionManager();render();setStatus("Archivo listo · falta guardar el diseño")}catch(error){alert(errorMessage(error))}finally{input.value=""}
+  const previous=section.mediaUrl || "";
+  let localUrl="";
+  try{
+    validateFile(file,role);
+    section._videoUploading=true;
+    section._videoState=`Comprobando ${file.name}…`;
+    section._videoStateType="idle";
+    renderSectionManager();
+    if(section.type === "video") await probeVideoFile(file);
+    localUrl=URL.createObjectURL(file);
+    section.mediaUrl=localUrl;
+    section._videoState=`Vista previa local correcta. Subiendo ${file.name}…`;
+    section._videoStateType="ready";
+    renderSectionManager();render();
+    const url=await uploadOne(file,role);
+    await verifyPublicAsset(url,role);
+    section.mediaUrl=url;
+    section._videoState=`${file.name} listo y reproducible. Presiona “Guardar diseño”.`;
+    section._videoStateType="ready";
+    setStatus("Video listo · falta guardar el diseño");
+  }catch(error){
+    section.mediaUrl=previous;
+    section._videoState=errorMessage(error);
+    section._videoStateType="error";
+    setStatus(`No se pudo usar el video: ${errorMessage(error)}`);
+    alert(`No se pudo usar el video.\n\n${errorMessage(error)}`);
+  }finally{
+    section._videoUploading=false;
+    if(localUrl) URL.revokeObjectURL(localUrl);
+    renderSectionManager();render();
+    input.value="";
+  }
 }
 function deleteCustomSection(id){
   const section=state.customSections.find((item)=>item.id===id);if(!section)return;
@@ -640,6 +736,41 @@ function buildConfig(data) {
   };
 }
 
+function exactPreviewEventPayload() {
+  if (!state.event) return null;
+  const data = formData();
+  const config = buildConfig(data);
+  return {
+    ...state.event,
+    name: data.name || "Tu evento",
+    description: data.description || "",
+    event_date: data.event_date || null,
+    venue_name: data.venue_name || "",
+    venue_address: data.venue_address || "",
+    dress_code: data.dress_code || "",
+    logo_url: data.logo_url || "",
+    secondary_logo_url: data.secondary_logo_url || "",
+    hero_image_url: data.hero_image_url || "",
+    music_url: data.music_url || "",
+    maps_url: state.event.maps_url || "",
+    theme_primary: data.theme_primary || config.colors.primary,
+    theme_secondary: data.theme_secondary || config.colors.secondary,
+    design_config: config
+  };
+}
+
+function syncExactPreview() {
+  const frame = $("[data-exact-preview-frame]");
+  if (!frame?.contentWindow || !state.event) return;
+  const payload = exactPreviewEventPayload();
+  if (!payload) return;
+  try {
+    frame.contentWindow.postMessage({type:"lnstudio:designer-preview", event:payload, mode:previewMode}, location.origin);
+  } catch (error) {
+    console.warn("No se pudo sincronizar la vista previa exacta", error);
+  }
+}
+
 function render() {
   const data = formData(); const config = buildConfig(data); const screen = $("[data-preview-screen]");
   screen.style.setProperty("--primary", config.colors.primary); screen.style.setProperty("--secondary", config.colors.secondary);
@@ -681,6 +812,7 @@ function render() {
   $("[data-overlay-output]").textContent = `${config.colors.overlay}%`; $("[data-heading-size-output]").textContent = `${config.typography.headingSize} px`; $("[data-body-size-output]").textContent = `${config.typography.bodySize} px`;
   $("[data-bg-x-output]").textContent = `${config.media.backgroundPositionX}%`; $("[data-bg-y-output]").textContent = `${config.media.backgroundPositionY}%`;
   renderContrast(config.colors.text, config.colors.background);
+  syncExactPreview();
   requestAnimationFrame(() => {
     fitPreviewTitle();
     fitPreviewToVisibleArea();
@@ -690,8 +822,12 @@ function render() {
 function customSectionMarkup(section) {
   const media=safeAsset(section.mediaUrl), title=escapeAttr(section.title), text=escapeAttr(section.text), caption=escapeAttr(section.caption);
   if(section.type==="video") {
-    const attrs = `${section.videoControls?" controls":""}${section.videoMuted?" muted":""}${section.videoAutoplay?" autoplay":""} playsinline preload="metadata" data-video-start="${section.videoStart}" data-video-end="${section.videoEnd}" data-video-loop="${section.videoLoop?"1":"0"}" style="object-fit:${section.videoFit}"`;
-    return `<p>Video</p><h3>${title}</h3>${media?`<video src="${escapeAttr(media)}"${attrs}></video>`:'<div class="custom-media-placeholder">Sube un video o pega su enlace.</div>'}<span>${text}</span>`;
+    let player='<div class="custom-media-placeholder">Sube un video o pega un enlace de YouTube.</div>';
+    const youtube=buildYouTubeEmbed(section);
+    if(youtube) player=`<div class="video-embed-shell"><iframe src="${escapeAttr(youtube)}" title="${title||"Video"}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+    else if(media && isDirectVideoUrl(media)) { const attrs=`${section.videoControls?" controls":""}${section.videoMuted?" muted":""}${section.videoAutoplay?" autoplay":""} playsinline preload="metadata" data-video-start="${section.videoStart}" data-video-end="${section.videoEnd}" data-video-loop="${section.videoLoop?"1":"0"}" style="object-fit:${section.videoFit}"`;player=`<video src="${escapeAttr(media)}"${attrs}></video>`; }
+    else if(media) player='<div class="video-source-error">El enlace no es reproducible directamente. Usa YouTube o una URL directa de video (.mp4/.webm/.ogv/.m4v/.mov).</div>';
+    return `<p>Video</p><h3>${title}</h3>${player}<span>${text}</span>`;
   }
   if(section.type==="image") return `<p>Imagen destacada</p><h3>${title}</h3>${media?`<img src="${escapeAttr(media)}" alt="${caption}" loading="lazy">`:'<div class="custom-media-placeholder">Agrega una fotografía.</div>'}<span>${caption}</span>`;
   if(section.type==="photo-text") return `<div class="custom-split">${media?`<img src="${escapeAttr(media)}" alt="${caption}" loading="lazy">`:'<div class="custom-media-placeholder">Agrega una fotografía.</div>'}<div><p>Nuestra historia</p><h3>${title}</h3><span>${text}</span></div></div>`;
@@ -1028,3 +1164,5 @@ function escapeAttr(value="") { return String(value).replace(/[&<>"']/g,(char)=>
 function toLocalInput(value) { const date=new Date(value); return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16); }
 function formatDate(value) { try { return new Intl.DateTimeFormat("es-MX",{dateStyle:"long",timeStyle:"short"}).format(new Date(value)); } catch { return value; } }
 function errorMessage(error) { return error instanceof ApiError ? error.message : error?.message || "No fue posible completar la operación."; }
+
+// LN Studio v4.9.0 · motor de video: validación de códec, YouTube, rangos y subida comprobada.

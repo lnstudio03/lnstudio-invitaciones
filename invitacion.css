@@ -799,3 +799,60 @@ body.private-event{background:var(--invite-bg);isolation:isolate}
     font-size:min(var(--invite-body-size),2.4vw)!important;
   }
 }
+
+
+/* =========================================================
+   LN Studio v4.8.0 · fidelidad diseñador/publicación
+   ========================================================= */
+.private-event .official-hero h1{font-size:var(--invite-heading-size)!important;font-weight:var(--invite-heading-weight)!important;text-transform:var(--invite-heading-transform)!important}
+@media(max-width:650px){.private-event .official-hero h1{font-size:min(var(--invite-heading-size),16vw)!important}}
+@media(orientation:landscape) and (max-height:760px) and (max-width:980px){.private-event .official-hero h1{font-size:min(var(--invite-heading-size),min(8vw,14vh))!important}}
+.designer-embedded-preview .event-preview-banner{display:none!important}
+.designer-embedded-preview{scrollbar-gutter:auto!important}
+
+/* =========================================================
+   LN Studio v4.9.0 · motor de video universal
+   ========================================================= */
+.official-video-frame{
+  position:relative;
+  width:min(100%,920px);
+  aspect-ratio:16/9;
+  margin:auto;
+  overflow:hidden;
+  border-radius:clamp(16px,2vw,26px);
+  background:#05070b;
+  box-shadow:0 25px 70px rgba(0,0,0,.3);
+}
+.official-video-frame iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:#05070b;
+}
+.video-source-placeholder,.video-source-error,.video-runtime-error{
+  position:relative;
+  width:min(100%,920px);
+  margin:auto;
+  padding:24px 20px;
+  border-radius:16px;
+  text-align:center;
+  line-height:1.55;
+}
+.video-source-placeholder{border:1px dashed rgba(255,255,255,.18);color:var(--invite-muted);background:rgba(255,255,255,.025)}
+.video-source-error,.video-runtime-error{border:1px solid rgba(255,127,145,.34);color:#ffd0d6;background:rgba(255,127,145,.07)}
+.video-source-error strong,.video-source-error span{display:block}
+.video-source-error strong{margin-bottom:5px;color:#fff}
+.official-custom-video>video{width:min(100%,920px);min-height:180px;aspect-ratio:16/9}
+@media(max-width:700px){.official-video-frame{width:100%;border-radius:16px}.video-source-placeholder,.video-source-error,.video-runtime-error{width:100%;padding:18px 14px}.official-custom-video>video{width:100%;min-height:160px}}
+.official-background-youtube{
+  position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:var(--invite-bg)
+}
+.official-background-youtube[hidden]{display:none!important}
+.official-background-youtube iframe{
+  position:absolute;left:var(--bg-video-x,50%);top:var(--bg-video-y,50%);
+  width:max(100%,177.7778vh);height:max(100%,56.25vw);
+  min-width:100%;min-height:100%;border:0;transform:translate(-50%,-50%) scale(1.02);pointer-events:none
+}
+.official-hero>*:not(.official-overlay):not(.official-glow):not(.event-free-layers):not(.official-background-video):not(.official-background-youtube){z-index:3}

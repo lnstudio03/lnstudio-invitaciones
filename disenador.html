@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Baloo+2:wght@500;600;700;800&family=Bangers&family=Bebas+Neue&family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&family=Dancing+Script:wght@500;600;700&family=DM+Serif+Display&family=Fredoka:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Great+Vibes&family=Lilita+One&family=Lobster&family=Luckiest+Guy&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Oswald:wght@400;500;600;700&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:wght@500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&family=Raleway:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700;800&family=Satisfy&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="disenador.css?v=4.7.0">
-  <script type="module" src="disenador.js?v=4.7.0"></script>
+  <link rel="stylesheet" href="disenador.css?v=4.9.0">
+  <script type="module" src="disenador.js?v=4.9.0"></script>
 </head>
 <body class="designer-is-loading">
   <div class="designer-loading-screen" data-designer-loading role="status" aria-live="polite">
@@ -95,7 +95,7 @@
           <div class="upload-field"><div><strong>Logo secundario</strong><small>Para marcas aliadas o patrocinadores</small></div><label class="upload-button">Subir logo<input type="file" data-upload="secondary-logo" accept="image/png,image/jpeg,image/webp,image/gif"></label><input name="secondary_logo_url" type="url" placeholder="URL generada" readonly><div class="asset-feedback" data-asset-feedback="secondary_logo_url"><div class="asset-thumb" data-asset-thumb="secondary_logo_url" hidden></div><p data-asset-message="secondary_logo_url">Sin archivo seleccionado.</p></div><button type="button" class="remove-asset" data-remove-asset="secondary_logo_url">Quitar</button></div>
           <div class="upload-field"><div><strong>Imagen principal</strong><small>Portada o fotografía destacada</small></div><label class="upload-button">Subir imagen<input type="file" data-upload="hero" accept="image/png,image/jpeg,image/webp,image/gif"></label><input name="hero_image_url" type="url" placeholder="URL generada" readonly><div class="asset-feedback" data-asset-feedback="hero_image_url"><div class="asset-thumb" data-asset-thumb="hero_image_url" hidden></div><p data-asset-message="hero_image_url">Sin archivo seleccionado.</p></div><button type="button" class="remove-asset" data-remove-asset="hero_image_url">Quitar</button></div>
           <div class="upload-field"><div><strong>Imagen de fondo</strong><small>PNG, JPG, WEBP o GIF · máximo 8 MB</small></div><label class="upload-button">Subir imagen<input type="file" data-upload="background" accept="image/png,image/jpeg,image/webp,image/gif"></label><input name="background_image_url" type="url" placeholder="URL generada" readonly><div class="asset-feedback" data-asset-feedback="background_image_url"><div class="asset-thumb" data-asset-thumb="background_image_url" hidden></div><p data-asset-message="background_image_url">Sin archivo seleccionado.</p></div><button type="button" class="remove-asset" data-remove-asset="background_image_url">Quitar</button></div>
-          <div class="upload-field"><div><strong>Video de fondo</strong><small>MP4, WEBM o MOV · máximo 50 MB. Para archivos mayores, pega una URL pública.</small></div><label class="upload-button">Subir video<input type="file" data-upload="background-video" accept="video/mp4,video/webm,video/quicktime"></label><input name="background_video_url" type="url" placeholder="URL pública del video o generada"><div class="asset-feedback" data-asset-feedback="background_video_url"><div class="asset-thumb video-thumb" data-asset-thumb="background_video_url" hidden>▶</div><p data-asset-message="background_video_url">Sin archivo seleccionado.</p></div><button type="button" class="remove-asset" data-remove-asset="background_video_url">Quitar</button></div>
+          <div class="upload-field"><div><strong>Video de fondo</strong><small>MP4, WebM, OGV, M4V o MOV compatible · máximo 80 MB. También puedes pegar un enlace normal de YouTube.</small></div><label class="upload-button">Subir video<input type="file" data-upload="background-video" accept="video/mp4,video/webm,video/ogg,video/x-m4v,video/quicktime,.mp4,.webm,.ogv,.ogg,.m4v,.mov"></label><input name="background_video_url" type="url" placeholder="YouTube o URL directa del video"><div class="asset-feedback" data-asset-feedback="background_video_url"><div class="asset-thumb video-thumb" data-asset-thumb="background_video_url" hidden>▶</div><p data-asset-message="background_video_url">Sin archivo seleccionado.</p></div><button type="button" class="remove-asset" data-remove-asset="background_video_url">Quitar</button></div>
           <div class="media-range-grid">
             <label>Posición horizontal <output data-bg-x-output>50%</output><input name="background_position_x" type="range" min="0" max="100" step="1" value="50"></label>
             <label>Posición vertical <output data-bg-y-output>50%</output><input name="background_position_y" type="range" min="0" max="100" step="1" value="50"></label>
@@ -159,7 +159,7 @@
           <p class="form-help">Activa, oculta y ordena los bloques. También puedes insertar secciones prediseñadas para que cada invitación tenga más ritmo y personalidad.</p>
           <div class="section-presets" data-section-presets>
             <button type="button" data-add-custom-section="image"><span>▣</span><strong>Imagen destacada</strong><small>Una foto grande con título</small></button>
-            <button type="button" data-add-custom-section="video"><span>▶</span><strong>Video</strong><small>Archivo MP4 o enlace</small></button>
+            <button type="button" data-add-custom-section="video"><span>▶</span><strong>Video</strong><small>Archivo o YouTube + rangos</small></button>
             <button type="button" data-add-custom-section="photo-text"><span>◫</span><strong>Foto + texto</strong><small>Historia en dos columnas</small></button>
             <button type="button" data-add-custom-section="quote"><span>“</span><strong>Pensamiento</strong><small>Frase o dedicatoria</small></button>
             <button type="button" data-add-custom-section="separator"><span>✦</span><strong>Separador</strong><small>Respiro visual decorativo</small></button>
@@ -172,7 +172,8 @@
 
     <section class="preview-area">
       <div class="preview-device mobile" data-preview-device>
-        <div class="preview-screen" data-preview-screen>
+        <iframe class="exact-preview-frame" data-exact-preview-frame src="evento.html?designer=1" title="Vista previa exacta de la invitación" loading="eager"></iframe>
+        <div class="preview-screen legacy-preview-screen" data-preview-screen aria-hidden="true">
           <div class="preview-ambient" data-preview-ambient aria-hidden="true"></div>
           <section class="preview-block preview-hero" data-preview-section="hero">
             <video class="preview-background-video" data-preview-background-video muted playsinline preload="metadata" hidden></video>
