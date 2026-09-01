@@ -101,8 +101,6 @@ function renderEvent() {
   document.body.dataset.eventStatus = eventData.status || "draft";
   document.title = `${eventData.name} | Invitación`;
   applyVariables(config);
-  applyTypographyDirectly(config);
-  ensureSelectedFonts(config).then(() => applyTypographyDirectly(config)).catch(() => {});
   renderCustomSections(config.customSections);
   applyLayout(config);
   $("[data-name]").textContent = eventData.name;
@@ -123,6 +121,8 @@ function renderEvent() {
   setEventImage($("[data-hero-image]"), eventData.hero_image_url);
   renderFreeLayers(config.layers);
   renderGallery(config.media.gallery);
+  applyDesignTokensDirectly(config);
+  ensureSelectedFonts(config).then(() => applyDesignTokensDirectly(config)).catch(() => {});
   configureMusic(config);
   const party = $("#rsvp-form [name=party_size]"); party.max = Number(eventData.max_companions || 0) + 1;
   $(".rsvp-submit small").textContent = eventData.qr_enabled ? "Generar pase digital" : "Registrar respuesta";
@@ -156,8 +156,8 @@ function normalizeOrder(order) { const clean=Array.isArray(order)?order.filter((
 
 function applyVariables(config) {
   const root = document.documentElement.style;
-  root.setProperty("--invite-accent", safeColor(eventData.theme_primary || config.colors.primary, "#8f7dff"));
-  root.setProperty("--invite-accent-two", safeColor(eventData.theme_secondary || config.colors.secondary, "#ff7f91"));
+  root.setProperty("--invite-accent", safeColor(config.colors.primary || eventData?.theme_primary, "#8f7dff"));
+  root.setProperty("--invite-accent-two", safeColor(config.colors.secondary || eventData?.theme_secondary, "#ff7f91"));
   root.setProperty("--invite-bg", safeColor(config.colors.background, "#0d1420"));
   root.setProperty("--invite-bg-two", safeColor(config.colors.background2, "#1b2537"));
   root.setProperty("--invite-text", safeColor(config.colors.text, "#ffffff"));
@@ -713,6 +713,33 @@ function applyTypographyDirectly(config){
   document.querySelectorAll(".countdown-display,.countdown-display strong,.countdown-display span").forEach((node)=>{
     node.style.setProperty("font-family",`'${countdown}', sans-serif`,"important");
   });
+}
+
+function applyDesignTokensDirectly(config){
+  applyTypographyDirectly(config);
+  const text=safeColor(config?.colors?.text,"#ffffff");
+  const muted=safeColor(config?.colors?.muted,"#b7c1d5");
+  const accent=safeColor(config?.colors?.primary,"#8f7dff");
+  const accentTwo=safeColor(config?.colors?.secondary,"#ff7f91");
+  const bg=safeColor(config?.colors?.background,"#0d1420");
+  const bgTwo=safeColor(config?.colors?.background2,"#1b2537");
+
+  document.body.style.setProperty("background",bg,"important");
+  document.body.style.setProperty("color",text,"important");
+  const shell=$("[data-event-shell]");
+  if(shell){
+    shell.style.setProperty("color",text,"important");
+    shell.style.setProperty("background",`linear-gradient(180deg, ${bg}, ${bgTwo})`,"important");
+  }
+
+  const set=(selector,property,value)=>document.querySelectorAll(selector).forEach((node)=>node.style.setProperty(property,value,"important"));
+  set(".official-hero h1,.official-message h2,.official-details h2,.official-gallery h2,.rsvp-section>h2,.invite-success h2,.invite-close p,.official-custom h2,.official-custom blockquote","color",text);
+  set(".official-subtitle,.official-message>p:not(.invite-kicker),.official-details>p:not(.invite-kicker),.official-gallery>p:not(.invite-kicker),.rsvp-copy,.official-custom>p,.official-custom-split p,.invite-success>p:not(.invite-kicker)","color",muted);
+  set(".invite-kicker,.event-facts span,.official-quote-mark,.official-separator-symbol,.official-itinerary strong","color",accent);
+  set(".event-facts strong,.official-itinerary span","color",text);
+  set(".primary-button,.rsvp-submit","background",`linear-gradient(135deg, ${accent}, ${accentTwo})`);
+  set(".primary-button,.rsvp-submit","color","#ffffff");
+  set(".ghost-button","color",text);
 }
 
 async function ensureSelectedFonts(config){

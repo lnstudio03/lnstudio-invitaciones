@@ -856,3 +856,138 @@ body.private-event{background:var(--invite-bg);isolation:isolate}
   min-width:100%;min-height:100%;border:0;transform:translate(-50%,-50%) scale(1.02);pointer-events:none
 }
 .official-hero>*:not(.official-overlay):not(.official-glow):not(.event-free-layers):not(.official-background-video):not(.official-background-youtube){z-index:3}
+
+/* =========================================================
+   LN Studio v5.0.0 · tokens visuales canónicos
+   El diseñador y la invitación comparten exactamente estas reglas.
+   Elimina visualmente los colores/tipografías heredados de versiones previas.
+   ========================================================= */
+.private-event,
+.private-event .official-event,
+.private-event .official-event button,
+.private-event .official-event input,
+.private-event .official-event textarea,
+.private-event .official-event select,
+.private-event .official-event label,
+.private-event .official-event legend,
+.private-event .official-event a,
+.private-event .official-event p,
+.private-event .official-event span,
+.private-event .official-event strong,
+.private-event .official-event small{
+  font-family:var(--invite-body-font),"Manrope",sans-serif!important;
+  font-synthesis:none;
+}
+.private-event{background:var(--invite-bg)!important;color:var(--invite-text)!important}
+.private-event .official-event{
+  color:var(--invite-text)!important;
+  background:linear-gradient(180deg,var(--invite-bg),var(--invite-bg-two))!important;
+}
+.private-event .official-event h1,
+.private-event .official-event h2,
+.private-event .official-event h3,
+.private-event .official-custom blockquote,
+.private-event .invite-close p{
+  font-family:var(--invite-heading-font),"Fraunces",serif!important;
+  font-synthesis:none;
+  letter-spacing:normal!important;
+  color:var(--invite-text)!important;
+}
+.private-event .official-hero h1{
+  font-family:var(--invite-heading-font),"Fraunces",serif!important;
+  font-size:var(--invite-heading-size)!important;
+  font-weight:var(--invite-heading-weight)!important;
+  line-height:.94!important;
+  letter-spacing:normal!important;
+  text-transform:var(--invite-heading-transform)!important;
+  color:var(--invite-text)!important;
+}
+.private-event .official-subtitle{
+  font-family:var(--invite-body-font),"Manrope",sans-serif!important;
+  font-size:var(--invite-body-size)!important;
+  color:var(--invite-muted)!important;
+}
+.private-event .invite-kicker,
+.private-event .event-facts span,
+.private-event .official-quote-mark,
+.private-event .official-separator-symbol,
+.private-event .official-itinerary strong{
+  color:var(--invite-accent)!important;
+}
+.private-event .event-facts strong,
+.private-event .official-itinerary span{
+  color:var(--invite-text)!important;
+}
+.private-event .official-message>p:not(.invite-kicker),
+.private-event .official-details>p:not(.invite-kicker),
+.private-event .official-gallery>p:not(.invite-kicker),
+.private-event .rsvp-copy,
+.private-event .official-custom>p,
+.private-event .official-custom-split p,
+.private-event .invite-success>p:not(.invite-kicker){
+  color:var(--invite-muted)!important;
+}
+.private-event .official-message,
+.private-event .official-details,
+.private-event .official-gallery,
+.private-event .rsvp-section,
+.private-event .invite-success,
+.private-event .invite-close,
+.private-event .official-custom{
+  color:var(--invite-text)!important;
+  background:linear-gradient(145deg,
+    color-mix(in srgb,var(--invite-bg-two) 84%,var(--invite-bg)),
+    color-mix(in srgb,var(--invite-bg) 92%,var(--invite-accent) 8%)
+  )!important;
+  border-color:color-mix(in srgb,var(--invite-accent) 20%,transparent)!important;
+}
+.private-event .event-facts>div,
+.private-event .rsvp-form{
+  color:var(--invite-text)!important;
+  background:color-mix(in srgb,var(--invite-bg-two) 72%,transparent)!important;
+  border-color:color-mix(in srgb,var(--invite-accent) 18%,transparent)!important;
+}
+.private-event .rsvp-form label,
+.private-event .attendance-choice legend{color:var(--invite-text)!important}
+.private-event .rsvp-form input,
+.private-event .rsvp-form textarea,
+.private-event .rsvp-form select,
+.private-event .attendance-choice span{
+  color:var(--invite-text)!important;
+  background:color-mix(in srgb,var(--invite-bg) 82%,white 6%)!important;
+  border-color:color-mix(in srgb,var(--invite-muted) 30%,transparent)!important;
+}
+.private-event .rsvp-form input::placeholder,
+.private-event .rsvp-form textarea::placeholder{color:color-mix(in srgb,var(--invite-muted) 78%,transparent)!important}
+.private-event .primary-button,
+.private-event .rsvp-submit{
+  background:linear-gradient(135deg,var(--invite-accent),var(--invite-accent-two))!important;
+  color:#fff!important;
+}
+.private-event .ghost-button{
+  color:var(--invite-text)!important;
+  border-color:color-mix(in srgb,var(--invite-text) 22%,transparent)!important;
+  background:color-mix(in srgb,var(--invite-bg-two) 64%,transparent)!important;
+}
+.private-event .countdown-display,
+.private-event .countdown-display strong,
+.private-event .countdown-display span{
+  font-family:var(--invite-countdown-font),"Manrope",sans-serif!important;
+  font-synthesis:none;
+}
+@media(max-width:650px){
+  .private-event .official-hero h1{
+    font-size:min(var(--invite-heading-size),16vw)!important;
+  }
+  .private-event .official-subtitle{
+    font-size:min(var(--invite-body-size),5.4vw)!important;
+  }
+}
+@media(orientation:landscape) and (max-height:760px) and (max-width:980px){
+  .private-event .official-hero h1{
+    font-size:min(var(--invite-heading-size),min(8vw,14vh))!important;
+  }
+  .private-event .official-subtitle{
+    font-size:min(var(--invite-body-size),2.4vw)!important;
+  }
+}

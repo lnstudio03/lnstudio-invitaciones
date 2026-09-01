@@ -190,8 +190,8 @@ function fill() {
   form.elements.kicker.value = config.content.kicker;
   form.elements.rsvp_title.value = config.content.rsvpTitle;
   form.elements.rsvp_copy.value = config.content.rsvpCopy;
-  form.elements.theme_primary.value = safeColor(state.event.theme_primary || config.colors.primary, config.colors.primary);
-  form.elements.theme_secondary.value = safeColor(state.event.theme_secondary || config.colors.secondary, config.colors.secondary);
+  form.elements.theme_primary.value = safeColor(config.colors.primary || state.event.theme_primary, DEFAULTS.colors.primary);
+  form.elements.theme_secondary.value = safeColor(config.colors.secondary || state.event.theme_secondary, DEFAULTS.colors.secondary);
   form.elements.background_color.value = safeColor(config.colors.background, DEFAULTS.colors.background);
   form.elements.background_color_two.value = safeColor(config.colors.background2, DEFAULTS.colors.background2);
   form.elements.text_color.value = safeColor(config.colors.text, DEFAULTS.colors.text);
@@ -753,8 +753,8 @@ function exactPreviewEventPayload() {
     hero_image_url: data.hero_image_url || "",
     music_url: data.music_url || "",
     maps_url: state.event.maps_url || "",
-    theme_primary: data.theme_primary || config.colors.primary,
-    theme_secondary: data.theme_secondary || config.colors.secondary,
+    theme_primary: config.colors.primary,
+    theme_secondary: config.colors.secondary,
     design_config: config
   };
 }
@@ -1100,7 +1100,7 @@ async function save() {
       name:data.name.trim(), description:data.description || null,
       event_date:data.event_date ? new Date(data.event_date).toISOString() : null,
       venue_name:data.venue_name || null, venue_address:data.venue_address || null, dress_code:data.dress_code || null,
-      theme_primary:data.theme_primary, theme_secondary:data.theme_secondary,
+      theme_primary:config.colors.primary, theme_secondary:config.colors.secondary,
       logo_url:data.logo_url || null, secondary_logo_url:data.secondary_logo_url || null,
       hero_image_url:data.hero_image_url || null, music_url:data.music_url || null,
       design_config:config
@@ -1163,6 +1163,12 @@ function cssUrl(value) { return String(value||"").replace(/["'()\\]/g, ""); }
 function escapeAttr(value="") { return String(value).replace(/[&<>"']/g,(char)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char])); }
 function toLocalInput(value) { const date=new Date(value); return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16); }
 function formatDate(value) { try { return new Intl.DateTimeFormat("es-MX",{dateStyle:"long",timeStyle:"short"}).format(new Date(value)); } catch { return value; } }
-function errorMessage(error) { return error instanceof ApiError ? error.message : error?.message || "No fue posible completar la operación."; }
+function errorMessage(error) {
+  const message = error instanceof ApiError ? error.message : error?.message || "No fue posible completar la operación.";
+  if (/mime type\s+video\//i.test(message) && /not supported|no soportado|unsupported/i.test(message)) {
+    return "Supabase Storage está bloqueando el tipo de video. Ejecuta MIGRACION-v5.0-STORAGE-VIDEO.sql una sola vez en el SQL Editor y vuelve a subir el archivo.";
+  }
+  return message;
+}
 
 // LN Studio v4.9.0 · motor de video: validación de códec, YouTube, rangos y subida comprobada.

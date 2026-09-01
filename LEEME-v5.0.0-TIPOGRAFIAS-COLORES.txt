@@ -1,0 +1,32 @@
+LN Studio v5.0.0 — Tipografías y colores canónicos
+
+Problema corregido:
+- El proyecto conservaba reglas CSS antiguas con colores y tipografías fijas (#fff, Fraunces, Manrope, fondos blancos/negros).
+- Esas reglas competían con las opciones del diseñador.
+- Además, color principal/secundario existían en dos sitios: theme_primary/theme_secondary y design_config.colors, pudiendo quedar desincronizados.
+
+Solución:
+1. design_config es ahora la fuente visual principal.
+2. El color principal/secundario del formulario se lee desde design_config.
+3. Al guardar, theme_primary/theme_secondary se sincronizan con design_config para compatibilidad.
+4. La invitación usa config.colors.primary/secondary como fuente canónica.
+5. Se añadieron reglas finales de máxima prioridad para título, texto, fondos, tarjetas, RSVP, botones y secciones.
+6. Las fuentes de título/texto/contador se fuerzan también por JS y se vuelven a aplicar al terminar de cargar Google Fonts.
+7. Se quitó el tracking negativo heredado de los títulos y se desactiva síntesis de fuentes para que la tipografía elegida conserve su forma real.
+8. Diseñador y evento continúan usando el mismo evento.html para la vista WYSIWYG.
+
+Subir reemplazando:
+- disenador.html
+- disenador.js
+- disenador.css
+- evento.html
+- rsvp.js
+- invitacion.css
+
+Después usar Ctrl+Shift+R.
+No requiere SQL.
+
+VIDEO / ERROR MIME
+- El mensaje “mime type video/mp4 is not supported” viene de la restricción MIME del bucket invitation-assets de Supabase, no del reproductor del navegador.
+- Ejecuta MIGRACION-v5.0-STORAGE-VIDEO.sql en Supabase > SQL Editor una sola vez.
+- La migración conserva los MIME ya permitidos y agrega MP4/WebM/OGG/M4V/MOV, además de elevar el límite existente a al menos 80 MB sin reducir límites mayores.
