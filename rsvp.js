@@ -3,7 +3,7 @@ import { api, ApiError } from "./supabase.js";
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const DEFAULT_ORDER = ["hero","countdown","details","gallery","rsvp"];
-const RENDERER_VERSION = "6.0.0";
+const RENDERER_VERSION = "6.1.0";
 let eventData = null;
 let token = null;
 let passUrl = "";
@@ -64,8 +64,8 @@ async function init() {
       if (!token) return fail("Invitación no válida.");
       eventData = await loadPublicEvent(token);
       if (!eventData?.id) return fail("Esta invitación todavía no está publicada o el enlace no es válido.");
-      if (!hasUsableDesignConfig(eventData.design_config)) {
-        console.error("LN Studio: la respuesta pública no contiene design_config. Ejecuta INSTALAR-v6.0-RENDER-MEDIA.sql para activar el contrato público v6.");
+      if (!hasUsableDesignConfig(resolveDesignConfig(eventData))) {
+        console.error("LN Studio: la respuesta pública no contiene configuración visual. Abre el diseñador y guarda una vez para crear el snapshot compatible, o ejecuta INSTALAR-v6.1-SINCRONIA-PUBLICA.sql.");
       }
       if (eventData.status === "finished" || (eventData.expires_at && new Date(eventData.expires_at) <= new Date())) {
         location.replace("evento-finalizado.html"); return;
@@ -81,11 +81,15 @@ async function loadPublicEvent(publicToken) {
   // sobreescribir el contrato visual de la invitación. Si aún no se ha
   // instalado, conservamos compatibilidad temporal con get_public_event.
   let lastError = null;
-  for (const rpcName of ["get_public_event_v6", "get_public_event"]) {
+  for (const rpcName of ["get_public_event_v7", "get_public_event_v6", "get_public_event"]) {
     try {
       const result = await api.rpc(rpcName, { p_token:publicToken }, { publicCall:true });
       const normalized = normalizePublicEvent(result);
-      if (normalized?.id) return normalized;
+      if (normalized?.id) {
+        const resolved = resolveDesignConfig(normalized);
+        if (hasUsableDesignConfig(resolved)) normalized.design_config = resolved;
+        return normalized;
+      }
     } catch (error) {
       lastError = error;
       if (rpcName === "get_public_event") throw error;
@@ -112,6 +116,26 @@ function hasUsableDesignConfig(value) {
   return Boolean(source && typeof source === "object" && Object.keys(source).length);
 }
 
+function parseJsonObject(value) {
+  let source = value;
+  if (typeof source === "string") {
+    try { source = JSON.parse(source); } catch { return {}; }
+  }
+  return source && typeof source === "object" && !Array.isArray(source) ? source : {};
+}
+
+function resolveDesignConfig(event) {
+  const direct = parseJsonObject(event?.design_config);
+  if (hasUsableDesignConfig(direct)) return direct;
+  const custom = parseJsonObject(event?.custom_text);
+  const compat = parseJsonObject(custom.__ln_design_config || custom.ln_design_config || custom.design_config);
+  if (hasUsableDesignConfig(compat)) {
+    if (event && typeof event === "object") event.design_config = compat;
+    return compat;
+  }
+  return {};
+}
+
 function bind() {
   $("#rsvp-form").addEventListener("submit", submit);
   $$(`[name="attendance"]`).forEach((radio) => radio.addEventListener("change", togglePartyFields));
@@ -126,7 +150,7 @@ function receiveDesignerPreview(message) {
   const payload = message.data || {};
   if (payload.type === "lnstudio:designer-preview-replay") {
     document.documentElement.scrollTo({top:0,behavior:"smooth"});
-    const config = mergeConfig(eventData?.design_config);
+    const config = mergeConfig(resolveDesignConfig(eventData));
     initializeReveal(config, true);
     return;
   }
@@ -138,7 +162,7 @@ function receiveDesignerPreview(message) {
 }
 
 function renderEvent() {
-  const config = mergeConfig(eventData?.design_config);
+  const config = mergeConfig(resolveDesignConfig(eventData));
   ["none","fade","fade-up","zoom","slide-left","float"].forEach((name)=>document.body.classList.remove(`animation-${name}`));
   document.body.dataset.eventStatus = eventData.status || "draft";
   document.title = `${eventData.name} | Invitación`;
@@ -305,7 +329,7 @@ function renderGallery(gallery) {
     figure.appendChild(image);
     root.appendChild(figure);
   });
-  const config = mergeConfig(eventData?.design_config);
+  const config = mergeConfig(resolveDesignConfig(eventData));
   const hasGalleryLayer = config.layers.some((layer)=>layer.section==="gallery");
   $("[data-section=gallery]").hidden = config.sections.enabled.gallery === false || (!list.length && !hasGalleryLayer);
 }
@@ -998,4 +1022,4 @@ function formatDate(value){if(!value)return"Por confirmar";const date=new Date(v
 function errorMessage(error){return error instanceof ApiError?error.message:error?.message||"No fue posible guardar la respuesta."}
 function ics(value){return String(value||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;")}
 
-// LN Studio v6.0.0 · render canónico, RPC versionada y multimedia sincronizada.
+// LN Studio v6.1.0 · render canónico con snapshot de compatibilidad pública.

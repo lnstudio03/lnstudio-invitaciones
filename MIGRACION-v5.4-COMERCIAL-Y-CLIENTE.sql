@@ -11,6 +11,9 @@ alter table public.quote_requests
   add column if not exists upload_token uuid default gen_random_uuid();
 
 alter table public.events
+  add column if not exists design_config jsonb not null default '{}'::jsonb;
+
+alter table public.events
   add column if not exists package_key text check (package_key in ('basic','intermediate','premium')),
   add column if not exists work_status text not null default 'brief' check (work_status in ('brief','design','client_review','approved','delivered')),
   add column if not exists total_amount numeric(12,2) not null default 0 check (total_amount >= 0),

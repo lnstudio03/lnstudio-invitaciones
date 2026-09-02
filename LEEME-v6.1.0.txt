@@ -1,0 +1,43 @@
+LN Studio v6.1.0 · REPARACIÓN DE SINCRONÍA REAL
+
+Problema corregido
+------------------
+La vista privada leía events.design_config directamente, pero la URL pública podía
+recibir una respuesta antigua de get_public_event() que solo incluía theme_primary,
+theme_secondary y datos básicos. El resultado era exactamente el observado:
+fuente, fondo, video, galería, animaciones, capas y orden desaparecían al publicar.
+
+Reparación
+----------
+1. El diseñador y la invitación siguen usando el mismo renderer (evento.html+rsvp.js).
+2. Al guardar, design_config se persiste directamente en events además del RPC.
+3. Se crea una copia de compatibilidad dentro de custom_text.__ln_design_config.
+   La RPC pública antigua YA devuelve custom_text, así que incluso sin migrar la RPC
+   la publicación puede recuperar el diseño completo después de guardar una vez.
+4. Al abrir el diseñador, si detecta un evento existente sin esa copia, la repara en
+   segundo plano automáticamente.
+5. La página pública intenta get_public_event_v7, después v6 y por último la RPC
+   histórica; en cualquiera de los tres casos puede recuperar el snapshot compatible.
+6. Se incluye una migración v6.1 que moderniza la RPC pública y el bucket de medios.
+
+Archivos a reemplazar
+---------------------
+disenador.html
+disenador.js
+evento.html
+rsvp.js
+disenador.css
+invitacion.css
+
+Paso recomendado de Supabase
+-----------------------------
+Ejecutar una vez INSTALAR-v6.1-SINCRONIA-PUBLICA.sql.
+No toca Fantasmas ni Aliados; usa exclusivamente las tablas/bucket de LN Studio.
+
+Después
+-------
+1. Desplegar los seis archivos.
+2. Ctrl+Shift+R.
+3. Abrir el diseñador del evento y esperar a que muestre “Diseño sincronizado con la invitación pública” o presionar Guardar diseño.
+4. Abrir la URL con ?token=. Debe conservar fondo, video, galería, tipografías,
+   colores, capas, animaciones y orden de secciones.

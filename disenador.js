@@ -4,6 +4,7 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const eventId = new URLSearchParams(location.search).get("id");
 const BUCKET = "invitation-assets";
+const DESIGNER_VERSION = "6.1.0";
 const SECTION_LABELS = { hero:"Portada", countdown:"Cuenta regresiva", details:"Detalles", gallery:"Galería", rsvp:"Confirmación RSVP" };
 const DEFAULT_ORDER = ["hero","countdown","details","gallery","rsvp"];
 const CUSTOM_TYPES = { image:"Imagen destacada", video:"Video", "photo-text":"Foto + texto", quote:"Pensamiento", separator:"Separador", itinerary:"Itinerario" };
@@ -62,6 +63,7 @@ async function init() {
     render();
     setupPreviewFitting();
     finishLoading();
+    void repairCompatibilitySnapshot();
     resetPreviewToTop();
     window.setTimeout(resetPreviewToTop, 80);
     window.setTimeout(resetPreviewToTop, 280);
@@ -249,8 +251,8 @@ function fill() {
   $("[data-event-title]").textContent = state.event.name;
   const publicToken = String(state.event.private_token || "").trim();
   const publicHref = state.event.status === "published" && publicToken
-    ? `evento.html?token=${encodeURIComponent(publicToken)}&rv=6`
-    : `evento.html?id=${encodeURIComponent(state.event.id)}&preview=1&rv=6`;
+    ? `evento.html?token=${encodeURIComponent(publicToken)}&rv=6.1`
+    : `evento.html?id=${encodeURIComponent(state.event.id)}&preview=1&rv=6.1`;
   $(`[data-open-invitation]`).href = publicHref;
   $(`[data-open-invitation]`).dataset.openMode = state.event.status === "published" && publicToken ? "public" : "preview";
   $(`[data-open-invitation]`).hidden = false;
@@ -1114,12 +1116,57 @@ function beginLayerDrag(event) {
   node.addEventListener("pointermove",move);node.addEventListener("pointerup",end);node.addEventListener("pointercancel",end);
 }
 
+function parseJsonObject(value) {
+  let source = value;
+  if (typeof source === "string") {
+    try { source = JSON.parse(source); } catch { return {}; }
+  }
+  return source && typeof source === "object" && !Array.isArray(source) ? source : {};
+}
+
+function buildCompatibilityCustomText(config) {
+  const current = parseJsonObject(state.event?.custom_text);
+  return {
+    ...current,
+    __ln_design_config: config,
+    __ln_design_renderer: DESIGNER_VERSION,
+    __ln_design_updated_at: new Date().toISOString()
+  };
+}
+
+function stableConfig(value) {
+  try { return JSON.stringify(value || {}); } catch { return ""; }
+}
+
+async function repairCompatibilitySnapshot() {
+  if (!state.event?.id) return;
+  const config = mergeConfig(state.event.design_config);
+  const currentCustom = parseJsonObject(state.event.custom_text);
+  const mirrored = parseJsonObject(currentCustom.__ln_design_config);
+  if (stableConfig(mirrored) === stableConfig(config)) return;
+  try {
+    const compat = buildCompatibilityCustomText(config);
+    await api.update("events", {
+      design_config: config,
+      custom_text: compat,
+      theme_primary: config.colors.primary,
+      theme_secondary: config.colors.secondary
+    }, { id:eventId });
+    state.event.custom_text = compat;
+    state.event.design_config = config;
+    setStatus("Diseño sincronizado con la invitación pública", true);
+  } catch (error) {
+    console.warn("LN Studio: no se pudo crear el snapshot público compatible", error);
+  }
+}
+
 async function save() {
   const form = $("#designer-form"); if (!form.reportValidity()) return;
   if (state.uploading) return alert("Espera a que terminen las cargas.");
   setBusy(true); setStatus("Guardando diseño…");
   try {
     const data = formData(); const config = buildConfig(data); const previousAssets=collectDesignAssets(state.event,mergeConfig(state.event.design_config));
+    const compatCustomText = buildCompatibilityCustomText(config);
     const payload = {
       name:data.name.trim(), description:data.description || null,
       event_date:data.event_date ? new Date(data.event_date).toISOString() : null,
@@ -1127,12 +1174,22 @@ async function save() {
       theme_primary:config.colors.primary, theme_secondary:config.colors.secondary,
       logo_url:data.logo_url || null, secondary_logo_url:data.secondary_logo_url || null,
       hero_image_url:data.hero_image_url || null, music_url:data.music_url || null,
-      design_config:config
+      design_config:config,
+      custom_text:compatCustomText
     };
-    await api.rpc("update_event_design", { p_event_id:eventId, p_payload:payload });
+    // El RPC se conserva por compatibilidad con instalaciones anteriores, pero
+    // la persistencia real no depende de él: RLS ya permite al equipo LN editar
+    // el evento y el UPDATE directo evita que una función SQL antigua pierda
+    // design_config, galería, fondo o estructura.
+    try {
+      await api.rpc("update_event_design", { p_event_id:eventId, p_payload:payload });
+    } catch (rpcError) {
+      console.warn("LN Studio: update_event_design no estuvo disponible; se usará la persistencia directa.", rpcError);
+    }
+    await api.update("events", payload, { id:eventId });
     const nextAssets=collectDesignAssets(payload,config);const obsolete=[...previousAssets].filter((url)=>!nextAssets.has(url)).map(storagePathFromUrl).filter(Boolean);
     if(obsolete.length) try{await api.removeFile(BUCKET,obsolete)}catch(error){console.warn("No fue posible limpiar algunos archivos anteriores.",error)}
-    state.event = { ...state.event, ...payload };
+    state.event = { ...state.event, ...payload, custom_text:compatCustomText };
     $("[data-event-title]").textContent = payload.name;
     ["logo_url","secondary_logo_url","hero_image_url","background_image_url","background_video_url","music_url"].forEach((fieldName) => {
       const value = $("#designer-form").elements[fieldName]?.value || "";
@@ -1190,9 +1247,9 @@ function formatDate(value) { try { return new Intl.DateTimeFormat("es-MX",{dateS
 function errorMessage(error) {
   const message = error instanceof ApiError ? error.message : error?.message || "No fue posible completar la operación.";
   if (/mime type\s+video\//i.test(message) && /not supported|no soportado|unsupported/i.test(message)) {
-    return "Supabase Storage está bloqueando el tipo de video. Ejecuta MIGRACION-v5.1-SINCRONIA-PUBLICA.sql una sola vez en el SQL Editor y vuelve a subir el archivo.";
+    return "Supabase Storage está bloqueando el tipo de video. Ejecuta INSTALAR-v6.1-SINCRONIA-PUBLICA.sql una sola vez en el SQL Editor y vuelve a subir el archivo.";
   }
   return message;
 }
 
-// LN Studio v6.0.0 · diseñador, publicación real y video sincronizados.
+// LN Studio v6.1.0 · diseñador con snapshot público redundante y auto-reparación.
