@@ -231,7 +231,12 @@ function fill() {
   state.sections = normalizeOrder(config.sections.order);
   state.enabled = { ...DEFAULTS.sections.enabled, ...(config.sections.enabled || {}) };
   $("[data-event-title]").textContent = state.event.name;
-  $(`[data-open-invitation]`).href = `evento.html?id=${encodeURIComponent(state.event.id)}&preview=1`;
+  const publicToken = String(state.event.private_token || "").trim();
+  const publicHref = state.event.status === "published" && publicToken
+    ? `evento.html?token=${encodeURIComponent(publicToken)}`
+    : `evento.html?id=${encodeURIComponent(state.event.id)}&preview=1`;
+  $(`[data-open-invitation]`).href = publicHref;
+  $(`[data-open-invitation]`).dataset.openMode = state.event.status === "published" && publicToken ? "public" : "preview";
   $(`[data-open-invitation]`).hidden = false;
   ["logo_url","secondary_logo_url","hero_image_url","background_image_url","background_video_url","music_url"].forEach((fieldName) => syncAssetFeedback(fieldName, form.elements[fieldName]?.value || "", form.elements[fieldName]?.value ? "saved" : "empty"));
 }
@@ -1166,9 +1171,9 @@ function formatDate(value) { try { return new Intl.DateTimeFormat("es-MX",{dateS
 function errorMessage(error) {
   const message = error instanceof ApiError ? error.message : error?.message || "No fue posible completar la operación.";
   if (/mime type\s+video\//i.test(message) && /not supported|no soportado|unsupported/i.test(message)) {
-    return "Supabase Storage está bloqueando el tipo de video. Ejecuta MIGRACION-v5.0-STORAGE-VIDEO.sql una sola vez en el SQL Editor y vuelve a subir el archivo.";
+    return "Supabase Storage está bloqueando el tipo de video. Ejecuta MIGRACION-v5.1-SINCRONIA-PUBLICA.sql una sola vez en el SQL Editor y vuelve a subir el archivo.";
   }
   return message;
 }
 
-// LN Studio v4.9.0 · motor de video: validación de códec, YouTube, rangos y subida comprobada.
+// LN Studio v5.1.0 · diseñador, publicación real y video sincronizados.

@@ -872,3 +872,6 @@ body{
 .preview-custom .video-embed-shell{position:relative;width:min(100%,620px);aspect-ratio:16/9;margin:auto;border-radius:14px;overflow:hidden;background:#05070b}
 .preview-custom .video-embed-shell iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .preview-custom .video-source-error{width:min(100%,620px);margin:auto;padding:22px;border:1px dashed rgba(255,129,145,.38);border-radius:13px;color:#ffc2cb;background:rgba(255,129,145,.055);text-align:center;font-size:.76rem;line-height:1.55}
+
+
+/* LN Studio v5.1.0 · vista pública enlazada directamente cuando el evento está publicado. */

@@ -1,0 +1,32 @@
+LN STUDIO v5.1.0 · SINCRONÍA EXACTA DISEÑADOR / PUBLICACIÓN
+
+CAUSA REAL ENCONTRADA
+El diseñador sí guardaba y leía design_config.
+La invitación publicada por token llamaba a public.get_public_event(), pero esa función NO incluía design_config en el JSON público.
+Por eso la publicación mostraba los valores por defecto: Fraunces/Manrope, morado/rosa, fondo oscuro y sin la configuración visual completa.
+
+ARCHIVOS WEB A REEMPLAZAR EN LA RAÍZ
+- disenador.html
+- disenador.js
+- disenador.css
+- evento.html
+- rsvp.js
+- invitacion.css
+
+PASO OBLIGATORIO EN SUPABASE
+1. Supabase > SQL Editor > New query.
+2. Copia TODO el contenido de MIGRACION-v5.1-SINCRONIA-PUBLICA.sql.
+3. Run.
+4. La verificación final debe mostrar rpc_incluye_design_config = true.
+
+MEJORAS ADICIONALES
+- Si el evento ya está publicado, “Abrir invitación” desde el diseñador abre la URL pública real ?token=... en lugar de la vista privada por id. Así se prueba exactamente lo que verá el invitado.
+- Si todavía es borrador, mantiene ?id=...&preview=1.
+- Los eventos antiguos sin design_config conservan theme_primary/theme_secondary como fallback.
+- La migración conserva también la reparación de MIME de video y 80 MB.
+
+DESPUÉS DE SUBIR
+Haz Ctrl+Shift+R en diseñador y en la invitación para vaciar caché.
+
+RESULTADO ESPERADO
+Misma fuente, colores, imagen/video de fondo, overlays, ambientes, capas, orden, secciones y animaciones. Solo cambia la distribución responsive según el tamaño real de pantalla.

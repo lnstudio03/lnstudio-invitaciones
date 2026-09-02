@@ -119,6 +119,7 @@ returns jsonb language sql stable security definer set search_path=public as $$
     'maps_url',e.maps_url,'description',e.description,'dress_code',e.dress_code,
     'logo_url',e.logo_url,'secondary_logo_url',e.secondary_logo_url,'hero_image_url',e.hero_image_url,
     'music_url',e.music_url,'theme_primary',e.theme_primary,'theme_secondary',e.theme_secondary,
+    'design_config',coalesce(e.design_config,'{}'::jsonb),
     'custom_text',e.custom_text,'schedule',e.schedule,'max_companions',e.max_companions,
     'allow_general_rsvp',e.allow_general_rsvp,'allow_guest_edits',e.allow_guest_edits,
     'qr_enabled',e.qr_enabled,'status',e.status,'expires_at',e.expires_at

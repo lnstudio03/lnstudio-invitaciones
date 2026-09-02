@@ -991,3 +991,6 @@ body.private-event{background:var(--invite-bg);isolation:isolate}
     font-size:min(var(--invite-body-size),2.4vw)!important;
   }
 }
+
+
+/* LN Studio v5.1.0 · el render público recibe design_config completo vía RPC. */

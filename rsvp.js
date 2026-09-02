@@ -3,6 +3,7 @@ import { api, ApiError } from "./supabase.js";
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const DEFAULT_ORDER = ["hero","countdown","details","gallery","rsvp"];
+const RENDERER_VERSION = "5.1.0";
 let eventData = null;
 let token = null;
 let passUrl = "";
@@ -34,6 +35,7 @@ const DEFAULT_CONFIG = {
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
+  document.documentElement.dataset.lnRenderer = RENDERER_VERSION;
   const params = new URLSearchParams(location.search);
   token = params.get("token");
   previewEventId = params.get("id");
@@ -62,6 +64,9 @@ async function init() {
       if (!token) return fail("Invitación no válida.");
       eventData = await api.rpc("get_public_event", { p_token:token }, { publicCall:true });
       if (!eventData?.id) return fail("Esta invitación todavía no está publicada o el enlace no es válido.");
+      if (eventData.design_config === undefined) {
+        console.error("LN Studio: get_public_event no está devolviendo design_config. Ejecuta MIGRACION-v5.1-SINCRONIA-PUBLICA.sql para que la publicación use el mismo diseño que el editor.");
+      }
       if (eventData.status === "finished" || (eventData.expires_at && new Date(eventData.expires_at) <= new Date())) {
         location.replace("evento-finalizado.html"); return;
       }
@@ -132,16 +137,24 @@ function renderEvent() {
   startCountdown(config); initializeReveal(config);
 }
 
-function mergeConfig(value) {
+function mergeConfig(value, legacyEvent = eventData) {
   let source = value;
   if (typeof source === "string") {
     try { source = JSON.parse(source); } catch { source = {}; }
   }
   source = source && typeof source === "object" ? source : {};
+  const sourceColors = source.colors && typeof source.colors === "object" ? source.colors : {};
+  const legacyPrimary = safeColor(legacyEvent?.theme_primary, DEFAULT_CONFIG.colors.primary);
+  const legacySecondary = safeColor(legacyEvent?.theme_secondary, DEFAULT_CONFIG.colors.secondary);
   return {
     ...DEFAULT_CONFIG,
     ...source,
-    colors:{...DEFAULT_CONFIG.colors,...(source.colors||{})},
+    colors:{
+      ...DEFAULT_CONFIG.colors,
+      ...sourceColors,
+      primary: sourceColors.primary ? safeColor(sourceColors.primary, DEFAULT_CONFIG.colors.primary) : legacyPrimary,
+      secondary: sourceColors.secondary ? safeColor(sourceColors.secondary, DEFAULT_CONFIG.colors.secondary) : legacySecondary
+    },
     typography:{...DEFAULT_CONFIG.typography,...(source.typography||{})},
     countdown:{...DEFAULT_CONFIG.countdown,...(source.countdown||{})},
     media:{...DEFAULT_CONFIG.media,...(source.media||{})},
@@ -868,4 +881,4 @@ function formatDate(value){if(!value)return"Por confirmar";const date=new Date(v
 function errorMessage(error){return error instanceof ApiError?error.message:error?.message||"No fue posible guardar la respuesta."}
 function ics(value){return String(value||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;")}
 
-// LN Studio v4.9.0 · video universal: YouTube, archivos directos, rangos y fallos visibles.
+// LN Studio v5.1.0 · contrato visual público sincronizado con el diseñador.
