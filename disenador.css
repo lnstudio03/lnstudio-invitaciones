@@ -875,3 +875,8 @@ body{
 
 
 /* LN Studio v5.1.0 · vista pública enlazada directamente cuando el evento está publicado. */
+
+/* LN Studio v6.0.0 · solo el iframe real es la vista previa autorizada. */
+.preview-device{background:#05070b!important;overflow:hidden!important}
+.exact-preview-frame{display:block!important;width:100%!important;height:100%!important;border:0!important;border-radius:inherit!important;background:#05070b!important}
+.legacy-preview-screen{display:none!important}

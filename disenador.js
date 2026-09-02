@@ -112,7 +112,23 @@ function bind() {
   exactFrame?.addEventListener("load", () => { exactPreviewReady = true; syncExactPreview(); });
   window.addEventListener("message", (event) => {
     if (event.origin !== location.origin || event.source !== exactFrame?.contentWindow) return;
-    if (event.data?.type === "lnstudio:designer-preview-ready") { exactPreviewReady = true; syncExactPreview(); }
+    const message = event.data || {};
+    if (message.type === "lnstudio:designer-preview-ready") { exactPreviewReady = true; syncExactPreview(); return; }
+    if (message.type === "lnstudio:designer-layer-select" && message.id) {
+      state.selectedLayerId = String(message.id);
+      renderLayerManager();
+      return;
+    }
+    if (message.type === "lnstudio:designer-layer-move" && message.id) {
+      const layer = state.layers.find((item) => item.id === String(message.id));
+      if (!layer) return;
+      layer.x = clampNumber(message.x, 0, 100, layer.x);
+      layer.y = clampNumber(message.y, 0, 100, layer.y);
+      state.selectedLayerId = layer.id;
+      renderLayerManager();
+      setStatus("Capa movida · cambios sin guardar");
+      return;
+    }
   });
 }
 
@@ -233,8 +249,8 @@ function fill() {
   $("[data-event-title]").textContent = state.event.name;
   const publicToken = String(state.event.private_token || "").trim();
   const publicHref = state.event.status === "published" && publicToken
-    ? `evento.html?token=${encodeURIComponent(publicToken)}`
-    : `evento.html?id=${encodeURIComponent(state.event.id)}&preview=1`;
+    ? `evento.html?token=${encodeURIComponent(publicToken)}&rv=6`
+    : `evento.html?id=${encodeURIComponent(state.event.id)}&preview=1&rv=6`;
   $(`[data-open-invitation]`).href = publicHref;
   $(`[data-open-invitation]`).dataset.openMode = state.event.status === "published" && publicToken ? "public" : "preview";
   $(`[data-open-invitation]`).hidden = false;
@@ -290,7 +306,10 @@ async function handleUpload(input) {
     for (const file of files.slice(0, remaining)) {
       try {
         const url = await uploadOne(file, "gallery");
-        if (url) state.gallery.push(url);
+        if (url) {
+          await verifyPublicAsset(url, "gallery");
+          state.gallery.push(url);
+        }
       } catch (error) {
         setStatus(`No se pudo subir ${file.name}: ${errorMessage(error)}`);
         alert(errorMessage(error));
@@ -525,7 +544,7 @@ function parseYouTubeId(value){
   }catch{}
   return"";
 }
-function isDirectVideoUrl(value){const text=String(value||"").trim();if(/^(blob:|data:video\/)/i.test(text))return true;try{const u=new URL(text,location.href);return /\.(mp4|webm|ogv|ogg|m4v|mov)$/i.test(u.pathname)}catch{return false}}
+function isDirectVideoUrl(value){const text=String(value||"").trim();if(/^(blob:|data:video\/)/i.test(text))return true;try{const u=new URL(text,location.href);const target=`${u.pathname}${u.searchParams.get("filename")||""}${u.searchParams.get("download")||""}`;return /\.(mp4|webm|ogv|ogg|m4v|mov)(?:$|[?#])/i.test(target)}catch{return false}}
 function isRecognizedVideoSource(value){return Boolean(parseYouTubeId(value)||isDirectVideoUrl(value))}
 function describeVideoSource(value){const yt=parseYouTubeId(value);if(yt)return"Enlace de YouTube reconocido. Se mostrará como reproductor integrado.";if(isDirectVideoUrl(value))return"Video directo reconocido. Se reproducirá con el reproductor HTML5.";return"Este enlace no parece ser un video directo ni un enlace de YouTube. Usa YouTube o una URL que termine en .mp4, .webm, .ogv, .m4v o .mov."}
 function buildYouTubeEmbed(section){const id=parseYouTubeId(section.mediaUrl);if(!id)return"";const params=new URLSearchParams({playsinline:"1",rel:"0",modestbranding:"1",controls:section.videoControls?"1":"0",autoplay:section.videoAutoplay?"1":"0",mute:(section.videoAutoplay||section.videoMuted)?"1":"0"});const start=Math.max(0,Math.floor(Number(section.videoStart)||0)),end=Math.max(0,Math.floor(Number(section.videoEnd)||0));if(start)params.set("start",String(start));if(end>start)params.set("end",String(end));if(section.videoLoop){params.set("loop","1");params.set("playlist",id)}return`https://www.youtube.com/embed/${id}?${params.toString()}`}
@@ -1176,4 +1195,4 @@ function errorMessage(error) {
   return message;
 }
 
-// LN Studio v5.1.0 · diseñador, publicación real y video sincronizados.
+// LN Studio v6.0.0 · diseñador, publicación real y video sincronizados.

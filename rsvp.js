@@ -3,7 +3,7 @@ import { api, ApiError } from "./supabase.js";
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const DEFAULT_ORDER = ["hero","countdown","details","gallery","rsvp"];
-const RENDERER_VERSION = "5.1.0";
+const RENDERER_VERSION = "6.0.0";
 let eventData = null;
 let token = null;
 let passUrl = "";
@@ -62,10 +62,10 @@ async function init() {
       if (banner) banner.hidden = false;
     } else {
       if (!token) return fail("Invitación no válida.");
-      eventData = await api.rpc("get_public_event", { p_token:token }, { publicCall:true });
+      eventData = await loadPublicEvent(token);
       if (!eventData?.id) return fail("Esta invitación todavía no está publicada o el enlace no es válido.");
-      if (eventData.design_config === undefined) {
-        console.error("LN Studio: get_public_event no está devolviendo design_config. Ejecuta MIGRACION-v5.1-SINCRONIA-PUBLICA.sql para que la publicación use el mismo diseño que el editor.");
+      if (!hasUsableDesignConfig(eventData.design_config)) {
+        console.error("LN Studio: la respuesta pública no contiene design_config. Ejecuta INSTALAR-v6.0-RENDER-MEDIA.sql para activar el contrato público v6.");
       }
       if (eventData.status === "finished" || (eventData.expires_at && new Date(eventData.expires_at) <= new Date())) {
         location.replace("evento-finalizado.html"); return;
@@ -73,6 +73,43 @@ async function init() {
     }
     renderEvent();
   } catch (error) { fail(errorMessage(error)); }
+}
+
+
+async function loadPublicEvent(publicToken) {
+  // v6 usa una RPC versionada para que migraciones antiguas no vuelvan a
+  // sobreescribir el contrato visual de la invitación. Si aún no se ha
+  // instalado, conservamos compatibilidad temporal con get_public_event.
+  let lastError = null;
+  for (const rpcName of ["get_public_event_v6", "get_public_event"]) {
+    try {
+      const result = await api.rpc(rpcName, { p_token:publicToken }, { publicCall:true });
+      const normalized = normalizePublicEvent(result);
+      if (normalized?.id) return normalized;
+    } catch (error) {
+      lastError = error;
+      if (rpcName === "get_public_event") throw error;
+    }
+  }
+  if (lastError) throw lastError;
+  return null;
+}
+
+function normalizePublicEvent(value) {
+  let data = value;
+  if (typeof data === "string") {
+    try { data = JSON.parse(data); } catch { return null; }
+  }
+  if (Array.isArray(data)) data = data[0] || null;
+  return data && typeof data === "object" ? data : null;
+}
+
+function hasUsableDesignConfig(value) {
+  let source = value;
+  if (typeof source === "string") {
+    try { source = JSON.parse(source); } catch { return false; }
+  }
+  return Boolean(source && typeof source === "object" && Object.keys(source).length);
 }
 
 function bind() {
@@ -187,16 +224,40 @@ function applyVariables(config) {
   root.setProperty("--hero-align", align === "left" ? "flex-start" : align === "right" ? "flex-end" : "center");
   root.setProperty("--invite-heading-transform", ["none","uppercase","capitalize"].includes(config.typography.transform)?config.typography.transform:"none");
   root.setProperty("--invite-hero-fit", ["cover","contain","scale-down"].includes(config.media.heroFit)?config.media.heroFit:(config.media.heroFit==="center"?"scale-down":"cover"));
-  const hero = $("[data-section=hero]");
-  hero.style.backgroundPosition = `${clampMedia(config.media.backgroundPositionX,0,100,50)}% ${clampMedia(config.media.backgroundPositionY,0,100,50)}%`;
-  if (config.colors.mode === "image" && config.media.backgroundImage) hero.style.backgroundImage = `url("${cssUrl(config.media.backgroundImage)}")`;
-  else if (config.colors.mode === "solid") hero.style.backgroundImage = "none", hero.style.backgroundColor = safeColor(config.colors.background,"#0d1420");
-  else hero.style.backgroundImage = `linear-gradient(145deg,${safeColor(config.colors.background,"#0d1420")},${safeColor(config.colors.background2,"#1b2537")})`;
+  applyHeroBackground(config);
   configureBackgroundVideo(config);
   document.body.classList.add(`animation-${safeAnimation(config.animation.preset)}`);
   document.body.classList.toggle("allow-motion", config.animation.respectReducedMotion === false);
   document.body.dataset.animationIntensity = config.animation.intensity || "medium";
   const ambient = $("[data-ambient]"); ambient.className = `event-ambient ${safeAmbient(config.animation.ambient)}`;
+}
+
+
+function applyHeroBackground(config) {
+  const hero = $("[data-section=hero]");
+  if (!hero) return;
+  const bg = safeColor(config?.colors?.background, "#0d1420");
+  const bgTwo = safeColor(config?.colors?.background2, "#1b2537");
+  const x = clampMedia(config?.media?.backgroundPositionX,0,100,50);
+  const y = clampMedia(config?.media?.backgroundPositionY,0,100,50);
+  hero.style.backgroundPosition = `${x}% ${y}%`;
+  hero.style.backgroundSize = "cover";
+  hero.style.backgroundRepeat = "no-repeat";
+  hero.style.backgroundColor = bg;
+  const image = safeAsset(config?.media?.backgroundImage);
+  if (config?.colors?.mode === "image" && image) {
+    hero.style.backgroundImage = `linear-gradient(145deg,rgba(0,0,0,.02),rgba(0,0,0,.02)),url("${cssUrl(image)}")`;
+    const probe = new Image();
+    probe.onload = () => { hero.dataset.backgroundState = "ready"; };
+    probe.onerror = () => {
+      hero.dataset.backgroundState = "error";
+      hero.style.backgroundImage = `linear-gradient(145deg,${bg},${bgTwo})`;
+    };
+    probe.src = image;
+    return;
+  }
+  hero.dataset.backgroundState = "none";
+  hero.style.backgroundImage = config?.colors?.mode === "solid" ? "none" : `linear-gradient(145deg,${bg},${bgTwo})`;
 }
 
 function applyLayout(config) {
@@ -224,9 +285,29 @@ function renderCustomSections(value){
 }
 
 function renderGallery(gallery) {
-  const list = Array.isArray(gallery)?gallery.filter(Boolean).slice(0,8):[];
-  const root=$("[data-gallery]"); root.innerHTML=list.map((url,index)=>`<img src="${escapeAttr(safeAsset(url))}" alt="Fotografía ${index+1}" loading="lazy">`).join("");
-  $("[data-section=gallery]").hidden = !list.length && !mergeConfig(eventData?.design_config).layers.some((layer)=>layer.section==="gallery");
+  const list = Array.isArray(gallery) ? gallery.map(safeAsset).filter(Boolean).slice(0,8) : [];
+  const root = $("[data-gallery]");
+  if (!root) return;
+  root.innerHTML = "";
+  list.forEach((url,index) => {
+    const figure = document.createElement("figure");
+    figure.className = "event-gallery-item";
+    const image = document.createElement("img");
+    image.src = url;
+    image.alt = `Fotografía ${index+1}`;
+    image.loading = index < 2 ? "eager" : "lazy";
+    image.decoding = "async";
+    image.addEventListener("load", () => figure.classList.add("is-loaded"), { once:true });
+    image.addEventListener("error", () => {
+      figure.classList.add("is-error");
+      figure.innerHTML = '<span>La fotografía no está disponible.</span>';
+    }, { once:true });
+    figure.appendChild(image);
+    root.appendChild(figure);
+  });
+  const config = mergeConfig(eventData?.design_config);
+  const hasGalleryLayer = config.layers.some((layer)=>layer.section==="gallery");
+  $("[data-section=gallery]").hidden = config.sections.enabled.gallery === false || (!list.length && !hasGalleryLayer);
 }
 
 function normalizeFreeLayers(value) {
@@ -245,8 +326,44 @@ function clampLayer(value,min,max,fallback){const number=Number(value);return Nu
 function renderFreeLayers(layers){
   $$("[data-free-layers]").forEach((root)=>root.remove());const roots={};
   $$('[data-section]').forEach((block)=>{const section=block.dataset.section;if(!section)return;const root=document.createElement("div");root.className="event-free-layers";root.dataset.freeLayers=section;root.setAttribute("aria-hidden","true");block.appendChild(root);roots[section]=root});
-  normalizeFreeLayers(layers).forEach((layer,index)=>{const root=roots[layer.section]||roots.hero;if(!root)return;const node=document.createElement("div");node.className=`event-free-layer event-free-layer-${layer.type}`;node.style.left=`${layer.x}%`;node.style.top=`${layer.y}%`;node.style.width=`${layer.width}%`;node.style.opacity=String(layer.opacity/100);node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation}deg)`;node.style.zIndex=String(20+index);
+  normalizeFreeLayers(layers).forEach((layer,index)=>{const root=roots[layer.section]||roots.hero;if(!root)return;const node=document.createElement("div");node.className=`event-free-layer event-free-layer-${layer.type}`;node.dataset.layerId=layer.id;node.dataset.layerSection=layer.section;node.style.left=`${layer.x}%`;node.style.top=`${layer.y}%`;node.style.width=`${layer.width}%`;node.style.opacity=String(layer.opacity/100);node.style.transform=`translate(-50%,-50%) rotate(${layer.rotation}deg)`;node.style.zIndex=String(20+index);
     if(layer.type==="image"){const image=document.createElement("img");image.src=safeAsset(layer.src);image.alt="";image.loading="eager";node.appendChild(image)}else{node.textContent=layer.text;node.style.fontSize=`clamp(12px,${layer.fontSize/7}vw,${layer.fontSize}px)`;node.style.color=layer.color;node.style.fontFamily=`'${layer.fontFamily}'`;node.style.fontWeight=String(layer.fontWeight)}root.appendChild(node)});
+  if (designerPreviewMode) enableDesignerLayerEditing();
+}
+
+function enableDesignerLayerEditing() {
+  $$(".event-free-layer[data-layer-id]").forEach((node) => {
+    node.tabIndex = 0;
+    node.setAttribute("role", "button");
+    node.setAttribute("aria-label", "Mover capa en la vista previa");
+    node.onpointerdown = (event) => {
+      if (event.button !== 0) return;
+      const section = node.closest("[data-section]");
+      if (!section) return;
+      event.preventDefault();
+      node.setPointerCapture?.(event.pointerId);
+      node.classList.add("designer-dragging");
+      try { parent.postMessage({ type:"lnstudio:designer-layer-select", id:node.dataset.layerId }, location.origin); } catch {}
+      const move = (pointerEvent) => {
+        const rect = section.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const x = Math.max(0, Math.min(100, ((pointerEvent.clientX - rect.left) / rect.width) * 100));
+        const y = Math.max(0, Math.min(100, ((pointerEvent.clientY - rect.top) / rect.height) * 100));
+        node.style.left = `${x}%`;
+        node.style.top = `${y}%`;
+        try { parent.postMessage({ type:"lnstudio:designer-layer-move", id:node.dataset.layerId, x, y }, location.origin); } catch {}
+      };
+      const up = () => {
+        node.classList.remove("designer-dragging");
+        node.removeEventListener("pointermove", move);
+        node.removeEventListener("pointerup", up);
+        node.removeEventListener("pointercancel", up);
+      };
+      node.addEventListener("pointermove", move);
+      node.addEventListener("pointerup", up);
+      node.addEventListener("pointercancel", up);
+    };
+  });
 }
 
 function setEventImage(image, value, onLoad = null, onError = null) {
@@ -794,7 +911,7 @@ function parseYouTubeId(value){
   }catch{}
   return"";
 }
-function isDirectVideoUrl(value){const text=String(value||"").trim();if(/^(blob:|data:video\/)/i.test(text))return true;try{const u=new URL(text,location.href);return /\.(mp4|webm|ogv|ogg|m4v|mov)$/i.test(u.pathname)}catch{return false}}
+function isDirectVideoUrl(value){const text=String(value||"").trim();if(/^(blob:|data:video\/)/i.test(text))return true;try{const u=new URL(text,location.href);const target=`${u.pathname}${u.searchParams.get("filename")||""}${u.searchParams.get("download")||""}`;return /\.(mp4|webm|ogv|ogg|m4v|mov)(?:$|[?#])/i.test(target)}catch{return false}}
 function buildYouTubeEmbed(section){
   const id=parseYouTubeId(section.mediaUrl);if(!id)return"";
   const params=new URLSearchParams({playsinline:"1",rel:"0",modestbranding:"1",controls:section.videoControls?"1":"0",autoplay:section.videoAutoplay?"1":"0",mute:(section.videoAutoplay||section.videoMuted)?"1":"0"});
@@ -881,4 +998,4 @@ function formatDate(value){if(!value)return"Por confirmar";const date=new Date(v
 function errorMessage(error){return error instanceof ApiError?error.message:error?.message||"No fue posible guardar la respuesta."}
 function ics(value){return String(value||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;")}
 
-// LN Studio v5.1.0 · contrato visual público sincronizado con el diseñador.
+// LN Studio v6.0.0 · render canónico, RPC versionada y multimedia sincronizada.

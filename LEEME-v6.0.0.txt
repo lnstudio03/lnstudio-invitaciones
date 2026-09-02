@@ -1,0 +1,46 @@
+LN STUDIO v6.0.0 — RENDER CANÓNICO + MULTIMEDIA
+=================================================
+
+OBJETIVO
+- El diseñador y la invitación publicada usan el MISMO renderizador: evento.html + rsvp.js + invitacion.css.
+- La URL pública recibe design_config completo desde Supabase.
+- Fondo, galería y video se sirven correctamente desde invitation-assets.
+
+1) REEMPLAZA EN LA RAÍZ DEL SITIO
+- disenador.html
+- disenador.js
+- disenador.css
+- evento.html
+- rsvp.js
+- invitacion.css
+
+2) SUPABASE — OBLIGATORIO UNA SOLA VEZ
+Abre Supabase > SQL Editor > New query.
+Pega y ejecuta TODO el archivo:
+  INSTALAR-v6.0-RENDER-MEDIA.sql
+
+La consulta de comprobación del final debe mostrar:
+- rpc_v6_incluye_design_config = true
+- id = invitation-assets
+- public = true
+- file_size_limit >= 83886080
+- allowed_mime_types contiene video/mp4
+
+3) ACTUALIZA EL NAVEGADOR
+Después de desplegar los 6 archivos, usa Ctrl + Shift + R.
+
+QUÉ CORRIGE
+- Fuente, tamaños, colores y overlays publicados = diseñador.
+- Fondo de imagen y fondo de video = diseñador.
+- Galería pública con las mismas URLs y orden.
+- MP4/WebM/OGG/M4V/MOV hasta 80 MB en Storage.
+- YouTube y video directo en secciones Video.
+- Inicio/fin, loop, autoplay, mute y controles.
+- Orden/visibilidad de secciones y secciones personalizadas.
+- Capas libres en el mismo render; en la vista del diseñador también pueden moverse.
+- Botón “Abrir invitación” usa la URL pública real cuando el evento ya está publicado.
+
+IMPORTANTE
+- Si una foto/video antiguo fue eliminado físicamente de Storage, ningún cambio de código puede reconstruirlo; vuelve a subir ese archivo.
+- Si un MOV/MP4 usa un códec que Chrome no reproduce, usa MP4 H.264/AAC, WebM o YouTube.
+- La vista Celular coincide con la publicación en ancho de celular; Escritorio coincide con un navegador de escritorio. La composición sigue siendo responsive, pero identidad, contenido, orden y multimedia son los mismos.
