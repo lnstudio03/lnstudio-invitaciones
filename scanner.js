@@ -357,11 +357,21 @@ async function processDecision(decision) {
       p_event_id: state.eventId
     });
 
+    const recorded = result?.ok === true
+      || (decision === "rejected" && result?.message === "Acceso rechazado");
+    if (!recorded) {
+      await loadStats();
+      showOutcome("warning", "No se pudo registrar", result?.message || "El servidor no registró esta decisión.");
+      return;
+    }
+
     await loadStats();
 
     if (decision === "approved") {
-      const remainingText = Number.isFinite(Number(result?.remaining))
-        ? ` Quedan ${Number(result.remaining)} acceso(s) disponibles.`
+      const remaining = result?.remaining
+        ?? (Number(result?.pass?.allowed_entries) - Number(result?.pass?.used_entries));
+      const remainingText = Number.isFinite(Number(remaining))
+        ? ` Quedan ${Math.max(Number(remaining), 0)} acceso(s) disponibles.`
         : "";
       showOutcome("approved", "Acceso aprobado", `${result?.message || `Se registró el ingreso de ${entries} persona(s).`}${remainingText}`);
     } else {

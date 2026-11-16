@@ -99,7 +99,6 @@ async function openPortal() {
 
     $("[data-login]").hidden = true;
     $("[data-app]").hidden = false;
-    $("[data-user-email]").textContent = user.email || state.profile.email;
     $("[data-role]").textContent = globalRoleLabel(state.profile.global_role);
     const owner = isOwner();
     document.body.classList.toggle("not-owner", !owner);

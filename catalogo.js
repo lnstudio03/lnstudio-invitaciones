@@ -11,6 +11,9 @@ export async function initializeCatalog() {
 
   const count = document.querySelector("[data-catalog-count]");
   const buttons = [...document.querySelectorAll(".filter-button")];
+  const requestedFilter = new URLSearchParams(location.search).get("categoria");
+  const initialButton = buttons.find((button) => button.dataset.filter === requestedFilter)
+    || buttons.find((button) => button.dataset.filter === "todos");
 
   try {
     const response = await fetch("catalogo.json", { cache: "no-store" });
@@ -31,13 +34,22 @@ export async function initializeCatalog() {
 
     buttons.forEach((button) => {
       button.addEventListener("click", () => {
-        buttons.forEach((item) => item.classList.remove("active"));
-        button.classList.add("active");
+        buttons.forEach((item) => {
+          const selected = item === button;
+          item.classList.toggle("active", selected);
+          item.setAttribute("aria-pressed", String(selected));
+        });
         render(button.dataset.filter || "todos");
       });
     });
 
-    render();
+    const initialFilter = initialButton?.dataset.filter || "todos";
+    buttons.forEach((button) => {
+      const selected = button === initialButton;
+      button.classList.toggle("active", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+    render(initialFilter);
   } catch (error) {
     console.error(error);
     grid.innerHTML = `<div class="catalog-empty"><h2>Catálogo no disponible</h2><p>${escapeHtml(error.message)}</p></div>`;

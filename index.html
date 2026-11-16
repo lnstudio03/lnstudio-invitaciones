@@ -88,15 +88,15 @@
 <p>No imponemos un estilo. Creamos una identidad digital que se siente parte de tu evento.</p>
 </div>
 <div class="tabs">
-<button class="active">Bodas</button>
-<button>XV años</button>
-<button>Infantiles</button>
-<button>Sociales</button>
-<button>Empresariales</button>
-<button>A tu estilo</button>
+<button type="button" data-filter="boda" aria-pressed="false">Bodas</button>
+<button type="button" data-filter="xv" aria-pressed="false">XV años</button>
+<button type="button" data-filter="infantil" aria-pressed="false">Infantiles</button>
+<button type="button" data-filter="social" aria-pressed="false">Sociales</button>
+<button type="button" data-filter="corporativo" aria-pressed="false">Empresariales</button>
+<button class="active" type="button" data-filter="todos" aria-pressed="true">A tu estilo</button>
 </div>
 <div class="cards">
-<a class="card big" href="invitacion.html?modelo=academia-nocturna">
+<a class="card big" data-categories="social" href="invitacion.html?modelo=academia-nocturna">
 <iframe src="invitacion.html?modelo=academia-nocturna" title="Vista de Academia Nocturna" tabindex="-1"></iframe><span class="card-shade"></span>
 <small>COLECCIÓN GÓTICA CON STICKERS</small>
 <div>
@@ -106,7 +106,7 @@
 </div>
 <b>Ver experiencia ↗</b>
 </a>
-<a class="card celestial" href="invitacion.html?modelo=xv-sticker-pop">
+<a class="card celestial" data-categories="xv" href="invitacion.html?modelo=xv-sticker-pop">
 <iframe src="invitacion.html?modelo=xv-sticker-pop" title="Vista de XV Starlight" tabindex="-1"></iframe><span class="card-shade"></span>
 <small>XV AÑOS · STICKER GLAM</small>
 <div>
@@ -115,7 +115,7 @@
 </div>
 <b>Explorar ↗</b>
 </a>
-<a class="card bloom" href="invitacion.html?modelo=fiesta-nube">
+<a class="card bloom" data-categories="infantil social" href="invitacion.html?modelo=fiesta-nube">
 <iframe src="invitacion.html?modelo=fiesta-nube" title="Vista de Fiesta Nube" tabindex="-1"></iframe><span class="card-shade"></span>
 <small>CARICATURA ORIGINAL</small>
 <div>
@@ -135,22 +135,22 @@
 </h2>
 <p>Todo lo que tus invitados necesitan y todo el control que tú quieres, conectado.</p>
 <div class="demo-list">
-<button class="active">
+<button class="active" type="button" data-demo="rsvp" aria-pressed="true">
 <b>01</b>
 <span>
 <strong>Confirmaciones RSVP</strong>Respuestas y acompañantes organizados.</span>
 </button>
-<button>
+<button type="button" data-demo="qr" aria-pressed="false">
 <b>02</b>
 <span>
 <strong>Pases y acceso QR</strong>Entradas únicas y escáner.</span>
 </button>
-<button>
+<button type="button" data-demo="panel" aria-pressed="false">
 <b>03</b>
 <span>
 <strong>Panel privado</strong>Controla tu evento desde cualquier lugar.</span>
 </button>
-<button>
+<button type="button" data-demo="galeria" aria-pressed="false">
 <b>04</b>
 <span>
 <strong>Galería y recuerdos</strong>La historia continúa después.</span>

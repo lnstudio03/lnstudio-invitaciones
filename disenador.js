@@ -33,7 +33,7 @@ const PRESETS = {
   corporate:{ primary:"#2774d8",secondary:"#40b8c4",background:"#0d1724",background2:"#182a3d",text:"#f6fbff",muted:"#b7c7d8",heading:"Montserrat",body:"Manrope",ambient:"none" },
   fantasy:{ primary:"#9b5de5",secondary:"#00d4b8",background:"#120e24",background2:"#25184a",text:"#ffffff",muted:"#d4cae9",heading:"Cinzel",body:"Poppins",ambient:"stars" }
 };
-let state = { user:null, profile:null, event:null, gallery:[], layers:[], customSections:[], selectedLayerId:null, sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0, localAssets:{} };
+let state = { user:null, profile:null, event:null, gallery:[], layers:[], customSections:[], selectedLayerId:null, sections:[...DEFAULT_ORDER], enabled:{...DEFAULTS.sections.enabled}, uploading:0, localAssets:{}, dirty:false };
 let previewMode = "mobile";
 let previewResizeObserver = null;
 let previewCountdownTimer = null;
@@ -62,8 +62,8 @@ async function init() {
     renderLayerManager();
     render();
     setupPreviewFitting();
+    await repairCompatibilitySnapshot();
     finishLoading();
-    void repairCompatibilitySnapshot();
     resetPreviewToTop();
     window.setTimeout(resetPreviewToTop, 80);
     window.setTimeout(resetPreviewToTop, 280);
@@ -72,6 +72,11 @@ async function init() {
 }
 
 function bind() {
+  window.addEventListener("beforeunload", (event) => {
+    if (!state.dirty) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
   $(`[data-save]`).addEventListener("click", save);
   $("#designer-form").addEventListener("input", (event) => {
     if (event.target.type === "file") return;
@@ -261,10 +266,16 @@ function fill() {
 
 function mergeConfig(value) {
   const source = value && typeof value === "object" ? value : {};
+  const sourceColors = source.colors || {};
   return {
     ...DEFAULTS,
     ...source,
-    colors:{ ...DEFAULTS.colors, ...(source.colors || {}) },
+    colors:{
+      ...DEFAULTS.colors,
+      ...sourceColors,
+      primary:safeColor(sourceColors.primary, safeColor(state.event?.theme_primary, DEFAULTS.colors.primary)),
+      secondary:safeColor(sourceColors.secondary, safeColor(state.event?.theme_secondary, DEFAULTS.colors.secondary))
+    },
     typography:{ ...DEFAULTS.typography, ...(source.typography || {}) },
     countdown:{ ...DEFAULTS.countdown, ...(source.countdown || {}) },
     media:{ ...DEFAULTS.media, ...(source.media || {}) },
@@ -305,19 +316,32 @@ async function handleUpload(input) {
   if (role === "gallery") {
     const remaining = Math.max(0, 8 - state.gallery.length);
     if (!remaining) { input.value = ""; return alert("La galería ya tiene 8 imágenes."); }
-    for (const file of files.slice(0, remaining)) {
+    const selectedFiles = files.slice(0, remaining);
+    let uploaded = 0;
+    let failed = 0;
+    for (const file of selectedFiles) {
       try {
         const url = await uploadOne(file, "gallery");
         if (url) {
           await verifyPublicAsset(url, "gallery");
           state.gallery.push(url);
+          uploaded += 1;
         }
       } catch (error) {
+        failed += 1;
         setStatus(`No se pudo subir ${file.name}: ${errorMessage(error)}`);
         alert(errorMessage(error));
       }
     }
-    renderGalleryManager(); render(); setStatus("Galería actualizada · guarda el diseño"); input.value = ""; return;
+    const skipped = files.length - selectedFiles.length;
+    if (skipped) alert(`Solo se agregaron ${selectedFiles.length} archivo(s): la galería admite hasta 8 imágenes.`);
+    renderGalleryManager();
+    render();
+    if (failed && uploaded) setStatus(`${uploaded} imagen(es) subidas; ${failed} fallaron. Guarda los cambios.`);
+    else if (failed) setStatus(`No se pudo agregar ninguna imagen (${failed} error(es)).`);
+    else setStatus(`${uploaded} imagen(es) agregadas · guarda el diseño`);
+    input.value = "";
+    return;
   }
 
   const fieldMap = { logo:"logo_url", "secondary-logo":"secondary_logo_url", hero:"hero_image_url", background:"background_image_url", "background-video":"background_video_url", music:"music_url" };
@@ -327,6 +351,7 @@ async function handleUpload(input) {
 
   const field = $("#designer-form").elements[fieldName];
   const previousValue = field.value;
+  const previousBackgroundMode = $("#designer-form").elements.background_mode.value;
   revokeLocalAsset(fieldName);
 
   try {
@@ -349,6 +374,9 @@ async function handleUpload(input) {
     window.setTimeout(() => revokeLocalAsset(fieldName), 1500);
   } catch (error) {
     field.value = previousValue || "";
+    if (role === "background" || role === "background-video") {
+      $("#designer-form").elements.background_mode.value = previousBackgroundMode;
+    }
     syncAssetFeedback(fieldName, previousValue || "", "error", errorMessage(error));
     render(); resetPreviewToTop();
     setStatus(`Error al subir ${assetLabel(fieldName)}: ${errorMessage(error)}`);
@@ -1146,12 +1174,15 @@ async function repairCompatibilitySnapshot() {
   if (stableConfig(mirrored) === stableConfig(config)) return;
   try {
     const compat = buildCompatibilityCustomText(config);
-    await api.update("events", {
+    const updated = await api.update("events", {
       design_config: config,
       custom_text: compat,
       theme_primary: config.colors.primary,
       theme_secondary: config.colors.secondary
     }, { id:eventId });
+    if (!Array.isArray(updated) || !updated.some((row) => row.id === eventId)) {
+      throw new Error("No se pudo sincronizar el diseño con el evento. Verifica tus permisos.");
+    }
     state.event.custom_text = compat;
     state.event.design_config = config;
     setStatus("Diseño sincronizado con la invitación pública", true);
@@ -1186,7 +1217,10 @@ async function save() {
     } catch (rpcError) {
       console.warn("LN Studio: update_event_design no estuvo disponible; se usará la persistencia directa.", rpcError);
     }
-    await api.update("events", payload, { id:eventId });
+    const updated = await api.update("events", payload, { id:eventId });
+    if (!Array.isArray(updated) || !updated.some((row) => row.id === eventId)) {
+      throw new Error("El servidor no confirmó el guardado. Verifica tus permisos e inténtalo de nuevo.");
+    }
     const nextAssets=collectDesignAssets(payload,config);const obsolete=[...previousAssets].filter((url)=>!nextAssets.has(url)).map(storagePathFromUrl).filter(Boolean);
     if(obsolete.length) try{await api.removeFile(BUCKET,obsolete)}catch(error){console.warn("No fue posible limpiar algunos archivos anteriores.",error)}
     state.event = { ...state.event, ...payload, custom_text:compatCustomText };
@@ -1195,6 +1229,7 @@ async function save() {
       const value = $("#designer-form").elements[fieldName]?.value || "";
       syncAssetFeedback(fieldName, value, value ? "saved" : "empty", value ? "Archivo guardado en la invitación." : "Sin archivo seleccionado.");
     });
+    state.dirty = false;
     setStatus("Diseño guardado", true);
   } catch (error) { setStatus(errorMessage(error)); }
   finally { setBusy(false); }
@@ -1224,7 +1259,12 @@ function renderContrast(foreground, background) {
 function contrastRatio(a,b) { const l1=luminance(a),l2=luminance(b); return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05); }
 function luminance(hex) { const rgb=[1,3,5].map((i)=>parseInt(hex.slice(i,i+2),16)/255).map((c)=>c<=.03928?c/12.92:((c+.055)/1.055)**2.4); return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2]; }
 function setBusy(busy) { $("[data-save]").disabled = busy; $("#designer-form").setAttribute("aria-busy", String(busy)); }
-function setStatus(message, success=false) { const node=$("[data-status]"); node.textContent=message; node.dataset.success=String(success); }
+function setStatus(message, success=false) {
+  if (!success && /sin guardar|falta guardar|guarda el diseño/i.test(message)) state.dirty = true;
+  const node=$("[data-status]");
+  node.textContent=message;
+  node.dataset.success=String(success);
+}
 function finishLoading() {
   const loading = $("[data-designer-loading]");
   const layout = $("[data-designer-layout]");

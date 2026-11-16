@@ -54,8 +54,8 @@ async function load() {
     const ownMembership = state.members.find((member) => member.user_id === state.user.id || member.email?.toLowerCase() === state.user.email?.toLowerCase());
     const globalAdmin = ["owner", "staff"].includes(state.profile?.global_role);
     state.isOwner = globalAdmin;
-    state.canAdmin = globalAdmin || ownMembership?.role === "client_admin";
-    state.canScan = globalAdmin || ["client_admin", "event_staff"].includes(ownMembership?.role);
+    state.canAdmin = globalAdmin || Boolean(ownMembership?.active && ownMembership.role === "client_admin");
+    state.canScan = globalAdmin || Boolean(ownMembership?.active && ["client_admin", "event_staff"].includes(ownMembership.role));
     render();
     const requestedTab = new URLSearchParams(location.search).get("tab");
     if (requestedTab && ["overview", "rsvp", "guests", "checkins", "members", "settings"].includes(requestedTab)) tab(requestedTab);
