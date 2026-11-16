@@ -40,12 +40,12 @@ function isFathersDayWeek(year, day) {
 
 export function applySeasonalDecoration(date = new Date()) {
   const season = getSeasonForDate(date);
-  const hero = document.querySelector("main > section:first-of-type");
+  const hero = document.querySelector("main > section:first-of-type, main.error-page, .invitation-page .invite-opening");
   if (!season || !hero || hero.querySelector(".seasonal-effects")) return;
 
   const stylesheet = document.createElement("link");
   stylesheet.rel = "stylesheet";
-  stylesheet.href = new URL("./seasonal.css?v=2", import.meta.url).href;
+  stylesheet.href = new URL("./seasonal.css?v=4", import.meta.url).href;
   document.head.append(stylesheet);
 
   hero.classList.add("seasonal-host");
