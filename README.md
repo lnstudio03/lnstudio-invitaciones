@@ -18,4 +18,4 @@ Tras publicar, abre un evento de prueba, guarda un cambio y revisa la invitació
 
 ### Detalles de temporada
 
-El sitio público aplica un adorno visual discreto según el calendario de México: San Valentín (1–14 de febrero), Día de las Madres (1–10 de mayo), Día del Padre (la semana de esa fecha), Independencia (10–16 de septiembre), Día de Muertos (24 de octubre–2 de noviembre), Navidad (15 de noviembre–25 de diciembre) y Año Nuevo (26 de diciembre–6 de enero). Se limita a la portada de cada página pública; no cambia el diseño de las invitaciones de clientes.
+El sitio público aplica efectos visuales de temporada según el calendario de México: San Valentín (1–14 de febrero), Día de las Madres (1–10 de mayo), Día del Padre (la semana de esa fecha), Independencia (10–16 de septiembre), Día de Muertos (24 de octubre–2 de noviembre), Navidad (15 de noviembre–25 de diciembre) y Año Nuevo (26 de diciembre–6 de enero). Incluye partículas y acentos temáticos en la portada de cada página pública; no cambia el diseño de las invitaciones de clientes.

@@ -1,48 +1,91 @@
 .seasonal-host {
   position: relative;
+  isolation: isolate;
 }
 
-.seasonal-accent {
+.seasonal-effects {
   position: absolute;
-  z-index: 3;
-  top: clamp(6.5rem, 18%, 10rem);
-  right: clamp(1rem, 5vw, 4rem);
-  display: grid;
-  width: 3.25rem;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  background: rgba(8, 10, 15, .55);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, .2);
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
   color: #e4d6aa;
-  font-size: 1.4rem;
+  opacity: .85;
+  pointer-events: none;
+}
+
+.seasonal-effects::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  opacity: .55;
+}
+
+.seasonal-effects > span {
+  position: absolute;
+  display: block;
+  font-size: clamp(.7rem, 1.3vw, 1.1rem);
   line-height: 1;
   opacity: .8;
-  pointer-events: none;
-  animation: seasonal-drift 5s ease-in-out infinite;
+  text-shadow: 0 0 12px currentColor;
+  animation: seasonal-drift 7s ease-in-out infinite alternate;
 }
 
-.seasonal-accent::after {
-  position: absolute;
-  top: -.45rem;
-  right: -.35rem;
-  content: "✦";
-  font-size: .75rem;
-}
+.seasonal-effects > span:nth-child(1) { left: 1.5%; top: 8%; animation-delay: -2s; }
+.seasonal-effects > span:nth-child(2) { right: 1.5%; top: 20%; animation-delay: -5s; }
+.seasonal-effects > span:nth-child(3) { left: 1.5%; top: 33%; animation-delay: -3s; }
+.seasonal-effects > span:nth-child(4) { right: 1.5%; top: 45%; animation-delay: -7s; }
+.seasonal-effects > span:nth-child(5) { left: 1.5%; top: 58%; animation-delay: -4s; }
+.seasonal-effects > span:nth-child(6) { right: 1.5%; top: 70%; animation-delay: -1s; }
+.seasonal-effects > span:nth-child(7) { left: 1.5%; top: 83%; animation-delay: -6s; }
+.seasonal-effects > span:nth-child(8) { right: 1.5%; top: 94%; animation-delay: -8s; }
 
-[data-season="navidad"] > .seasonal-accent { color: #b7dfc8; }
-[data-season="ano-nuevo"] > .seasonal-accent { color: #e9c873; }
-[data-season="amor"] > .seasonal-accent { color: #f3a5bd; }
-[data-season="madres"] > .seasonal-accent { color: #edb5cf; }
-[data-season="padres"] > .seasonal-accent { color: #a9c7ed; }
-[data-season="independencia"] > .seasonal-accent { color: #e6d9a1; }
-[data-season="muertos"] > .seasonal-accent { color: #f0ad4e; }
+[data-season="navidad"] > .seasonal-effects { color: #d7efff; }
+[data-season="navidad"] > .seasonal-effects::before {
+  background:
+    radial-gradient(ellipse at 0 0, rgba(205, 239, 255, .42), transparent 34%),
+    radial-gradient(ellipse at 100% 0, rgba(205, 239, 255, .36), transparent 32%),
+    linear-gradient(90deg, rgba(205, 239, 255, .16), transparent 10%, transparent 90%, rgba(205, 239, 255, .16)),
+    linear-gradient(180deg, rgba(205, 239, 255, .16), transparent 24%);
+}
+[data-season="ano-nuevo"] > .seasonal-effects { color: #f4d781; }
+[data-season="ano-nuevo"] > .seasonal-effects::before {
+  background:
+    radial-gradient(ellipse at 0 0, rgba(244, 215, 129, .28), transparent 35%),
+    radial-gradient(ellipse at 100% 0, rgba(244, 215, 129, .28), transparent 35%);
+}
+[data-season="amor"] > .seasonal-effects { color: #f0a3ba; }
+[data-season="amor"] > .seasonal-effects::before {
+  background:
+    radial-gradient(ellipse at 0 0, rgba(240, 163, 186, .24), transparent 34%),
+    radial-gradient(ellipse at 100% 100%, rgba(240, 163, 186, .2), transparent 34%);
+}
+[data-season="madres"] > .seasonal-effects { color: #f0b5d0; }
+[data-season="madres"] > .seasonal-effects::before {
+  background:
+    radial-gradient(ellipse at 0 100%, rgba(240, 181, 208, .26), transparent 34%),
+    radial-gradient(ellipse at 100% 0, rgba(240, 181, 208, .2), transparent 34%);
+}
+[data-season="padres"] > .seasonal-effects { color: #a9c7ed; }
+[data-season="padres"] > .seasonal-effects::before {
+  background: linear-gradient(90deg, rgba(169, 199, 237, .12), transparent 12%, transparent 88%, rgba(169, 199, 237, .12));
+}
+[data-season="independencia"] > .seasonal-effects { color: #e6d9a1; }
+[data-season="independencia"] > .seasonal-effects::before {
+  background: linear-gradient(90deg, rgba(55, 153, 94, .22), transparent 10%, transparent 90%, rgba(202, 59, 59, .22));
+}
+[data-season="independencia"] > .seasonal-effects > span:nth-child(3n + 1) { color: #4aa878; }
+[data-season="independencia"] > .seasonal-effects > span:nth-child(3n) { color: #df6969; }
+[data-season="muertos"] > .seasonal-effects { color: #f0ad4e; }
+[data-season="muertos"] > .seasonal-effects::before {
+  background:
+    radial-gradient(ellipse at 0 100%, rgba(240, 173, 78, .28), transparent 36%),
+    radial-gradient(ellipse at 100% 0, rgba(240, 173, 78, .24), transparent 32%);
+}
 
 @keyframes seasonal-drift {
-  50% { transform: translateY(-5px) rotate(5deg); }
+  to { transform: translateY(5px); opacity: .45; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .seasonal-accent { animation: none; }
+  .seasonal-effects > span { animation: none; }
 }

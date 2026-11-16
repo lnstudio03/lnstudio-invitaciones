@@ -6,13 +6,13 @@ const mexicoDate = new Intl.DateTimeFormat("en-US", {
 });
 
 const seasons = {
-  navidad: { id: "navidad", icon: "❄" },
-  anoNuevo: { id: "ano-nuevo", icon: "✦" },
-  amor: { id: "amor", icon: "♥" },
-  madres: { id: "madres", icon: "✿" },
-  padres: { id: "padres", icon: "✦" },
-  independencia: { id: "independencia", icon: "★" },
-  muertos: { id: "muertos", icon: "✿" },
+  navidad: { id: "navidad", particles: ["❄", "❅", "❆", "✦"] },
+  anoNuevo: { id: "ano-nuevo", particles: ["✦", "✧", "★", "✧"] },
+  amor: { id: "amor", particles: ["♥", "♡", "✦", "♡"] },
+  madres: { id: "madres", particles: ["✿", "❀", "✽", "❀"] },
+  padres: { id: "padres", particles: ["★", "✦", "◇", "✧"] },
+  independencia: { id: "independencia", particles: ["★", "✦", "●", "✧"] },
+  muertos: { id: "muertos", particles: ["✿", "✺", "❁", "✽"] },
 };
 
 export function getSeasonForDate(date = new Date()) {
@@ -38,28 +38,32 @@ function isFathersDayWeek(year, day) {
   return day >= thirdSunday - 3 && day <= thirdSunday + 1;
 }
 
-export function applySeasonalAccent(date = new Date()) {
+export function applySeasonalDecoration(date = new Date()) {
   const season = getSeasonForDate(date);
   const hero = document.querySelector("main > section:first-of-type");
-  if (!season || !hero || hero.querySelector(".seasonal-accent")) return;
+  if (!season || !hero || hero.querySelector(".seasonal-effects")) return;
 
   const stylesheet = document.createElement("link");
   stylesheet.rel = "stylesheet";
-  stylesheet.href = new URL("./seasonal.css?v=1", import.meta.url).href;
+  stylesheet.href = new URL("./seasonal.css?v=2", import.meta.url).href;
   document.head.append(stylesheet);
 
   hero.classList.add("seasonal-host");
   hero.dataset.season = season.id;
 
-  const accent = document.createElement("span");
-  accent.className = "seasonal-accent";
-  accent.setAttribute("aria-hidden", "true");
-  accent.textContent = season.icon;
-  hero.append(accent);
+  const effects = document.createElement("div");
+  effects.className = "seasonal-effects";
+  effects.setAttribute("aria-hidden", "true");
+  for (let index = 0; index < 8; index += 1) {
+    const particle = document.createElement("span");
+    particle.textContent = season.particles[index % season.particles.length];
+    effects.append(particle);
+  }
+  hero.prepend(effects);
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", applySeasonalAccent, { once: true });
+  document.addEventListener("DOMContentLoaded", applySeasonalDecoration, { once: true });
 } else {
-  applySeasonalAccent();
+  applySeasonalDecoration();
 }
