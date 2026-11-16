@@ -1,0 +1,48 @@
+.seasonal-host {
+  position: relative;
+}
+
+.seasonal-accent {
+  position: absolute;
+  z-index: 3;
+  top: clamp(6.5rem, 18%, 10rem);
+  right: clamp(1rem, 5vw, 4rem);
+  display: grid;
+  width: 3.25rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: rgba(8, 10, 15, .55);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .2);
+  color: #e4d6aa;
+  font-size: 1.4rem;
+  line-height: 1;
+  opacity: .8;
+  pointer-events: none;
+  animation: seasonal-drift 5s ease-in-out infinite;
+}
+
+.seasonal-accent::after {
+  position: absolute;
+  top: -.45rem;
+  right: -.35rem;
+  content: "✦";
+  font-size: .75rem;
+}
+
+[data-season="navidad"] > .seasonal-accent { color: #b7dfc8; }
+[data-season="ano-nuevo"] > .seasonal-accent { color: #e9c873; }
+[data-season="amor"] > .seasonal-accent { color: #f3a5bd; }
+[data-season="madres"] > .seasonal-accent { color: #edb5cf; }
+[data-season="padres"] > .seasonal-accent { color: #a9c7ed; }
+[data-season="independencia"] > .seasonal-accent { color: #e6d9a1; }
+[data-season="muertos"] > .seasonal-accent { color: #f0ad4e; }
+
+@keyframes seasonal-drift {
+  50% { transform: translateY(-5px) rotate(5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seasonal-accent { animation: none; }
+}

@@ -15,3 +15,7 @@ Publica el contenido de esta carpeta en la raíz de un hosting estático compati
 Antes de habilitar el diseñador en producción, ejecuta una vez `INSTALAR-v6.1-SINCRONIA-PUBLICA.sql` en Supabase > SQL Editor. Su consulta de verificación debe confirmar `rpc_v7_incluye_design_config = true`, el bucket `invitation-assets` como público y los MIME de los archivos que se vayan a usar. El usuario editor también necesita un perfil activo con rol `owner` o `staff` y permisos para administrar el evento.
 
 Tras publicar, abre un evento de prueba, guarda un cambio y revisa la invitación con su enlace público en celular y escritorio. Confirma también las cargas de imagen/audio/video que vaya a utilizar el sitio; no se deben probar con invitaciones reales sin autorización.
+
+### Detalles de temporada
+
+El sitio público aplica un adorno visual discreto según el calendario de México: San Valentín (1–14 de febrero), Día de las Madres (1–10 de mayo), Día del Padre (la semana de esa fecha), Independencia (10–16 de septiembre), Día de Muertos (24 de octubre–2 de noviembre), Navidad (15 de noviembre–25 de diciembre) y Año Nuevo (26 de diciembre–6 de enero). Se limita a la portada de cada página pública; no cambia el diseño de las invitaciones de clientes.

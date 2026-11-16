@@ -1,5 +1,6 @@
 import { initializeCatalog } from "./catalogo.js";
 import { api, ApiError } from "./supabase.js";
+import "./temporada.js?v=1";
 
 const LNStudio = {
   email: "lnstudio.eventos@gmail.com",
